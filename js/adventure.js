@@ -468,10 +468,11 @@ function saveProgress(){
  lastAnnouncedRewards=new Set(progress.rewardedRegions);
  localSave();render();
  if(newlyRewarded.length){
-  showCoinRewardToast(newlyRewarded);
-  // Trigger one explicit, reviewable region reward screen. Existing progress
-  // records prevent replay/reset from awarding coins or a badge twice.
-  Promise.resolve().then(()=>window.vqcAdventureUX?.regionCompleted?.(newlyRewarded));
+  const inJourney=$('vqcModeWorld')?.getAttribute('aria-hidden')!=='true';
+  if(inJourney&&typeof window.vqcAdventureUX?.regionCompleted==='function'){
+   // One readable victory screen replaces stacked coin/badge notifications.
+   Promise.resolve().then(()=>window.vqcAdventureUX?.regionCompleted?.(newlyRewarded));
+  }else showCoinRewardToast(newlyRewarded);
  }
  clearTimeout(saveTimer);
  const ref=cloudRef();
@@ -694,7 +695,8 @@ function renderBadges(){
  }
  if(lastBadgeUnlocks){
   const gained=earned.findIndex((value,i)=>value&&!lastBadgeUnlocks[i]);
-  if(gained>=0){
+  if(gained>=0&&(!window.vqcAdventureUX?.regionCompleted||
+    $('vqcModeWorld')?.getAttribute('aria-hidden')==='true')){
    const toast=$('vqcBadgeToast');
    if(toast){
     toast.textContent='🏅 Chúc mừng! Em nhận được huy hiệu '+ADVENTURE_BADGES[gained].name+'!';
