@@ -431,6 +431,9 @@
    announcedRegions.add(region);
    pendingRegionRewards.push(region);
   }
+  // In the forest the 6/6-stars dialog must appear first. Only reveal the
+  // full-region trophy after its "Tiếp tục" action (or dismissal).
+  if($('starRewardOverlay')?.classList.contains('open')&&details()?.region===1)return;
   if(!victoryDialog||victoryDialog.hidden)presentRegionReward();
  }
  function makePicker(){
@@ -465,24 +468,57 @@
   picker.hidden=false;picker.querySelector('.vqc-journey-picker__head button')?.focus();
  }
  function hidePicker(){if(regionPicker)regionPicker.hidden=true;}
+ async function continueForestAfterSixStars(){
+  const overlay=$('starRewardOverlay');
+  if(!isWorld()||details()?.region!==1){
+   await window.closeStarReward?.();
+   return;
+  }
+  if(!overlay?.classList.contains('open'))return;
+  // The six-star reward must be acknowledged before entering another exercise.
+  // Classroom use still follows core.js, not this individual island navigation.
+  await window.closeStarReward?.();
+  if(overlay.classList.contains('open'))return;
+  const snapshot=details();
+  if(pendingRegionRewards.length){
+   presentRegionReward();
+   sync();
+   return;
+  }
+  // Find the next unfinished forest lesson; already-earned lessons do not pay again.
+  celebration=null;
+  nav()?.next();
+  sync();
+ }
  function renderForestReward(snapshot){
   const overlay=$('starRewardOverlay'),card=overlay?.querySelector('.reward-card');
   if(!card)return;
+  const inForest=snapshot.active&&snapshot.region===1;
+  const primary=card.querySelector('.reward-close');
+  if(primary){
+   primary.textContent=inForest?'Tiếp tục →':'Tiếp tục học ♟️';
+   primary.onclick=inForest?continueForestAfterSixStars:()=>window.closeStarReward?.();
+  }
   let links=card.querySelector('.vqc-journey-forest-reward');
   if(!links){
    links=node('div','vqc-journey-forest-reward');
-   links.append(button('⭐ Bài nhặt sao tiếp →',()=>{
-    if(typeof window.closeStarReward==='function')window.closeStarReward();
-    else overlay.classList.remove('open');
-    nextLesson();
-   },'vqc-journey-primary'),button('🗺️ Chọn vùng',()=>{
-    if(typeof window.closeStarReward==='function')window.closeStarReward();
-    else overlay.classList.remove('open');
-    showPicker();
-   },'vqc-journey-subtle'));
+   links.append(
+    button('📚 Danh sách bài',async()=>{
+     await window.closeStarReward?.();
+     if(overlay.classList.contains('open'))return;
+     celebration=null;nav()?.menu();sync();
+     if(pendingRegionRewards.length)presentRegionReward();
+    },'vqc-journey-subtle'),
+    button('🗺️ Chọn vùng',async()=>{
+     await window.closeStarReward?.();
+     if(overlay.classList.contains('open'))return;
+     if(pendingRegionRewards.length)presentRegionReward();
+     else showPicker();
+    },'vqc-journey-subtle')
+   );
    card.append(links);
   }
-  links.hidden=!(snapshot.region===1&&snapshot.active);
+  links.hidden=!inForest;
  }
  function sync(){
   if(!ready||!nav())return;
@@ -499,6 +535,15 @@
   renderCategoryMenus(snapshot);renderForestSwitcher(snapshot);renderHarborMenu(snapshot);
   renderOverlayBars(snapshot);
   renderForestReward(snapshot);
+  // Closing the forest reward with Esc also makes its earned region trophy
+  // accessible; the announcement is not lost behind the previous overlay.
+  if(pendingRegionRewards.length&&!$('starRewardOverlay')?.classList.contains('open')&&
+    (!victoryDialog||victoryDialog.hidden)){
+   Promise.resolve().then(()=>{
+    if(pendingRegionRewards.length&&!$('starRewardOverlay')?.classList.contains('open'))
+     presentRegionReward();
+   });
+  }
  }
  function completed(event){
   if(!isWorld()||!event||event.region<0)return;
