@@ -14,6 +14,48 @@ const THEMES=[
 ];
 // Far-side pawns create different, legally checked positions without reproducing the book.
 const EXTRA=['e2','f2','g2','h2','e3','f3','g3','h3','e4','f4','g4','h4','e5','f5','g5','h5','e6','f6','g6','h6','d2','d3','d4','d5'];
+
+/* Expand each mating motif through meaningful starting squares and supporting
+   pieces before adding optional background pawns. Every final FEN is rechecked
+   with chess.js, so a variant is kept only if the intended move really mates. */
+const SEED_MODELS=THEMES.map((base,theme)=>{
+ const variants=[];
+ const add=(pieces,from,extra={})=>{if(!pieces[from]||pieces[from]==='k')return;variants.push({...base,pieces,from,...extra});};
+ if(theme===0){
+  for(const king of ['c6','c7','b6']){
+   for(const from of ['b6','b5','b4','b3','b2','b1','a6','a7','c7','d7','e7','f7','g7','h7','c8','d5','e4','f3','g2','h1']){
+    if(from===king)continue;
+    add({a8:'k',[king]:'K',[from]:'Q'},from);
+   }
+  }
+ }else if(theme===1){
+  for(const king of ['c6','c7','b6']){
+   for(const from of ['a1','a2','a3','a4','a5','a6'])
+    add({a8:'k',a7:'p',b7:'R',[king]:'K',[from]:'R'},from);
+  }
+ }else if(theme===2){
+  for(const from of ['a6','c6','d5','e4','f3','g2','h1'])
+   add({a8:'k',a7:'p',b7:'p',c7:'K',[from]:'B'},from);
+  add({a8:'k',a7:'p',b7:'p',c6:'K',d7:'N',a6:'B'},'a6');
+ }else if(theme===3){
+  for(const guard of ['e7','f6','h6']){
+   for(const from of ['h6','d8','d6','e5','g5']){
+    if(guard===from)continue;
+    add({h8:'k',g6:'K',[guard]:'N',[from]:'N'},from);
+   }
+  }
+ }else if(theme===4){
+  for(const victim of ['r','n']){
+   add({a8:'k',b8:victim,c7:'K',a7:'P'},'a7');
+   add({a8:'k',b8:victim,c6:'K',d7:'N',a7:'P'},'a7');
+   for(const protect of ['c7','d6','e5','f4','g3','h2'])
+    add({a8:'k',b8:victim,c6:'K',a7:'P',[protect]:'B'},'a7');
+   for(const protect of ['b1','b2','b3','b4','b5','b6','b7'])
+    add({a8:'k',b8:victim,c6:'K',a7:'P',[protect]:'R'},'a7');
+  }
+ }
+ return variants.length?variants:[base];
+});
 let puzzles=null,idx=0,game=null,selected=null,hint=false,feedback='',solved=false,failed=false,lastMove=null,isOpen=false;
 const done=new Set();
 let receivedKey='',savedFor='';
@@ -32,9 +74,10 @@ function catalog(){
  for(const extras of combinations){
   for(let theme=0;theme<THEMES.length;theme++){
    if(groups[theme].length>=100)continue;
-   const model=THEMES[theme];
-   for(let transform=0;transform<4;transform++){
+   for(const model of SEED_MODELS[theme]){
     if(groups[theme].length>=100)break;
+    for(let transform=0;transform<4;transform++){
+     if(groups[theme].length>=100)break;
     const position={...model.pieces};
     if(extras.some(s=>position[s]))continue;
     for(const s of extras)position[s]='p';
@@ -53,6 +96,7 @@ function catalog(){
     if(!move||!candidate.in_checkmate())continue;
     groups[theme].push({fen,from,to,promotion:model.promotion||null,label:model.label,color:turn,answer:move.san});
     seen.add(fen);
+    }
    }
   }
   if(groups.every(g=>g.length===100))break;
