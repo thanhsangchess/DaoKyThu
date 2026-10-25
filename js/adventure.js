@@ -1271,12 +1271,20 @@ function closeForest(){
 window.vqcAdventureForestBack=closeForest;
 window.vqcAdventureForestExit=closeForestPiece;
 window.vqcAdventurePieceCompleted=function(piece){
- if(!forestActive||forestPiece!==piece||progress.forestDone.includes(piece))return;
- progress.forestDone.push(piece);
- progress=sanitize(progress);
- saveProgress();
- window.vqcAdventureUX?.completed({region:1,stars:6,label:FOREST_PIECES.find(p=>p[0]===piece)?.[2]||'Nhặt sao'});
- // Preserve the original 6-star reward dialog and its existing continue button.
+ if(!forestActive||forestPiece!==piece)return;
+ const wasCompleted=progress.forestDone.includes(piece);
+ const label=FOREST_PIECES.find(p=>p[0]===piece)?.[2]||'Nhặt sao';
+ // Every successful 6/6 run deserves completion feedback, including replays.
+ // Only the first-ever run changes progress, coins, stars or regional rewards.
+ if(!wasCompleted){
+  progress.forestDone.push(piece);
+  progress=sanitize(progress);
+  saveProgress();
+  window.vqcAdventureUX?.completed({region:1,stars:6,label});
+ }
+ window.vqcAdventureUX?.forestRunCompleted?.({
+  region:1,piece,label,firstTime:!wasCompleted,score:6
+ });
 };
 window.vqcAdventureLeaveWorld=function(){
  closeRewardCollection();
