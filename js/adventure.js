@@ -1422,6 +1422,14 @@ function adventureGoTask(region,kind,key){
  const selected=adventureGroups(region).find(g=>g.kind===kind)?.items.find(item=>item.key===String(key));
  if(!selected||selected.locked)return false;
  if(adventureRegionIndex()!==region&&!adventureGoRegion(region))return false;
+ // Close the previous exercise through its own controller before switching:
+ // capture timers, reply animations and board listeners must not leak to the new task.
+ for(const [id,fn] of [
+  ['captureOverlay','captureClose'],['freeCaptureOverlay','freeCaptureClose'],
+  ['defenseOverlay','defenseClose'],['escapeOverlay','escapeClose']
+ ]){
+  if($(id)?.classList.contains('open')&&typeof window[fn]==='function')window[fn]();
+ }
  const num=Number(key);
  if(region===0)showStage(num);
  if(region===1)openForestPiece(String(key));
