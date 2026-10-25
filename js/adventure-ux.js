@@ -244,9 +244,12 @@
    const task=document.createElement('select');task.setAttribute('aria-label','Chọn bài tập');
    group.className='vqc-journey-select';task.className='vqc-journey-select';
    const actions=node('div','vqc-journey-taskbar__actions');
+   const previousButton=button('← Bài trước',()=>{
+    celebration=null;nav()?.previous?.();sync();
+   },'vqc-journey-subtle');
+   const nextButton=button('Bài tiếp →',()=>nextLesson(),'vqc-journey-primary');
    actions.append(
-    button('← Bài trước',()=>{celebration=null;nav()?.previous?.();sync();},'vqc-journey-subtle'),
-    button('Bài tiếp →',()=>nextLesson(),'vqc-journey-primary'),
+    previousButton,nextButton,
     button('📚 Danh sách bài',()=>{celebration=null;nav()?.menu();sync();},'vqc-journey-subtle'),
     button('🗺️ Đổi vùng',showPicker,'vqc-journey-subtle'));
    fields.append(group,task);
@@ -254,6 +257,7 @@
    const completionBox=node('div','vqc-journey-completion');completionBox.hidden=true;
    toolbar.append(completionBox);
    toolbar._group=group;toolbar._task=task;toolbar._completion=completionBox;
+   toolbar._previous=previousButton;toolbar._next=nextButton;
    group.addEventListener('change',()=>{
     const snap=details();
     const grp=nav()?.groups(snap.region)?.find(x=>x.kind===group.value);
@@ -308,6 +312,10 @@
     const opt=document.createElement('option');opt.value=item.key;opt.disabled=item.locked;opt.textContent=item.label+(item.done?' ✓':'');task.append(opt);
    }
    if(current?.group===group.value)task.value=current.key;
+   const all=groups.flatMap(g=>g.items.map(item=>({...item,kind:g.kind})));
+   const position=all.findIndex(item=>item.kind===current?.group&&item.key===current?.key);
+   bar._previous.disabled=position<=0;
+   bar._next.textContent=all.every(item=>item.done||item.locked)?'✓ Xem danh sách':'Bài tiếp →';
    renderCompletion(bar._completion,snapshot,config.region);
   }
  }
