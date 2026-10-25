@@ -50,7 +50,7 @@
 <link rel="stylesheet" href="./css/mobile-home.css?v=20261023-mobile7">
 <link rel="stylesheet" href="./css/lone-king-mate.css?v=20261023-2">
 <link rel="stylesheet" href="./css/chess-exercise-layout.css?v=20261025-fit-board-v1">
-<link rel="stylesheet" href="./css/mate-one-pdf-100.css?v=20261025-design-draw-v2">
+<link rel="stylesheet" href="./css/mate-one-pdf-100.css?v=20261025-basic-v1">
 </head>
 
 
@@ -721,6 +721,7 @@
 
     <div class="lesson" id="escapeMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('escapeOpen',0)"><div class="lesson-icon">🛡️</div> Thoát chiếu</div>
     <div class="lesson" id="checkOneMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('checkOneOpen',0)"><div class="lesson-icon">⚡</div> Chiếu trong 1 nước</div>
+    <div class="lesson" id="mateOneBasicMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('vqcMateOneBasicOpen',0)"><div class="lesson-icon">♕</div> Chiếu hết trong 1 nước (Cơ bản)</div>
     <div class="lesson" id="mateOnePdfMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('vqcMateOneOpen',0)"><div class="lesson-icon">♛</div> Chiếu hết trong 1 nước (Nâng cao)</div>
     <div class="lesson" id="pawnGamesMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('pawnGameOpen',0)"><div class="lesson-icon">♟️</div> Trò chơi Tốt và Mã</div>
     <div class="lesson" id="defenseAttackMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('defenseOpenNew',0)"><div class="lesson-icon">🛡️</div> Phòng thủ quân bị tấn công</div>
@@ -1275,7 +1276,8 @@ function vqcToggleLoginPassword(){const el=document.getElementById('accountLogin
   freeCaptureMenu:['freeCaptureOpen','freeCaptureOverlay'],
   captureMenu:['captureOpen','captureOverlay'],
   loneKingMateMenu:['loneKingMateOpen','vqcLoneMateOverlay'],
-  mateOnePdfMenu:['vqcMateOneOpen','vqcMateOneOverlay']
+  mateOnePdfMenu:['vqcMateOneOpen','vqcMateOneOverlay'],
+   mateOneBasicMenu:['vqcMateOneBasicOpen','vqcMateOneBasicOverlay']
  };
  window.vqcOpenChallengeSafe=function(name,index){
   const found=Object.entries(targetMap).find(([,v])=>v[0]===name);
@@ -1290,7 +1292,7 @@ function vqcToggleLoginPassword(){const el=document.getElementById('accountLogin
  }
  function vqcChallengeLaunch(id,index){
   const pair=targetMap[id];if(!pair)return;
-  if(id==='mateOnePdfMenu'&&typeof roomRef!=='undefined'&&roomRef&&role==='student'){
+  if((id==='mateOnePdfMenu'||id==='mateOneBasicMenu')&&typeof roomRef!=='undefined'&&roomRef&&role==='student'){
     if(typeof vqcNotify==='function')vqcNotify('Giáo viên chọn bài; em có thể giải trực tiếp trên bàn cờ đang đồng bộ.','warning');
     return;
   }
@@ -1433,6 +1435,34 @@ window.vqcCloseMembershipSafe=function(){
 </div>
 <script src="./js/mate-one-pdf-100-data.js?v=20261025-source1"></script>
 <script src="./js/mate-one-pdf-100.js?v=20261025-source1"></script>
+<!-- 10 very easy original mate-in-one exercises, exactly 3 pieces per diagram. -->
+<div id="vqcMateOneBasicOverlay" role="dialog" aria-modal="true" aria-labelledby="vqcMateOneBasicTitle">
+ <div class="vqc-mateone-dialog">
+  <div class="vqc-mateone-top">
+   <div><h2 id="vqcMateOneBasicTitle">♕ Chiếu hết trong 1 nước (Cơ bản)</h2><p id="vqcMateOneBasicSubtitle">10 bài luyện tập dễ · Chỉ 3 quân trên bàn cờ</p></div>
+   <button type="button" id="vqcMateOneBasicClose" aria-label="Đóng bài tập">✕ Đóng</button>
+  </div>
+  <div class="vqc-mateone-layout">
+   <div id="vqcMateOneBasicBoard" class="vqc-mateone-board" aria-label="Bàn cờ chiếu hết 1 nước"></div>
+   <section class="vqc-mateone-side">
+    <div id="vqcMateOneBasicProgress" class="vqc-mateone-progress">Đã hoàn thành 0/10 bài</div>
+    <p id="vqcMateOneBasicFeedback" class="vqc-mateone-feedback" role="status" aria-live="polite">Hãy tìm nước chiếu hết!</p>
+    <div class="vqc-mateone-controls">
+     <button type="button" id="vqcMateOneBasicPrev">← Bài trước</button>
+     <button type="button" id="vqcMateOneBasicNext">Bài tiếp →</button>
+     <button type="button" id="vqcMateOneBasicReset">↻ Thử lại</button>
+     <button type="button" id="vqcMateOneBasicHint">💡 Gợi ý</button>
+    </div>
+    <div class="vqc-mateone-jump"><label for="vqcMateOneBasicJump">Chuyển đến bài</label>
+     <input id="vqcMateOneBasicJump" type="number" min="1" max="10" value="1" inputmode="numeric">
+     <button type="button" id="vqcMateOneBasicGo">Chuyển</button>
+    </div>
+    <p class="vqc-mateone-rules">Mỗi bài chỉ có 2 Vua và 1 quân Hậu hoặc Xe. Hãy tìm nước chiếu hết, không chỉ chiếu Vua! Bật công cụ Vẽ để khoanh ô hoặc kẻ mũi tên; nét vẽ của giáo viên sẽ đồng bộ tới học sinh.</p>
+   </section>
+  </div>
+ </div>
+</div>
+<script src="./js/mate-one-basic-10.js?v=20261025-basic-v1"></script>
 </body>
 
 </html>
