@@ -14,6 +14,7 @@
   {overlay:'escapeOverlay',dialog:'.escape-dialog',region:4,kind:null}
  ];
  let ready=false,selectedTabs={},lastTaskId='',celebration=null,regionPicker=null,questBar=null;
+ const pendingRegionRewards=[],announcedRegions=new Set();let victoryDialog=null,victoryReturnFocus=null;
 
  const node=(tag,cl,text)=>{
   const el=document.createElement(tag);
@@ -33,7 +34,8 @@
  function format(n){return new Intl.NumberFormat('vi-VN').format(n);}
  function completion(region){const s=details();return s?.regions?.[region];}
  function nextRegion(region){
-  const next=(region+1)%5;
+  const next=region+1;
+  if(next>=5){nav()?.map();sync();return;}
   openRegion(next);
  }
  function openRegion(region){
@@ -236,8 +238,9 @@
    group.className='vqc-journey-select';task.className='vqc-journey-select';
    const actions=node('div','vqc-journey-taskbar__actions');
    actions.append(
-    button('📚 Danh sách bài',()=>{celebration=null;nav()?.menu();sync();},'vqc-journey-subtle'),
+    button('← Bài trước',()=>{celebration=null;nav()?.previous?.();sync();},'vqc-journey-subtle'),
     button('Bài tiếp →',()=>nextLesson(),'vqc-journey-primary'),
+    button('📚 Danh sách bài',()=>{celebration=null;nav()?.menu();sync();},'vqc-journey-subtle'),
     button('🗺️ Đổi vùng',showPicker,'vqc-journey-subtle'));
    fields.append(group,task);
    toolbar.append(title,fields,actions);
@@ -253,7 +256,14 @@
     }
     if(grp){
      const first=grp.items.find(x=>!x.done&&!x.locked)||grp.items.find(x=>!x.locked);
-     if(first)task.value=first.key;
+     if(first){
+      task.value=first.key;
+      celebration=null;
+      // Switching task category jumps to its first unfinished exercise;
+      // the learner never needs to close the current dialog.
+      nav()?.task(snap.region,grp.kind,first.key);
+      sync();
+     }
     }
    });
    task.addEventListener('change',()=>{
@@ -321,6 +331,92 @@
    if(s?.region>=0&&s.regions[s.region]?.rewarded)showPicker();
   }
   sync();
+ }
+ function ensureVictoryDialog(){
+  if(victoryDialog)return victoryDialog;
+  const root=node('div','vqc-journey-victory');
+  root.id='vqcJourneyVictory';root.hidden=true;
+  const scrim=node('div','vqc-journey-victory__scrim');
+  scrim.addEventListener('click',closeVictory);
+  const panel=node('section','vqc-journey-victory__panel');
+  panel.setAttribute('role','dialog');
+  panel.setAttribute('aria-modal','true');
+  panel.setAttribute('aria-labelledby','vqcJourneyVictoryTitle');
+  panel.setAttribute('aria-describedby','vqcJourneyVictoryDescription');
+  const header=node('div','vqc-journey-victory__header');
+  header.append(node('strong','','🏆 HOÀN THÀNH VÙNG'),
+   button('✕ Đóng',closeVictory,'vqc-journey-subtle'));
+  const visual=node('div','vqc-journey-victory__visual');
+  visual.id='vqcJourneyVictoryIcon';visual.setAttribute('aria-hidden','true');
+  const title=node('h2','vqc-journey-victory__title');title.id='vqcJourneyVictoryTitle';
+  const description=node('p','vqc-journey-victory__description');description.id='vqcJourneyVictoryDescription';
+  const prizes=node('div','vqc-journey-victory__prizes');prizes.id='vqcJourneyVictoryPrizes';
+  const earned=node('p','vqc-journey-victory__note',
+   'Xu, sao và huy hiệu được tính theo kết quả học tập. Mỗi Vùng nhận thưởng đúng một lần, không cần quay thưởng.');
+  const actions=node('div','vqc-journey-victory__actions');actions.id='vqcJourneyVictoryActions';
+  panel.append(header,visual,title,description,prizes,earned,actions);
+  root.append(scrim,panel);document.body.append(root);
+  root.addEventListener('keydown',e=>{
+   if(e.key==='Escape'){e.preventDefault();closeVictory();}
+   if(e.key!=='Tab')return;
+   const focusable=Array.from(panel.querySelectorAll('button:not([disabled])'));
+   if(!focusable.length)return;
+   const first=focusable[0],last=focusable[focusable.length-1];
+   if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
+   else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
+  });
+  victoryDialog=root;return root;
+ }
+ function closeVictory(){
+  if(!victoryDialog||victoryDialog.hidden)return;
+  victoryDialog.hidden=true;
+  if(victoryReturnFocus?.isConnected)victoryReturnFocus.focus();
+  victoryReturnFocus=null;
+  if(pendingRegionRewards.length)Promise.resolve().then(presentRegionReward);
+ }
+ function presentRegionReward(){
+  if(!isWorld()||!pendingRegionRewards.length)return;
+  const region=pendingRegionRewards.shift();
+  const snap=details(),info=snap?.regions?.[region];
+  if(!info||!info.rewarded){if(pendingRegionRewards.length)presentRegionReward();return;}
+  const dialog=ensureVictoryDialog();
+  victoryReturnFocus=document.activeElement;
+  $('vqcJourneyVictoryIcon').textContent=info.icon;
+  $('vqcJourneyVictoryTitle').textContent='Chinh phục '+info.name+'!';
+  $('vqcJourneyVictoryDescription').textContent='Em đã hoàn thành '+info.completed+'/'+info.total+
+   ' bài trong Vùng '+(region+1)+'. Đây là phần thưởng đã đạt được của em.';
+  const prizes=$('vqcJourneyVictoryPrizes');prizes.replaceChildren();
+  for(const prize of [
+   ['🪙','+'+format(info.coins)+' xu','Thưởng hoàn thành vùng'],
+   ['🏅',info.badge,'Huy hiệu vĩnh viễn'],
+   ['⭐',format(info.stars)+' sao','Thành tích tích lũy tại vùng'],
+   ['🎁','Rương vùng '+(region+1),'Đã mở khóa']
+  ]){
+   const tile=node('div','vqc-journey-victory__prize');
+   tile.append(node('span','vqc-journey-victory__prize-icon',prize[0]));
+   const txt=node('span','');
+   txt.append(node('strong','',prize[1]),node('small','',prize[2]));
+   tile.append(txt);prizes.append(tile);
+  }
+  const actions=$('vqcJourneyVictoryActions');actions.replaceChildren();
+  actions.append(button('🏅 Xem huy hiệu',()=>{
+   closeVictory();$('vqcBadgeCollectionOpen')?.click();
+  },'vqc-journey-subtle'));
+  actions.append(button('📚 Ở lại vùng',closeVictory,'vqc-journey-subtle'));
+  actions.append(button(region<4?'🧭 Khám phá vùng tiếp →':'🗺️ Về bản đồ',()=>{
+   closeVictory();if(region<4)nextRegion(region);else {nav()?.map();sync();}
+  },'vqc-journey-primary'));
+  dialog.hidden=false;
+  actions.querySelector('.vqc-journey-primary')?.focus();
+ }
+ function regionCompleted(regions){
+  if(!Array.isArray(regions)||!isWorld())return;
+  for(const region of regions){
+   if(!Number.isInteger(region)||region<0||region>=5||announcedRegions.has(region))continue;
+   announcedRegions.add(region);
+   pendingRegionRewards.push(region);
+  }
+  if(!victoryDialog||victoryDialog.hidden)presentRegionReward();
  }
  function makePicker(){
   if(regionPicker)return regionPicker;
@@ -410,6 +506,9 @@
   }
   sync();
  }
- window.vqcAdventureUX={refresh:sync,completed,showPicker,next:nextLesson,taskStarted:()=>{celebration=null;}};
+ window.vqcAdventureUX={
+  refresh:sync,completed,regionCompleted,showPicker,next:nextLesson,
+  taskStarted:()=>{celebration=null;}
+ };
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
