@@ -1,0 +1,127 @@
+/* Đảo Kỳ Thủ — friendly and transparent journey navigation/reward UI.
+   No new rewards or timers; all earned items come from adventure.js progress. */
+#vqcJourneyHeader{
+ margin:12px 0 17px;padding:15px;border-radius:20px;
+ background:linear-gradient(145deg,#f9fdff,#eaf6ff);
+ border:1px solid #b9def3;box-shadow:0 7px 23px #17497916;
+ color:#285376;
+}
+.vqc-journey-heading{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:9px;margin-bottom:12px}
+.vqc-journey-header__title{display:flex;flex-direction:column;gap:3px}
+.vqc-journey-header__title strong{font-size:19px;color:#164e85}
+.vqc-journey-header__title span{font-size:12px;color:#567996}
+.vqc-journey-header__actions{display:flex;flex-wrap:wrap;gap:7px}
+.vqc-journey-button{
+ min-height:42px;padding:9px 13px;line-height:1.25;cursor:pointer;
+ border-radius:12px;border:1px solid #bed9ed;background:#fff;
+ color:#285878;font-size:13px;font-weight:800;font-family:inherit;
+ transition:background .12s ease,border-color .12s ease;
+}
+.vqc-journey-button:hover{background:#e3f4ff;border-color:#73afe4}
+.vqc-journey-button:focus-visible,.vqc-journey-select:focus-visible{outline:3px solid #f2b74a;outline-offset:2px}
+.vqc-journey-button.vqc-journey-primary{background:#367fcd;color:white;border-color:#2e76c0}
+.vqc-journey-button.vqc-journey-primary:hover{background:#1e68b7}
+.vqc-journey-regions{
+ display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin-bottom:11px;
+}
+.vqc-journey-region{
+ min-width:0;display:flex;flex-direction:column;justify-content:center;align-items:center;
+ gap:4px;padding:10px 5px;border-radius:12px;
+ background:#fff;border:1px solid #c8e2f0;
+ color:#315c7b;font-weight:900;
+}
+.vqc-journey-region small{font-size:11px;font-weight:600;color:#5c7690}
+.vqc-journey-region.is-active{background:#e1f2ff;border:2px solid #4d99d8;box-shadow:0 3px 0 #b7dcf5}
+.vqc-journey-reward{background:white;border:1px solid #cee3f1;border-radius:13px;padding:12px}
+.vqc-journey-reward__heading{display:flex;align-items:center;justify-content:space-between;gap:9px;flex-wrap:wrap}
+.vqc-journey-reward__heading strong{font-size:14px;color:#205b8c}
+.vqc-journey-reward__heading span{font-size:12px;font-weight:750;color:#8a621e}
+.vqc-journey-progress{margin:9px 0 7px;overflow:hidden;height:9px;border-radius:20px;background:#d7e6f3}
+.vqc-journey-progress>span{display:block;height:100%;background:linear-gradient(90deg,#6ac5ab,#329973);border-radius:20px;transition:width .2s ease}
+.vqc-journey-reward__footer{display:flex;gap:11px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.vqc-journey-reward__footer p{flex:1 1 240px;font-size:13px;line-height:1.45;color:#496980;margin:8px 0}
+.vqc-journey-reward__footer .vqc-journey-button{flex:0 0 auto}
+.vqc-journey-tabs{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:15px 0 12px;
+ padding:7px;border-radius:16px;background:#ffffffa3;border:1px solid #d1dfeb;
+}
+.vqc-journey-tab{min-width:0;min-height:53px;font-size:13px;white-space:normal;overflow-wrap:anywhere}
+.vqc-journey-tab.is-active{background:#2e7dbe;color:white;border-color:#1b70b1}
+.vqc-journey-tab.is-active:hover{background:#256fae}
+.vqc-adventure .vqc-canyon-category[hidden],
+.vqc-adventure .vqc-stage[hidden]{display:none!important}
+#vqcJourneyHarborTabs{margin-bottom:5px}
+.vqc-journey-forest-switch{
+ background:#f9fdff;border:1px solid #c0d9ef;border-radius:14px;
+ padding:11px;margin:9px 0 13px;
+}
+.vqc-journey-forest-switch>strong{display:block;color:#246287;font-size:14px;margin-bottom:9px}
+.vqc-journey-forest-switch__items{display:flex;flex-wrap:wrap;gap:7px}
+.vqc-journey-chip{min-height:41px;padding:8px 10px;font-size:12px;flex:1 1 120px}
+.vqc-journey-chip.is-active{background:#daf6e3;border-color:#65c293;color:#25724c}
+
+/* Task dialogue — compact navigator inside the original safe task modal. */
+.vqc-journey-taskbar[hidden],.vqc-journey-completion[hidden]{display:none!important}
+.vqc-journey-taskbar{
+ display:grid;gap:8px;border:1px solid #b8d9ee;
+ background:linear-gradient(115deg,#eef8ff,#f9fcff);
+ border-radius:13px;padding:10px;margin:8px 0 12px;color:#234b70;
+}
+.vqc-journey-taskbar__title{font-size:13px;font-weight:900;color:#285f91}
+.vqc-journey-taskbar__fields{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.vqc-journey-select{
+ min-width:0;width:100%;min-height:43px;padding:8px 10px;border:1px solid #a9cbe3;
+ border-radius:10px;background:#fff;color:#234d75;font:700 13px/1.2 inherit;
+}
+.vqc-journey-taskbar__actions{display:flex;flex-wrap:wrap;gap:6px}
+.vqc-journey-taskbar__actions .vqc-journey-button{flex:1 1 110px;min-height:41px;padding:8px}
+.vqc-journey-completion{
+ background:#fff9e6;border:1px solid #e9cf7f;padding:11px;border-radius:11px;margin-top:3px;
+}
+.vqc-journey-completion strong{color:#895a18;font-size:15px}
+.vqc-journey-completion p{font-size:13px;line-height:1.4;color:#786538;margin:6px 0 9px}
+.vqc-journey-forest-reward{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.vqc-journey-forest-reward[hidden]{display:none!important}
+.vqc-journey-forest-reward .vqc-journey-button{flex:1 1 140px}
+/* Region selector works even while any fullscreen chess challenge is open. */
+.vqc-journey-picker[hidden]{display:none!important}
+.vqc-journey-picker{position:fixed;inset:0;z-index:150000;display:grid;place-items:center;padding:15px}
+.vqc-journey-picker__scrim{position:absolute;inset:0;background:#081a31b9;backdrop-filter:blur(3px)}
+.vqc-journey-picker__panel{
+ position:relative;z-index:1;width:min(520px,100%);
+ max-height:min(80dvh,760px);display:flex;flex-direction:column;
+ background:#f8fcff;border:2px solid #bcdef4;border-radius:19px;
+ box-shadow:0 25px 65px #09274468;overflow:hidden
+}
+.vqc-journey-picker__head{
+ display:flex;justify-content:space-between;align-items:center;gap:9px;padding:14px 17px;
+ background:#e8f4ff;border-bottom:1px solid #c3dff2
+}
+.vqc-journey-picker__head strong{font-size:18px;color:#1d568c}
+.vqc-journey-picker__body{padding:11px;overflow-y:auto;display:grid;gap:8px}
+.vqc-journey-picker__region{width:100%;text-align:left;justify-content:start;white-space:normal;line-height:1.45;font-size:14px;min-height:51px}
+@media(max-width:720px){
+ #vqcJourneyHeader{padding:11px;margin:10px 0}
+ .vqc-journey-heading{align-items:start}
+ .vqc-journey-header__title strong{font-size:16px}
+ .vqc-journey-header__title span{font-size:11px}
+ .vqc-journey-header__actions .vqc-journey-button{min-height:38px;padding:7px;font-size:11px}
+ .vqc-journey-regions{display:flex;overflow-x:auto;gap:7px;padding-bottom:4px;scroll-snap-type:x mandatory}
+ .vqc-journey-region{flex:0 0 95px;scroll-snap-align:start;font-size:12px;min-height:60px}
+ .vqc-journey-region small{font-size:10px}
+ .vqc-journey-reward{padding:9px}
+ .vqc-journey-reward__footer .vqc-journey-button{width:100%}
+ .vqc-journey-tabs{gap:6px;padding:5px}
+ .vqc-journey-tab{min-height:48px;padding:7px 5px;font-size:12px}
+ .vqc-journey-forest-switch__items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .vqc-journey-chip{min-width:0}
+ .vqc-journey-taskbar{padding:8px;margin:5px 0 10px}
+ .vqc-journey-taskbar__fields{grid-template-columns:minmax(0,1fr);gap:6px}
+ .vqc-journey-select{font-size:16px}
+ .vqc-journey-taskbar__actions .vqc-journey-button{font-size:12px;min-height:43px;flex:1 1 100px}
+ .vqc-journey-picker{padding:0;align-items:end}
+ .vqc-journey-picker__panel{max-height:80dvh;width:100%;border-radius:19px 19px 0 0}
+}
+@media(prefers-reduced-motion:reduce){
+ .vqc-journey-button,.vqc-journey-progress>span{transition:none}
+}
