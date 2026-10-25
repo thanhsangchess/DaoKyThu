@@ -104,7 +104,7 @@
         closeSheet();
         item.click();  // Reuse real classroom and exercise logic (including live sync).
         const hasExercise = Array.from(document.querySelectorAll(
-          '.capture-overlay.open,.defense-overlay.open,.checkone-overlay.open,.escape-overlay.open,.freecapture-overlay.open,.mate-overlay.open,.mate3-overlay.open,.pawn-game-overlay.open'
+          '.capture-overlay.open,.defense-overlay.open,.checkone-overlay.open,.escape-overlay.open,.freecapture-overlay.open,.mate-overlay.open,.mate3-overlay.open,.pawn-game-overlay.open,#vqcMateOneOverlay.open'
         )).some(x => x.getClientRects().length);
         if (!hasExercise) window.requestAnimationFrame(() => board()?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
       }, icon);
