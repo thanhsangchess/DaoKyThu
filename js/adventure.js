@@ -344,7 +344,7 @@ function renderCoinWallet(){
   container.appendChild(row);
  });
  const obtained=$('vqcCoinEarnedRegions');
- if(obtained)obtained.textContent=progress.rewardedRegions.length+'/7 vùng';
+ if(obtained)obtained.textContent=progress.rewardedRegions.length+'/'+AVAILABLE_REWARD_REGIONS+' vùng đang mở';
 }
 function closeCoinWallet(){
  const modal=$('vqcCoinModal');
@@ -704,10 +704,10 @@ function renderBadges(){
 function renderTreasures(){
  const claimed=progress.rewardedRegions;
  if($('vqcTreasureOwnedCount'))$('vqcTreasureOwnedCount').textContent=String(claimed.length);
- const next=REGIONS.findIndex((_,i)=>!claimed.includes(i));
- const nextName=next<0?'Đã mở toàn bộ các rương':'Rương tiếp theo: Vùng '+(next+1)+' · '+REGIONS[next][1];
+ const next=REGIONS.slice(0,AVAILABLE_REWARD_REGIONS).findIndex((_,i)=>!claimed.includes(i));
+ const nextName=next<0?'Đã mở toàn bộ rương của 5 vùng hiện có':'Rương tiếp theo: Vùng '+(next+1)+' · '+REGIONS[next][1];
  if($('vqcTreasureSummary'))$('vqcTreasureSummary').textContent=
-  claimed.length+'/7 rương đã mở · '+nextName+'.';
+  claimed.length+'/'+AVAILABLE_REWARD_REGIONS+' rương hiện có đã mở · '+nextName+'.';
  const container=$('vqcTreasureList');
  if(!container)return;
  container.replaceChildren();
