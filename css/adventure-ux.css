@@ -214,3 +214,13 @@
  .vqc-journey-victory__prize strong{font-size:12px}
  .vqc-journey-victory__actions .vqc-journey-button{flex:1 1 100%;min-height:42px}
 }
+
+/* Always show what the learner can achieve next; progress is not time-limited. */
+.vqc-journey-next-milestone{
+ margin:6px 0 9px;font-size:12px;line-height:1.5;
+ color:#466f82;font-weight:700;
+}
+@media(min-width:721px){
+ /* Keep the lesson chooser available as learners scroll down its chess board. */
+ .vqc-journey-taskbar{position:sticky;top:6px;z-index:30}
+}
