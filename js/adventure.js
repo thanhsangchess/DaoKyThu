@@ -1462,6 +1462,17 @@ function adventureNextTask(){
  adventureReturnToMenu();
  return false;
 }
+function adventurePreviousTask(){
+ const region=adventureRegionIndex();
+ if(region<0)return false;
+ const items=adventureGroups(region).flatMap(g=>g.items.map(item=>({...item,kind:g.kind})));
+ const at=items.findIndex(item=>adventureTask?.region===region&&adventureTask.group===item.kind&&adventureTask.key===item.key);
+ if(at<0)return false;
+ // Review earlier exercises without erasing rewards or unlocking restricted tasks.
+ for(let i=at-1;i>=0;i--)if(!items[i].locked)
+  return adventureGoTask(region,items[i].kind,items[i].key);
+ return false;
+}
 function adventureShowMap(){
  adventureReturnToMenu();
  if(canyonActive)closeCanyon();
@@ -1499,7 +1510,7 @@ for(const [name,region,getGroup] of [
 
 window.vqcAdventureNavigator={
  snapshot:adventureSnapshot,groups:adventureGroups,go:adventureGoRegion,task:adventureGoTask,
- next:adventureNextTask,menu:adventureReturnToMenu,map:adventureShowMap
+ next:adventureNextTask,previous:adventurePreviousTask,menu:adventureReturnToMenu,map:adventureShowMap
 };
 
 window.vqcAdventureBack=closeRegion;
