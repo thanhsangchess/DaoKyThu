@@ -494,9 +494,11 @@
   const overlay=$('starRewardOverlay'),card=overlay?.querySelector('.reward-card');
   if(!card)return;
   const inForest=snapshot.active&&snapshot.region===1;
+  const title=$('starRewardTitle');
+  if(title)title.textContent=inForest?'🎉 Hoàn thành bài nhặt sao!':'Xuất sắc! Chúc mừng em!';
   const primary=card.querySelector('.reward-close');
   if(primary){
-   primary.textContent=inForest?'Tiếp tục →':'Tiếp tục học ♟️';
+   primary.textContent=inForest?'Tiếp tục':'Tiếp tục học ♟️';
    primary.onclick=inForest?continueForestAfterSixStars:()=>window.closeStarReward?.();
   }
   let links=card.querySelector('.vqc-journey-forest-reward');
