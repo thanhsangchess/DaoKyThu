@@ -1454,6 +1454,29 @@ function adventureShowMap(){
  window.vqcAdventureUX?.refresh();
  $('vqcAdventureMap')?.scrollIntoView({block:'start',behavior:'smooth'});
 }
+// Keep the menu in sync when a learner uses the original "Bài tiếp"
+// buttons inside existing exercise dialogs, not only the new journey toolbar.
+for(const [name,region,getGroup] of [
+ ['captureOpen',2,()=>canyonCurrentKind==='capture'?'capture':null],
+ ['freeCaptureOpen',2,()=>canyonCurrentKind==='freecapture'?'freecapture':null],
+ ['defenseOpen',3,i=>i<8?'defense':'defense-attack'],
+ ['escapeOpen',4,i=>i<7?'escape':'advanced']
+]){
+ const original=window[name];
+ if(typeof original!=='function')continue;
+ window[name]=function(index,...args){
+  const result=original.call(this,index,...args);
+  if(adventureRegionIndex()===region&&Number.isInteger(Number(index))){
+   const kind=getGroup(Number(index));
+   if(kind){
+    adventureTask={region,group:kind,key:String(index)};
+    window.vqcAdventureUX?.refresh();
+   }
+  }
+  return result;
+ };
+}
+
 window.vqcAdventureNavigator={
  snapshot:adventureSnapshot,groups:adventureGroups,go:adventureGoRegion,task:adventureGoTask,
  next:adventureNextTask,menu:adventureReturnToMenu,map:adventureShowMap
