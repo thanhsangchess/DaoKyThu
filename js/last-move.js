@@ -7,7 +7,7 @@
  const FILES='abcdefgh';
  const CELL_IDS=[
   'board','mateBoard','mate3Board','pvpBoard','captureBoard','freeCaptureBoard',
-  'defenseBoard','checkOneBoard','escapeBoard','pawnGameBoard','vqcLoneMateBoard',
+  'defenseBoard','checkOneBoard','escapeBoard','pawnGameBoard','vqcLoneMateBoard','vqcMateOneBoard',
   'vqcArcadeBoard','vqcDuelBoard','vqcAdventureBoard'
  ];
  const ID_SET=new Set(CELL_IDS);
