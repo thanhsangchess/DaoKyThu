@@ -378,7 +378,10 @@
   const snapshot=details();
   const task=snapshot.currentTask;
   const taskId=task?task.region+':'+task.group+':'+task.key:'';
-  if(taskId&&taskId!==lastTaskId){selectedTabs[task.region]=task.group;lastTaskId=taskId;}
+  if(taskId&&taskId!==lastTaskId){
+   if(lastTaskId)celebration=null; // A new exercise must not display the previous reward again.
+   selectedTabs[task.region]=task.group;lastTaskId=taskId;
+  }
   if(!taskId)lastTaskId='';
   const header=ensureHeader();if(!header)return;
   renderRegionBar(snapshot);renderReward(snapshot);
