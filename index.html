@@ -721,7 +721,7 @@
 
     <div class="lesson" id="escapeMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('escapeOpen',0)"><div class="lesson-icon">🛡️</div> Thoát chiếu</div>
     <div class="lesson" id="checkOneMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('checkOneOpen',0)"><div class="lesson-icon">⚡</div> Chiếu trong 1 nước</div>
-    <div class="lesson" id="mateOne500Menu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('vqcMateOneOpen',0)"><div class="lesson-icon">♛</div> Chiếu hết trong 1 nước · 500 bài</div>
+    <div class="lesson" id="mateOne500Menu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('vqcMateOneOpen',0)"><div class="lesson-icon">♛</div> Chiếu hết trong 1 nước · 100 bài (PDF)</div>
     <div class="lesson" id="pawnGamesMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('pawnGameOpen',0)"><div class="lesson-icon">♟️</div> Trò chơi Tốt và Mã</div>
     <div class="lesson" id="defenseAttackMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('defenseOpenNew',0)"><div class="lesson-icon">🛡️</div> Phòng thủ quân bị tấn công</div>
     <div class="lesson" id="defenseMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('defenseOpen',0)"><div class="lesson-icon">🛡️</div> Phòng thủ</div>
@@ -1404,18 +1404,18 @@ window.vqcCloseMembershipSafe=function(){
 <script src="./js/lone-king-mate.js?v=lastmove-20261023-1"></script>
 <script src="./js/last-move.js?v=20261023-unified6"></script>
 
-<!-- 500 original and chess.js-verified mate-in-one practice puzzles. -->
+<!-- The first 100 exercises, transcribed from the user-provided PDF. -->
 <div id="vqcMateOneOverlay" role="dialog" aria-modal="true" aria-labelledby="vqcMateOneTitle">
  <div class="vqc-mateone-dialog">
   <div class="vqc-mateone-top">
-   <div><h2 id="vqcMateOneTitle">♛ Chiếu hết trong 1 nước</h2><p id="vqcMateOneSubtitle">500 thế cờ luyện tập · Trắng hoặc Đen đi trước</p></div>
+   <div><h2 id="vqcMateOneTitle">♛ Chiếu hết trong 1 nước</h2><p id="vqcMateOneSubtitle">Bài 1–100 trong PDF · Trắng hoặc Đen đi trước</p></div>
    <button type="button" id="vqcMateOneClose" aria-label="Đóng bài tập">✕ Đóng</button>
   </div>
   <div class="vqc-mateone-layout">
    <div id="vqcMateOneBoard" class="vqc-mateone-board" aria-label="Bàn cờ chiếu hết 1 nước"></div>
    <section class="vqc-mateone-side">
     <h3>🎯 Tìm nước chiếu hết</h3>
-    <div id="vqcMateOneProgress" class="vqc-mateone-progress">Đã hoàn thành 0/500 bài</div>
+    <div id="vqcMateOneProgress" class="vqc-mateone-progress">Đã hoàn thành 0/100 bài</div>
     <p id="vqcMateOneFeedback" class="vqc-mateone-feedback" role="status" aria-live="polite">Hãy tìm nước chiếu hết!</p>
     <div class="vqc-mateone-controls">
      <button type="button" id="vqcMateOnePrev">← Bài trước</button>
@@ -1424,7 +1424,7 @@ window.vqcCloseMembershipSafe=function(){
      <button type="button" id="vqcMateOneHint">💡 Gợi ý</button>
     </div>
     <div class="vqc-mateone-jump"><label for="vqcMateOneJump">Chuyển đến bài</label>
-     <input id="vqcMateOneJump" type="number" min="1" max="500" value="1" inputmode="numeric">
+     <input id="vqcMateOneJump" type="number" min="1" max="100" value="1" inputmode="numeric">
      <button type="button" id="vqcMateOneGo">Chuyển</button>
     </div>
     <p class="vqc-mateone-rules">Chỉ tính đúng khi đối phương bị chiếu và không còn bất kỳ nước đi hợp lệ nào. Hòa Pat không được tính. Trong lớp, giáo viên chuyển bài; giáo viên và học sinh đều có thể giải trên bàn cờ được đồng bộ.</p>
@@ -1432,7 +1432,8 @@ window.vqcCloseMembershipSafe=function(){
   </div>
  </div>
 </div>
-<script src="./js/mate-one-500.js?v=20261025-b1"></script>
+<script src="./js/mate-one-pdf-100-data.js?v=20261025-source1"></script>
+<script src="./js/mate-one-pdf-100.js?v=20261025-source1"></script>
 </body>
 
 </html>
