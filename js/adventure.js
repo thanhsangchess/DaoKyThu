@@ -890,7 +890,7 @@ function openCanyon(){
  $('vqcCanyonScreen').hidden=false;
  canyonActive=true;canyonCurrentKind=null;
  canyonMessage('Chọn một trong 13 bài gốc để ôn luyện. Mỗi bài hoàn thành lần đầu nhận 3 sao!');
- renderCanyonCards();
+ renderCanyonCards();window.vqcAdventureUX?.refresh();
  $('vqcCanyonScreen').scrollIntoView({block:'start',behavior:'smooth'});
 }
 function openCanyonTask(kind,index){
@@ -907,6 +907,7 @@ function openCanyonTask(kind,index){
   overlay.classList.add('open');
   const name=kind==='capture'?'Bài '+(index+1):'Hình '+(43+index);
   canyonMessage('Đang luyện '+group.title+' · '+name+'. Hoàn thành bài để nhận 3 sao!');
+  window.vqcAdventureUX?.refresh();
  }catch(error){
   canyonCurrentKind=null;
   console.error('Không mở được thử thách ăn quân:',error);
@@ -999,7 +1000,7 @@ function openCrystal(){
  $('vqcCrystalScreen').hidden=false;
  crystalActive=true;
  crystalMessage('14 bài phòng thủ từ lớp học · 3 sao/bài · Hoàn thành cả vùng để nhận 4.000 xu và huy hiệu.');
- renderCrystalCards();
+ renderCrystalCards();window.vqcAdventureUX?.refresh();
  $('vqcCrystalScreen').scrollIntoView({block:'start',behavior:'smooth'});
 }
 function openCrystalTask(index){
@@ -1012,6 +1013,7 @@ function openCrystalTask(index){
   window.defenseOpen(index);
   overlay.classList.add('open');
   crystalMessage('Đang luyện '+crystalLabel(index)+' · Hãy tìm nước phòng thủ hợp lệ!');
+  window.vqcAdventureUX?.refresh();
  }catch(error){
   console.error('Không thể mở bài phòng thủ Vùng 4:',error);
   crystalMessage('Không thể mở '+crystalLabel(index)+': '+(error?.message||String(error)));
@@ -1096,7 +1098,7 @@ function openVolcano(){
  $('vqcVolcanoScreen').hidden=false;
  volcanoActive=true;
  volcanoMessage('13 bài Thoát chiếu gốc · 3 sao/bài · Chinh phục Vùng 5 để nhận 5.000 xu và huy hiệu Trung quân ái quốc!');
- renderVolcanoCards();
+ renderVolcanoCards();window.vqcAdventureUX?.refresh();
  $('vqcVolcanoScreen').scrollIntoView({block:'start',behavior:'smooth'});
 }
 function openVolcanoTask(index){
@@ -1109,6 +1111,7 @@ function openVolcanoTask(index){
   window.escapeOpen(index);
   overlay.classList.add('open');
   volcanoMessage('Đang luyện '+volcanoLabel(index)+' · Hãy tìm nước giải nguy cho Vua!');
+  window.vqcAdventureUX?.refresh();
  }catch(error){
   console.error('Không mở được bài Thoát chiếu ở Vùng 5:',error);
   volcanoMessage('Không mở được '+volcanoLabel(index)+': '+(error?.message||String(error)));
@@ -1204,7 +1207,7 @@ function openForest(){
  $('vqcForestScreen').hidden=false;
  $('vqcForestGame').hidden=true;
  forestActive=true;
- renderForestCards();
+ renderForestCards();window.vqcAdventureUX?.refresh();
 }
 function attachClassroomBoard(){
  const node=document.querySelector('section.center');
@@ -1232,6 +1235,7 @@ function openForestPiece(piece){
   $('vqcForestSelect').hidden=true;
   $('vqcForestGameTitle').textContent='🌳 Rừng Sao · '+FOREST_PIECES.find(x=>x[0]===piece)[2];
   startPieceGame(piece);
+  window.vqcAdventureUX?.refresh();
   $('vqcForestBoardMount').scrollIntoView({block:'nearest',behavior:'smooth'});
  }catch(e){
   console.error('Không mở được bài nhặt sao cũ',e);
@@ -1247,7 +1251,7 @@ function closeForestPiece(){
  restoreClassroomBoard();
  $('vqcForestGame').hidden=true;
  $('vqcForestSelect').hidden=false;
- renderForestCards();
+ renderForestCards();window.vqcAdventureUX?.refresh();
 }
 function closeForest(){
  if(forestPiece)closeForestPiece();
@@ -1296,7 +1300,7 @@ function showStage(index){
   const btn=document.createElement('button');btn.type='button';btn.className='vqc-adventure-answer';btn.textContent=String.fromCharCode(65+i)+'. '+opt;btn.onclick=()=>choose(i);choices.appendChild(btn);
  });
  $('vqcAdventureFeedback').hidden=true;$('vqcAdventureFeedback').textContent='';
- $('vqcAdventureNext').hidden=true;renderBoard(q.board);renderStages();
+ $('vqcAdventureNext').hidden=true;renderBoard(q.board);renderStages();window.vqcAdventureUX?.refresh();
 }
 function choose(choice){
  if(answerLocked)return;
@@ -1315,7 +1319,7 @@ function next(){
  if(current===QUESTIONS.length-1){closeRegion();return;}
  showStage(current+1);
 }
-function closeRegion(){$('vqcAdventurePlay').hidden=true;$('vqcAdventureMap').hidden=false;render();showAdventureMap();}
+function closeRegion(){$('vqcAdventurePlay').hidden=true;$('vqcAdventureMap').hidden=false;adventureTask=null;render();showAdventureMap();}
 // Share only non-identifying gameplay milestones with confirmed friends.
 window.vqcGetFriendStats=function(){
  if(window.accountProfile?.role!=='student'||!identity()||friendStatsReadyUser!==identity())return null;
