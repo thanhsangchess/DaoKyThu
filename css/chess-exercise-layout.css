@@ -263,3 +263,51 @@ body.vqc-mode-world .vqc-journey-completion{
      .checkone-dialog,.mate-dialog,.mate3-dialog,.pawn-game-dialog,
      .vqc-lonemate-dialog) *{scroll-behavior:auto!important}
 }
+
+/* Online friend duels and mini-games also keep the full chessboard visible.
+   Their matchmaking, turn synchronization and rules are untouched. */
+:is(.vqc-arcade-overlay,.vqc-duel-overlay){
+ box-sizing:border-box;
+ overflow-x:hidden;
+ overflow-y:auto;
+ padding:10px;
+}
+:is(.vqc-arcade-dialog,.vqc-duel-dialog){
+ box-sizing:border-box;
+ width:min(100%,calc(100vw - 20px));
+ max-width:calc(100vw - 20px);
+ max-height:calc(100dvh - 20px);
+ overflow-y:auto;
+ overflow-x:hidden;
+}
+.vqc-arcade-layout{
+ grid-template-columns:minmax(0,1fr) minmax(240px,310px);
+ min-width:0;
+ align-items:start;
+}
+:is(.vqc-arcade-board,.vqc-duel-board){
+ box-sizing:border-box;
+ width:min(100%,clamp(275px,calc(100dvh - 205px),520px));
+ max-width:100%;
+ height:auto;
+ min-height:0;
+ aspect-ratio:1/1;
+ grid-template-columns:repeat(8,minmax(0,1fr));
+ grid-template-rows:repeat(8,minmax(0,1fr));
+ margin-inline:auto;
+}
+.vqc-arcade-panel{min-width:0;max-height:clamp(300px,calc(100dvh - 205px),520px);overflow-y:auto;}
+@media(max-width:900px){
+ .vqc-arcade-layout{grid-template-columns:minmax(0,1fr)}
+ .vqc-arcade-panel{max-height:none;overflow-y:visible}
+}
+@media(max-width:720px){
+ :is(.vqc-arcade-dialog,.vqc-duel-dialog){
+  max-height:calc(100dvh - 10px);
+  width:calc(100vw - 10px);
+  padding:10px;
+ }
+ :is(.vqc-arcade-board,.vqc-duel-board){
+  width:min(100%,calc(100vw - 42px),max(250px,calc(100dvh - 175px)));
+ }
+}
