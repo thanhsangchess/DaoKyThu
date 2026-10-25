@@ -133,7 +133,6 @@
    }
    const groups=nav()?.groups(region)||[];
    if(!selectedTabs[region])selectedTabs[region]=groups[0]?.kind;
-   if(region===snapshot.region&&snapshot.currentTask?.region===region&&snapshot.currentTask.group)selectedTabs[region]=snapshot.currentTask.group;
    tabs.replaceChildren();
    groups.forEach((group,i)=>{
     const selected=selectedTabs[region]===group.kind;
@@ -188,7 +187,6 @@
   }
   const groups=nav()?.groups(0)||[];
   if(!selectedTabs[0])selectedTabs[0]=groups[0]?.kind;
-  if(snapshot.region===0&&snapshot.currentTask?.group)selectedTabs[0]=snapshot.currentTask.group;
   tabs.replaceChildren();
   for(const group of groups){
    const selected=selectedTabs[0]===group.kind;
@@ -353,6 +351,10 @@
  function sync(){
   if(!ready||!nav())return;
   const snapshot=details();
+  const task=snapshot.currentTask;
+  const taskId=task?task.region+':'+task.group+':'+task.key:'';
+  if(taskId&&taskId!==lastTaskId){selectedTabs[task.region]=task.group;lastTaskId=taskId;}
+  if(!taskId)lastTaskId='';
   const header=ensureHeader();if(!header)return;
   renderRegionBar(snapshot);renderReward(snapshot);
   renderCategoryMenus(snapshot);renderForestSwitcher(snapshot);renderHarborMenu(snapshot);
