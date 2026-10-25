@@ -316,6 +316,15 @@
    const visible=snapshot.active&&snapshot.region===config.region&&overlay.classList.contains('open');
    bar.hidden=!visible;
    if(!visible)continue;
+   // In the island journey the task navigator already has Previous and Next.
+   // Remove only redundant sidebar buttons; keep Retry, Hint and game controls.
+   const dialog=overlay.querySelector(config.dialog);
+   if(dialog)for(const b of dialog.querySelectorAll('button')){
+    if(b.closest('.vqc-journey-taskbar,.vqc-mobile-steps'))continue;
+    const label=(b.textContent||'').trim();
+    if(/^(?:←\s*)?Bài trước$|^Bài tiếp\s*→?$/i.test(label))
+     b.classList.add('vqc-journey-redundant-nav');
+   }
    const groups=nav()?.groups(config.region)||[];
    const group=bar._group,task=bar._task;
    const current=snapshot.currentTask;
