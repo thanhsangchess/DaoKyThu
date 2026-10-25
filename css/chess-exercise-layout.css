@@ -1,0 +1,265 @@
+/* Đảo Kỳ Thủ — unified responsive chess exercise layout.
+   Visual-only. Do not change game rules, pieces, coordinates or progress. */
+:root {
+  --vqc-exercise-fit: clamp(310px, calc(100dvh - 270px), 615px);
+  --vqc-exercise-sidebar: 296px;
+}
+body.vqc-mode-class {
+  --vqc-exercise-fit: clamp(310px, calc(100dvh - 175px), 675px);
+}
+/* Safe desktop and compact-height overlay. The content may scroll when the
+   viewport is too small; it must never crop the board or scroll horizontally. */
+:is(.capture-overlay,.freecapture-overlay,.defense-overlay,.escape-overlay,
+    .checkone-overlay,.mate-overlay,.mate3-overlay,.pawn-game-overlay,
+    #vqcLoneMateOverlay) {
+  box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 10px !important;
+}
+:is(.capture-dialog,.freecapture-dialog,.defense-dialog,.escape-dialog,
+    .checkone-dialog,.mate-dialog,.mate3-dialog,.pawn-game-dialog,
+    .vqc-lonemate-dialog) {
+  box-sizing: border-box !important;
+  width: min(1230px, calc(100vw - 24px)) !important;
+  max-width: calc(100vw - 24px) !important;
+  max-height: calc(100dvh - 20px) !important;
+  min-width: 0 !important;
+  padding: 14px 17px 18px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 19px !important;
+  scrollbar-gutter: stable;
+}
+:is(.capture-layout,.freecapture-layout,.defense-layout,.escape-layout,
+    .checkone-layout,.mate-layout,.mate3-layout,.pawn-game-layout,
+    .vqc-lonemate-layout) {
+  display: grid !important;
+  grid-template-columns: minmax(0,1fr) minmax(245px,var(--vqc-exercise-sidebar)) !important;
+  align-items: start !important;
+  justify-items: stretch;
+  gap: clamp(12px,1.4vw,20px) !important;
+  min-width: 0;
+  width: 100%;
+  overflow: visible !important;
+}
+/* Exactly 64 square cells. Width is limited by available viewport height,
+   reserving space for title and fast lesson navigation above the board. */
+:is(.capture-board,.freecapture-board,.defense-board,.escape-board,
+    .checkone-board,.mate-board,.mate3-board,.pawn-game-board,
+    .vqc-lonemate-board,#vqcLoneMateBoard) {
+  display: grid !important;
+  grid-template-columns: repeat(8,minmax(0,1fr)) !important;
+  grid-template-rows: repeat(8,minmax(0,1fr)) !important;
+  width: min(100%,var(--vqc-exercise-fit)) !important;
+  max-width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  min-width: 0 !important;
+  aspect-ratio: 1/1 !important;
+  box-sizing: border-box !important;
+  justify-self: center;
+  align-self: start !important;
+  margin: 0 auto !important;
+  overflow: hidden;
+  flex: none !important;
+}
+:is(.capture-board,.freecapture-board,.defense-board,.escape-board,
+    .checkone-board,.mate-board,.mate3-board,.pawn-game-board,
+    .vqc-lonemate-board,#vqcLoneMateBoard) > * {
+  min-width: 0 !important;
+  min-height: 0 !important;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+:is(.capture-side,.freecapture-side,.defense-side,.escape-side,
+    .checkone-side,.mate-side,.mate3-side,.pawn-game-side,
+    .vqc-lonemate-info) {
+  box-sizing: border-box !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  max-height: var(--vqc-exercise-fit);
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  align-self: start !important;
+  scrollbar-width: thin;
+  border-radius: 14px;
+}
+:is(.capture-side,.freecapture-side,.defense-side,.escape-side,
+    .checkone-side,.mate-side,.mate3-side,.pawn-game-side,
+    .vqc-lonemate-info) :is(h2,h3){
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+:is(.capture-side,.freecapture-side,.defense-side,.escape-side,
+    .checkone-side,.mate-side,.mate3-side,.pawn-game-side,
+    .vqc-lonemate-info) :is(p,button,small) {
+  overflow-wrap: anywhere;
+}
+/* Header is always available, without its own growing scroll area. */
+:is(.capture-dialog,.freecapture-dialog,.defense-dialog,.escape-dialog,
+    .checkone-dialog,.mate-dialog,.mate3-dialog,.pawn-game-dialog)
+    > .mate-top {
+  display: flex;
+  align-items: center !important;
+  justify-content: space-between;
+  min-height: 48px;
+  gap: 10px;
+  padding: 9px 12px !important;
+  margin: 0 0 8px !important;
+  border-radius: 12px !important;
+  background: #f0f8ff !important;
+  border-bottom: 1px solid #d2e4f2;
+}
+:is(.capture-dialog,.freecapture-dialog,.defense-dialog,.escape-dialog,
+    .checkone-dialog,.mate-dialog,.mate3-dialog,.pawn-game-dialog)
+    > .mate-top strong {
+  font-size: clamp(15px,1.4vw,19px) !important;
+  line-height: 1.3;
+  color: #265d8b;
+}
+:is(.capture-dialog,.freecapture-dialog,.defense-dialog,.escape-dialog,
+    .checkone-dialog,.mate-dialog,.mate3-dialog,.pawn-game-dialog)
+    > .mate-top button{
+  min-height: 37px !important;
+  padding: 7px 13px !important;
+  flex-shrink: 0;
+}
+/* The older mobile shortcut was injected on desktop too, producing a second
+   row of tiny default buttons above the island navigation. */
+.vqc-mobile-steps { display: none !important; }
+/* In island mode, one authoritative navigation bar replaces sidebar
+   previous/next controls, but keeps Reset, Hint and Show Threats. */
+body.vqc-mode-world .vqc-journey-redundant-nav { display: none !important; }
+body.vqc-mode-world .vqc-journey-taskbar{
+  position: static !important;
+  display: grid !important;
+  grid-template-columns: auto minmax(0,1fr);
+  align-items: center;
+  gap: 6px 12px !important;
+  padding: 8px 10px !important;
+  margin: 0 0 10px !important;
+  border: 1px solid #bfdced !important;
+  border-radius: 12px !important;
+  background: #f0f8ff !important;
+}
+body.vqc-mode-world .vqc-journey-taskbar[hidden]{display:none!important}
+body.vqc-mode-world .vqc-journey-taskbar__title{
+  font-size: 12px !important;
+  white-space: nowrap;
+  color: #285d87;
+}
+body.vqc-mode-world .vqc-journey-taskbar__fields{
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr)) !important;
+  gap: 7px !important;
+}
+body.vqc-mode-world .vqc-journey-select{
+  min-width: 0;
+  min-height: 37px !important;
+  font-size: 13px !important;
+  padding: 6px 9px !important;
+}
+body.vqc-mode-world .vqc-journey-taskbar__actions{
+  grid-column: 1/-1;
+  display: grid !important;
+  grid-template-columns: repeat(4,minmax(0,1fr));
+  gap: 7px !important;
+}
+body.vqc-mode-world .vqc-journey-taskbar__actions .vqc-journey-button{
+  min-height: 37px !important;
+  min-width: 0;
+  padding: 7px 6px !important;
+  flex: none !important;
+  font-size: 12px !important;
+  border-radius: 9px;
+}
+body.vqc-mode-world .vqc-journey-completion{
+  grid-column: 1/-1;
+  margin-top: 3px;
+}
+/* Room/class mode keeps original sidebar operations and may display the
+   compact three-button shortcut only on a narrow device. */
+@media (max-width: 900px) {
+  :root {--vqc-exercise-fit: clamp(285px,calc(100dvh - 230px),515px);}
+  body.vqc-mode-class {--vqc-exercise-fit: clamp(285px,calc(100dvh - 160px),570px);}
+  :is(.capture-layout,.freecapture-layout,.defense-layout,.escape-layout,
+      .checkone-layout,.mate-layout,.mate3-layout,.pawn-game-layout,
+      .vqc-lonemate-layout){
+    grid-template-columns: minmax(0,1fr) !important;
+    gap: 12px !important;
+    justify-items: center;
+  }
+  :is(.capture-side,.freecapture-side,.defense-side,.escape-side,
+      .checkone-side,.mate-side,.mate3-side,.pawn-game-side,
+      .vqc-lonemate-info) {
+    max-height: none !important;
+    overflow-y: visible !important;
+  }
+  :is(.capture-board,.freecapture-board,.defense-board,.escape-board,
+      .checkone-board,.mate-board,.mate3-board,.pawn-game-board,
+      .vqc-lonemate-board,#vqcLoneMateBoard){
+    width: min(100%, var(--vqc-exercise-fit)) !important;
+  }
+}
+@media (max-width: 720px) {
+  :is(.capture-overlay,.freecapture-overlay,.defense-overlay,.escape-overlay,
+      .checkone-overlay,.mate-overlay,.mate3-overlay,.pawn-game-overlay,
+      #vqcLoneMateOverlay){
+    padding: 5px !important;
+    align-items: flex-start !important;
+  }
+  :is(.capture-dialog,.freecapture-dialog,.defense-dialog,.escape-dialog,
+      .checkone-dialog,.mate-dialog,.mate3-dialog,.pawn-game-dialog,
+      .vqc-lonemate-dialog){
+    width: calc(100vw - 10px) !important;
+    max-width: calc(100vw - 10px) !important;
+    max-height: calc(100dvh - 10px) !important;
+    padding: 9px !important;
+    border-radius: 14px !important;
+    scrollbar-gutter: auto;
+  }
+  :root{--vqc-exercise-fit:clamp(265px,calc(100dvh - 220px),455px);}
+  body.vqc-mode-class{--vqc-exercise-fit:clamp(265px,calc(100dvh - 175px),490px);}
+  :is(.capture-board,.freecapture-board,.defense-board,.escape-board,
+      .checkone-board,.mate-board,.mate3-board,.pawn-game-board,
+      .vqc-lonemate-board,#vqcLoneMateBoard) {
+    width: min(100%, var(--vqc-exercise-fit)) !important;
+  }
+  body.vqc-mode-class .vqc-mobile-steps{
+    display: grid !important;
+    position: static !important;
+    margin: 0 0 8px !important;
+  }
+  body.vqc-mode-world .vqc-journey-taskbar{
+    grid-template-columns: minmax(0,1fr);
+    gap: 7px !important;
+  }
+  body.vqc-mode-world .vqc-journey-taskbar__title{
+    grid-column: 1/-1;
+  }
+  body.vqc-mode-world .vqc-journey-taskbar__fields{
+    grid-column: 1/-1;
+    grid-template-columns: repeat(2,minmax(0,1fr)) !important;
+  }
+  body.vqc-mode-world .vqc-journey-taskbar__actions{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+  body.vqc-mode-world .vqc-journey-taskbar__actions .vqc-journey-button{
+    min-height: 39px !important;
+  }
+}
+@media (max-width: 420px){
+  body.vqc-mode-world .vqc-journey-taskbar__fields{
+    grid-template-columns: minmax(0,1fr) !important;
+  }
+}
+@media (prefers-reduced-motion:reduce){
+ :is(.capture-dialog,.freecapture-dialog,.defense-dialog,.escape-dialog,
+     .checkone-dialog,.mate-dialog,.mate3-dialog,.pawn-game-dialog,
+     .vqc-lonemate-dialog) *{scroll-behavior:auto!important}
+}
