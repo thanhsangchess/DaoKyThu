@@ -1552,7 +1552,7 @@ function listenToRoom(){
     if(active.view==='mate3' && data.mate3Exercise && data.mate3Exercise.index===active.index)vqcSafeReceiveExercise('Chiếu hết 3 nước',vqcReceiveMate3,data.mate3Exercise);
     if(active.view==='mate2' && data.mateExercise && data.mateExercise.index===active.index)vqcSafeReceiveExercise('Chiếu hết 2 nước',receiveMateExercise,data.mateExercise);
     if(active.view==='lonemate' && data.loneKingMateExercise && data.loneKingMateExercise.mode===active.index)vqcSafeReceiveExercise('Chiếu hết Vua đơn độc',window.loneKingMateReceive,data.loneKingMateExercise);
-    if(active.view==='mate1' && data.mateOneExercise && data.mateOneExercise.index===active.index)vqcSafeReceiveExercise('Chiếu hết 1 nước — 500 bài',window.vqcMateOneReceive,data.mateOneExercise);
+    if(active.view==='mate1' && data.mateOneExercise && data.mateOneExercise.index===active.index)vqcSafeReceiveExercise('Chiếu hết 1 nước — 100 bài PDF',window.vqcMateOneReceive,data.mateOneExercise);
     try{pvpReceive(data.pvp||null);}catch(e){console.error('Lỗi đồng bộ đối kháng',e);}
     // Chỉ nhận dữ liệu từ máy khác hoặc bản đã xác nhận, không xóa nước đi đang chọn.
     if(Array.isArray(data.state)&&data.state.length===64){
