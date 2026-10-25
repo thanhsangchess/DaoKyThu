@@ -36,7 +36,7 @@ function restoreProgress(){
 }
 function persist(){try{localStorage.setItem(cacheKey(),JSON.stringify([...done]));}catch(e){}}
 function puzzle(){return catalog()[idx];}
-function newPosition(){game=new Chess(puzzle().fen);selected=null;hint=false;feedback='Hãy tìm một nước đi khiến Vua đối phương bị chiếu hết.';solved=false;failed=false;lastMove=null;}
+function newPosition(){game=new Chess(puzzle().fen);selected=null;hint=false;feedback=(puzzle().color==='w'?'Trắng':'Đen')+' đi trước. Hãy tìm một nước đi để chiếu hết Vua đối phương.';solved=false;failed=false;lastMove=null;}
 function message(s){feedback=s;render();}
 function paint(){
  const board=$('vqcMateOneBoard');if(!board||!game)return;
@@ -65,7 +65,7 @@ function render(){
  $('vqcMateOneProgress').textContent='Đã hoàn thành '+done.size+'/'+count+' bài';
  $('vqcMateOneFeedback').textContent=feedback;
  $('vqcMateOneFeedback').className='vqc-mateone-feedback'+(solved?' success':failed?' error':'');
- $('vqcMateOneNext').textContent=solved?'Tiếp tục →':'Bài tiếp →';
+ $('vqcMateOneNext').textContent=solved?'Tiếp tục →':'Bài sau →';
  $('vqcMateOnePrev').disabled=student();
  $('vqcMateOneNext').disabled=student();
  $('vqcMateOneJump').disabled=student();
