@@ -30,6 +30,7 @@ const REGION_COIN_REWARDS=REGIONS.map((region,index)=>(index+1)*1000);
 const AVAILABLE_REWARD_REGIONS=5; // Vùng 6–7 chưa có bài tập.
 
 let canyonActive=false,canyonCurrentKind=null;
+let adventureTask=null;
 
 const FOREST_PIECES=[
  ['R','♜','Quân Xe'],['B','♝','Quân Tượng'],['Q','♛','Quân Hậu'],
@@ -822,6 +823,7 @@ function render(){
  $('vqcAdventureCount').textContent=progress.done.length+'/'+QUESTIONS.length;
  $('vqcAdventureProgress').style.width=(progress.done.length/QUESTIONS.length*100)+'%';
  if($('vqcAdventureStages')&&!$('vqcAdventurePlay').hidden)renderStages();
+ window.vqcAdventureUX?.refresh();
  if($('vqcLevelMap')?.clientWidth){
   requestAnimationFrame(()=>{
    moveMapAvatar(selectedMapRegion,false);
@@ -900,7 +902,7 @@ function openCanyonTask(kind,index){
   if(typeof window[fn]!=='function'||!overlay)throw Error('Bài tập gốc chưa tải xong.');
   // Dialogs must live at body root so they remain visible above the island mode.
   if(overlay.parentElement!==document.body)document.body.appendChild(overlay);
-  canyonCurrentKind=kind;
+  canyonCurrentKind=kind;adventureTask={region:2,group:kind,key:String(index)};
   window[fn](index);
   overlay.classList.add('open');
   const name=kind==='capture'?'Bài '+(index+1):'Hình '+(43+index);
@@ -929,6 +931,7 @@ window.vqcAdventureCaptureCompleted=function(kind,index){
  const group=CANYON_GROUPS.find(g=>g.kind===kind);
  if(!canyonActive||canyonCurrentKind!==kind||!group||!Number.isInteger(index)||index<0||index>=group.count)return;
  const key=kind+':'+index;
+ adventureTask={region:2,group:kind,key:String(index)};
  if(progress.canyonDone.includes(key)){
   canyonMessage('Đã hoàn thành bài này trước đó. Em có thể luyện lại!');
   return;
@@ -936,6 +939,7 @@ window.vqcAdventureCaptureCompleted=function(kind,index){
  progress.canyonDone.push(key);
  progress=sanitize(progress);
  saveProgress();
+ window.vqcAdventureUX?.completed({region:2,stars:3,label:(kind==='capture'?'Bài '+(index+1):'Hình '+(43+index))});
  const label=kind==='capture'?'Bài '+(index+1):'Hình '+(43+index);
  canyonMessage('⭐ Chính xác! Hoàn thành '+label+' · +3 sao! Tiến độ: '+progress.canyonDone.length+'/'+CANYON_TOTAL+' bài.');
  if(progress.canyonDone.length===CANYON_TOTAL&&typeof vqcNotify==='function'){
@@ -1004,6 +1008,7 @@ function openCrystalTask(index){
  try{
   if(!overlay||typeof window.defenseOpen!=='function')throw Error('Bài tập phòng thủ gốc chưa tải xong.');
   if(overlay.parentElement!==document.body)document.body.appendChild(overlay);
+  adventureTask={region:3,group:index<8?'defense':'defense-attack',key:String(index)};
   window.defenseOpen(index);
   overlay.classList.add('open');
   crystalMessage('Đang luyện '+crystalLabel(index)+' · Hãy tìm nước phòng thủ hợp lệ!');
@@ -1026,6 +1031,7 @@ window.vqcAdventureCrystalBack=closeCrystal;
 window.vqcIsAdventureDefenseActive=()=>crystalActive;
 window.vqcAdventureDefenseCompleted=function(index){
  if(!crystalActive||!Number.isInteger(index)||index<0||index>=CRYSTAL_TOTAL)return;
+ adventureTask={region:3,group:index<8?'defense':'defense-attack',key:String(index)};
  if(progress.crystalDone.includes(index)){
   crystalMessage('Em đã hoàn thành bài này rồi. Hãy luyện tập thêm hoặc chọn bài khác!');
   return;
@@ -1033,6 +1039,7 @@ window.vqcAdventureDefenseCompleted=function(index){
  progress.crystalDone.push(index);
  progress=sanitize(progress);
  saveProgress();
+ window.vqcAdventureUX?.completed({region:3,stars:3,label:crystalLabel(index)});
  crystalMessage('⭐ Chính xác! '+crystalLabel(index)+' hoàn thành · +3 sao! Tiến độ: '+
   progress.crystalDone.length+'/'+CRYSTAL_TOTAL+' bài.');
  if(progress.crystalDone.length===CRYSTAL_TOTAL&&typeof vqcNotify==='function')
@@ -1098,6 +1105,7 @@ function openVolcanoTask(index){
  try{
   if(!overlay||typeof window.escapeOpen!=='function')throw Error('Bài tập Thoát chiếu gốc chưa tải xong.');
   if(overlay.parentElement!==document.body)document.body.appendChild(overlay);
+  adventureTask={region:4,group:index<7?'escape':'advanced',key:String(index)};
   window.escapeOpen(index);
   overlay.classList.add('open');
   volcanoMessage('Đang luyện '+volcanoLabel(index)+' · Hãy tìm nước giải nguy cho Vua!');
@@ -1120,6 +1128,7 @@ window.vqcAdventureVolcanoBack=closeVolcano;
 window.vqcIsAdventureEscapeActive=()=>volcanoActive;
 window.vqcAdventureEscapeCompleted=function(index){
  if(!volcanoActive||!Number.isInteger(index)||index<0||index>=VOLCANO_TOTAL)return;
+ adventureTask={region:4,group:index<7?'escape':'advanced',key:String(index)};
  if(progress.volcanoDone.includes(index)){
   volcanoMessage('Em đã hoàn thành bài này rồi. Có thể làm lại hoặc chọn bài tiếp theo!');
   return;
@@ -1127,6 +1136,7 @@ window.vqcAdventureEscapeCompleted=function(index){
  progress.volcanoDone.push(index);
  progress=sanitize(progress);
  saveProgress();
+ window.vqcAdventureUX?.completed({region:4,stars:3,label:volcanoLabel(index)});
  volcanoMessage('⭐ Chính xác! Hoàn thành '+volcanoLabel(index)+' · +3 sao! Đã vượt qua '+
   progress.volcanoDone.length+'/'+VOLCANO_TOTAL+' bài.');
  if(progress.volcanoDone.length===VOLCANO_TOTAL&&typeof vqcNotify==='function')
@@ -1217,7 +1227,7 @@ function openForestPiece(piece){
  if(typeof roomRef!=='undefined'&&roomRef)return;
  try{
   attachClassroomBoard();
-  forestPiece=piece;
+  forestPiece=piece;adventureTask={region:1,group:'forest',key:piece};
   $('vqcForestGame').hidden=false;
   $('vqcForestSelect').hidden=true;
   $('vqcForestGameTitle').textContent='🌳 Rừng Sao · '+FOREST_PIECES.find(x=>x[0]===piece)[2];
@@ -1254,6 +1264,7 @@ window.vqcAdventurePieceCompleted=function(piece){
  progress.forestDone.push(piece);
  progress=sanitize(progress);
  saveProgress();
+ window.vqcAdventureUX?.completed({region:1,stars:6,label:FOREST_PIECES.find(p=>p[0]===piece)?.[2]||'Nhặt sao'});
  // Preserve the original 6-star reward dialog and its existing continue button.
 };
 window.vqcAdventureLeaveWorld=function(){
@@ -1277,7 +1288,7 @@ function openRegion(){
 }
 function showStage(index){
  if(!unlocked(index))return;
- current=index;answerLocked=false;
+ current=index;adventureTask={region:0,group:index<5?'basics':'pieces',key:String(index)};answerLocked=false;
  const q=QUESTIONS[index];$('vqcAdventureStageTitle').textContent='Màn '+(index+1)+' · '+q.title;
  $('vqcAdventureQuestion').textContent=q.question;
  const choices=$('vqcAdventureAnswers');choices.replaceChildren();
@@ -1296,7 +1307,7 @@ function choose(choice){
  if(!correct){fb.textContent='Chưa đúng rồi! Em hãy thử chọn đáp án khác nhé.';return;}
  answerLocked=true;buttons.forEach(b=>b.disabled=true);
  fb.textContent='🌟 Chính xác! '+q.explain;
- if(!progress.done.includes(current)){progress.done.push(current);progress=sanitize(progress);saveProgress();}
+ if(!progress.done.includes(current)){progress.done.push(current);progress=sanitize(progress);saveProgress();window.vqcAdventureUX?.completed({region:0,stars:3,label:'Màn '+(current+1)});}
  $('vqcAdventureNext').hidden=false;
  $('vqcAdventureNext').textContent=current===QUESTIONS.length-1?'🏆 Xem thành tích':'Tiếp tục khám phá →';
 }
