@@ -10,7 +10,7 @@
   document.getElementById('vqcModeHome')?.setAttribute('aria-hidden',String(next!=='home'));
   document.getElementById('vqcModeWorld')?.setAttribute('aria-hidden',String(next!=='world'));
   if(next!=='class'){
-   ['mateOverlay','mate3Overlay','pvpOverlay','captureOverlay','freeCaptureOverlay','defenseOverlay','pawnGameOverlay','checkOneOverlay','escapeOverlay','vqcMateOneOverlay','starRewardOverlay'].forEach(id=>document.getElementById(id)?.classList.remove('open'));
+   ['mateOverlay','mate3Overlay','pvpOverlay','captureOverlay','freeCaptureOverlay','defenseOverlay','pawnGameOverlay','checkOneOverlay','escapeOverlay','vqcMateOneOverlay','vqcMateOneBasicOverlay','starRewardOverlay'].forEach(id=>document.getElementById(id)?.classList.remove('open'));
   }
   window.scrollTo?.(0,0);
  }
