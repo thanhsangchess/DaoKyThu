@@ -1339,6 +1339,122 @@ window.vqcAdventureStart=function(){
  loadProgress();
  showAdventureMap();
 };
+/* Bridge to the responsive adventure navigator. Read-only progress; normal game
+   functions remain authoritative and the existing cloud schema is unchanged. */
+function adventureRegionIndex(){
+ if(volcanoActive)return 4;
+ if(crystalActive)return 3;
+ if(canyonActive)return 2;
+ if(forestActive)return 1;
+ if($('vqcAdventurePlay')&&!$('vqcAdventurePlay').hidden)return 0;
+ return -1;
+}
+function adventureGroups(index){
+ if(index===0)return [
+  {kind:'basics',title:'Khám phá bàn cờ',icon:'🧭',items:QUESTIONS.slice(0,5).map((q,i)=>({key:String(i),label:'Màn '+(i+1)+' · '+q.title,done:progress.done.includes(i),locked:!unlocked(i)}))},
+  {kind:'pieces',title:'Quân cờ và luật chơi',icon:'♟️',items:QUESTIONS.slice(5).map((q,i)=>({key:String(i+5),label:'Màn '+(i+6)+' · '+q.title,done:progress.done.includes(i+5),locked:!unlocked(i+5)}))}
+ ];
+ if(index===1)return [{kind:'forest',title:'Luyện nhặt sao theo quân',icon:'⭐',items:FOREST_PIECES.map(([id,emoji,name])=>({key:id,label:name,icon:emoji,done:progress.forestDone.includes(id),locked:false}))}];
+ if(index===2)return CANYON_GROUPS.map(g=>({kind:g.kind,title:g.title,icon:g.icon,items:Array.from({length:g.count},(_,i)=>({key:String(i),label:g.kind==='capture'?'Bài '+(i+1):'Hình '+(43+i),done:progress.canyonDone.includes(g.kind+':'+i),locked:false}))}));
+ if(index===3)return CRYSTAL_GROUPS.map((g,i)=>({kind:g.kind,title:g.title,icon:i===0?'🛡️':'🔮',items:Array.from({length:g.count},(_,j)=>({key:String(j+g.offset),label:crystalLabel(j+g.offset),done:progress.crystalDone.includes(j+g.offset),locked:false}))}));
+ if(index===4)return VOLCANO_GROUPS.map((g,i)=>({kind:g.kind,title:g.title,icon:i===0?'👑':'🔥',items:Array.from({length:g.count},(_,j)=>({key:String(j+g.offset),label:volcanoLabel(j+g.offset),done:progress.volcanoDone.includes(j+g.offset),locked:false}))}));
+ return [];
+}
+function adventureSnapshot(){
+ const region=adventureRegionIndex();
+ const completed=[progress.done.length,progress.forestDone.length,progress.canyonDone.length,progress.crystalDone.length,progress.volcanoDone.length];
+ const totals=[QUESTIONS.length,FOREST_PIECES.length,CANYON_TOTAL,CRYSTAL_TOTAL,VOLCANO_TOTAL];
+ return {
+  active:!!$('vqcModeWorld')&&$('vqcModeWorld').getAttribute('aria-hidden')!=='true',
+  region,currentTask:adventureTask?{...adventureTask}:null,
+  stars:progress.stars,coins:progress.coins,earnedCoins:progress.earnedCoins,
+  regions:REGIONS.slice(0,AVAILABLE_REWARD_REGIONS).map((r,i)=>({
+   index:i,name:r[1],icon:r[0],description:r[2],completed:completed[i],total:totals[i],
+   stars:regionStars(i),starsMax:totals[i]*(i===1?6:3),
+   coins:REGION_COIN_REWARDS[i],badge:ADVENTURE_BADGES[i]?.name||'',
+   rewarded:progress.rewardedRegions.includes(i)
+  })),
+  groups:region>=0?adventureGroups(region):[]
+ };
+}
+function adventureReturnToMenu(){
+ if(forestActive&&forestPiece)closeForestPiece();
+ if(canyonActive){
+  if($('captureOverlay')?.classList.contains('open'))window.captureClose?.();
+  if($('freeCaptureOverlay')?.classList.contains('open'))window.freeCaptureClose?.();
+  canyonCurrentKind=null;
+ }
+ if(crystalActive&&$('defenseOverlay')?.classList.contains('open'))window.defenseClose?.();
+ if(volcanoActive&&$('escapeOverlay')?.classList.contains('open'))window.escapeClose?.();
+ if($('starRewardOverlay')?.classList.contains('open')&&typeof hideStarRewardLocal==='function')hideStarRewardLocal();
+ if(adventureRegionIndex()>0)adventureTask=null;
+ window.vqcAdventureUX?.refresh();
+ const target=adventureRegionIndex()===1?$('vqcForestScreen'):adventureRegionIndex()===2?$('vqcCanyonScreen'):adventureRegionIndex()===3?$('vqcCrystalScreen'):adventureRegionIndex()===4?$('vqcVolcanoScreen'):$('vqcAdventureStages');
+ target?.scrollIntoView({block:'start',behavior:'smooth'});
+}
+function adventureGoRegion(index){
+ if(!Number.isInteger(index)||index<0||index>=AVAILABLE_REWARD_REGIONS)return false;
+ if(typeof roomRef!=='undefined'&&roomRef){
+  if(typeof vqcNotify==='function')vqcNotify('Hãy rời lớp học trước khi chọn vùng khám phá.','warning');
+  return false;
+ }
+ if(index===adventureRegionIndex()){
+  adventureReturnToMenu();return true;
+ }
+ if(canyonActive)closeCanyon();
+ if(crystalActive)closeCrystal();
+ if(volcanoActive)closeVolcano();
+ if(forestActive)closeForest();
+ if($('vqcAdventurePlay')&&!$('vqcAdventurePlay').hidden)closeRegion();
+ selectedMapRegion=index;adventureTask=null;
+ [openRegion,openForest,openCanyon,openCrystal,openVolcano][index]();
+ window.vqcAdventureUX?.refresh();
+ const regionScreen=[ $('vqcAdventurePlay'),$('vqcForestScreen'),$('vqcCanyonScreen'),$('vqcCrystalScreen'),$('vqcVolcanoScreen') ][index];
+ regionScreen?.scrollIntoView({block:'start',behavior:'smooth'});
+ return true;
+}
+function adventureGoTask(region,kind,key){
+ if(!Number.isInteger(region)||region<0||region>=AVAILABLE_REWARD_REGIONS)return false;
+ const selected=adventureGroups(region).find(g=>g.kind===kind)?.items.find(item=>item.key===String(key));
+ if(!selected||selected.locked)return false;
+ if(adventureRegionIndex()!==region&&!adventureGoRegion(region))return false;
+ const num=Number(key);
+ if(region===0)showStage(num);
+ if(region===1)openForestPiece(String(key));
+ if(region===2)openCanyonTask(kind,num);
+ if(region===3)openCrystalTask(num);
+ if(region===4)openVolcanoTask(num);
+ adventureTask={region,group:kind,key:String(key)};
+ window.vqcAdventureUX?.refresh();
+ return true;
+}
+function adventureNextTask(){
+ const region=adventureRegionIndex();
+ if(region<0)return false;
+ const items=adventureGroups(region).flatMap(g=>g.items.map(item=>({...item,kind:g.kind})));
+ let at=items.findIndex(item=>adventureTask?.region===region&&adventureTask.group===item.kind&&adventureTask.key===item.key);
+ const seek=items.slice(at+1).concat(items.slice(0,at+1)).find(item=>!item.done&&!item.locked);
+ if(seek)return adventureGoTask(region,seek.kind,seek.key);
+ // All rewards in this region already earned; don't force replay.
+ adventureReturnToMenu();
+ return false;
+}
+function adventureShowMap(){
+ adventureReturnToMenu();
+ if(canyonActive)closeCanyon();
+ if(crystalActive)closeCrystal();
+ if(volcanoActive)closeVolcano();
+ if(forestActive)closeForest();
+ if($('vqcAdventurePlay')&&!$('vqcAdventurePlay').hidden)closeRegion();
+ adventureTask=null;
+ window.vqcAdventureUX?.refresh();
+ $('vqcAdventureMap')?.scrollIntoView({block:'start',behavior:'smooth'});
+}
+window.vqcAdventureNavigator={
+ snapshot:adventureSnapshot,groups:adventureGroups,go:adventureGoRegion,task:adventureGoTask,
+ next:adventureNextTask,menu:adventureReturnToMenu,map:adventureShowMap
+};
+
 window.vqcAdventureBack=closeRegion;
 window.vqcAdventureNext=next;
 window.vqcAdventureReset=function(){
