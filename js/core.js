@@ -1667,6 +1667,9 @@ function showStarReward(piece){
   const overlay=document.getElementById('starRewardOverlay');
   const message=document.getElementById('starRewardMessage');
   if(!overlay||!message)return;
+  // The shared chess board is moved between Classroom and Forest. Keep its
+  // reward dialog at the document root so hidden mode ancestors never mask it.
+  if(overlay.parentElement!==document.body)document.body.appendChild(overlay);
   message.textContent='Em đã thu thập đủ 6 ngôi sao trong thử thách '+(pieceGameNames[piece]||'cờ vua')+'! Em đã rất kiên trì và vận dụng tốt cách di chuyển quân cờ. Hãy tiếp tục phát huy nhé!';
   overlay.classList.add('open');
   const btn=overlay.querySelector('.reward-close');
