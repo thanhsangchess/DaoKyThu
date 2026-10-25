@@ -55,7 +55,7 @@
  const reachedMilestone=info=>MILESTONES.find(m=>info&&info.completed===Math.ceil(info.total*m.ratio));
  function milestonePanel(info){
   const grid=node('div','vqc-journey-milestones');
-  grid.setAttribute('aria-label','Các mốc kỹ năng và phần thưởng đảm bảo');
+  grid.setAttribute('aria-label','Các mốc tiến độ học tập; không cộng thêm xu ngoài phần thưởng cuối vùng');
   for(const step of MILESTONES){
    const threshold=Math.ceil(info.total*step.ratio);
    const yes=info.completed>=threshold;
@@ -131,6 +131,13 @@
    const fill=node('span');fill.style.width=Math.min(100,selected.completed/selected.total*100)+'%';
    track.append(fill);host.append(track);
    host.append(milestonePanel(selected));
+   const upcoming=MILESTONES.find(step=>selected.completed<Math.ceil(selected.total*step.ratio));
+   if(upcoming){
+    const remaining=Math.ceil(selected.total*upcoming.ratio)-selected.completed;
+    host.append(node('p','vqc-journey-next-milestone',
+     '🎯 Mốc kế tiếp: '+upcoming.name+' · hoàn thành thêm '+remaining+' bài.'));
+   }else host.append(node('p','vqc-journey-next-milestone',
+    '✓ Em đã chinh phục tất cả các mốc học tập của Vùng này.'));
   }
   const footer=node('div','vqc-journey-reward__footer');
   footer.append(node('p','',intro
