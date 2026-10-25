@@ -467,7 +467,12 @@ function saveProgress(){
  const newlyRewarded=progress.rewardedRegions.filter(n=>!lastAnnouncedRewards.has(n));
  lastAnnouncedRewards=new Set(progress.rewardedRegions);
  localSave();render();
- if(newlyRewarded.length)showCoinRewardToast(newlyRewarded);
+ if(newlyRewarded.length){
+  showCoinRewardToast(newlyRewarded);
+  // Trigger one explicit, reviewable region reward screen. Existing progress
+  // records prevent replay/reset from awarding coins or a badge twice.
+  Promise.resolve().then(()=>window.vqcAdventureUX?.regionCompleted?.(newlyRewarded));
+ }
  clearTimeout(saveTimer);
  const ref=cloudRef();
  if(!ref){setSaveStatus('Đã lưu trên thiết bị. Đăng nhập để lưu trực tuyến.');return;}
@@ -1433,7 +1438,12 @@ function adventureGoTask(region,kind,key){
  }
  const num=Number(key);
  if(region===0)showStage(num);
- if(region===1)openForestPiece(String(key));
+ if(region===1){
+  // Restore the original board and clear any former star dialogue first.
+  // Swapping lesson controllers in-place can otherwise keep stale stars or UI.
+  if(forestPiece&&forestPiece!==String(key))closeForestPiece();
+  openForestPiece(String(key));
+ }
  if(region===2)openCanyonTask(kind,num);
  if(region===3)openCrystalTask(num);
  if(region===4)openVolcanoTask(num);
