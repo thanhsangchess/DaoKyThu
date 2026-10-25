@@ -1290,6 +1290,10 @@ function vqcToggleLoginPassword(){const el=document.getElementById('accountLogin
  }
  function vqcChallengeLaunch(id,index){
   const pair=targetMap[id];if(!pair)return;
+  if(id==='mateOne500Menu'&&typeof roomRef!=='undefined'&&roomRef&&role==='student'){
+    if(typeof vqcNotify==='function')vqcNotify('Giáo viên chọn bài; em có thể giải trực tiếp trên bàn cờ đang đồng bộ.','warning');
+    return;
+  }
   const [fnName,overlayId]=pair,overlay=document.getElementById(overlayId);
   if(!overlay){issue('Không tìm thấy cửa sổ bài tập '+id+'.');return;}
   try{
