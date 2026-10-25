@@ -44,6 +44,27 @@
   if(region===1)selectedTabs[1]='forest';
   sync();
  }
+ const MILESTONES=[
+  {ratio:.25,icon:'🥉',name:'Khởi đầu'},
+  {ratio:.50,icon:'🥈',name:'Tiến bộ'},
+  {ratio:.75,icon:'🥇',name:'Vững vàng'},
+  {ratio:1,icon:'🏆',name:'Chinh phục'}
+ ];
+ const reachedMilestone=info=>MILESTONES.find(m=>info&&info.completed===Math.ceil(info.total*m.ratio));
+ function milestonePanel(info){
+  const grid=node('div','vqc-journey-milestones');
+  grid.setAttribute('aria-label','Các mốc kỹ năng và phần thưởng đảm bảo');
+  for(const step of MILESTONES){
+   const threshold=Math.ceil(info.total*step.ratio);
+   const yes=info.completed>=threshold;
+   const item=node('div','vqc-journey-milestone'+(yes?' is-earned':''));
+   item.append(node('span','vqc-journey-milestone__icon',yes?step.icon:'🔒'));
+   const txt=node('span','vqc-journey-milestone__copy');
+   txt.append(node('strong','',step.name),node('small','',threshold+'/'+info.total+' bài'+(yes?' · Đã đạt':'')));
+   item.append(txt);grid.append(item);
+  }
+  return grid;
+ }
  function rewardText(region){
   if(!region)return 'Chọn một vùng để bắt đầu.';
   if(region.rewarded)return '✅ Đã nhận '+format(region.coins)+' xu, rương và huy hiệu '+region.badge+'.';
@@ -107,6 +128,7 @@
    track.setAttribute('aria-valuemax',String(selected.total));track.setAttribute('aria-valuenow',String(selected.completed));
    const fill=node('span');fill.style.width=Math.min(100,selected.completed/selected.total*100)+'%';
    track.append(fill);host.append(track);
+   host.append(milestonePanel(selected));
   }
   const footer=node('div','vqc-journey-reward__footer');
   footer.append(node('p','',intro
@@ -278,7 +300,10 @@
   if(!active)return;
   box.replaceChildren();
   const info=snapshot.regions[region];
-  box.append(node('strong','',info.rewarded?'🏆 Đã chinh phục cả vùng!':'⭐ Hoàn thành '+celebration.label+' · +'+celebration.stars+' sao'));
+  const milestone=reachedMilestone(info);
+  box.append(node('strong','',info.rewarded?'🏆 Đã chinh phục cả vùng!':
+   milestone?milestone.icon+' Đạt mốc '+milestone.name+'! · +'+celebration.stars+' sao':
+   '⭐ Hoàn thành '+celebration.label+' · +'+celebration.stars+' sao'));
   box.append(node('p','',info.rewarded?
     '🎁 Đã tự động nhận '+format(info.coins)+' xu, rương và huy hiệu '+info.badge+'.':
     'Đã nhận '+celebration.stars+' sao lần đầu. Tiến độ: '+info.completed+'/'+info.total+' bài. Luyện lại không cộng sao lần nữa.'));
