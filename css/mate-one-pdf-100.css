@@ -1,41 +1,41 @@
-/* Đảo Kỳ Thủ · Bài chiếu hết một nước từ PDF.
+/* Đảo Kỳ Thủ · Bài chiếu hết một nước: cơ bản 10 bài và PDF 100 bài.
    Cùng giao diện với bài chiếu hết hai nước, giữ 64 ô và lớp vẽ tương tác. */
-#vqcMateOneOverlay{
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay){
   position:fixed;inset:0;z-index:42000;display:none;align-items:center;justify-content:center;
   box-sizing:border-box;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;
   padding:10px;background:rgba(21,46,68,.64);backdrop-filter:blur(4px);
 }
-#vqcMateOneOverlay.open{display:flex}
-#vqcMateOneOverlay .vqc-mateone-dialog{
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay).open{display:flex}
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-dialog{
   box-sizing:border-box;min-width:0;width:min(1230px,calc(100vw - 20px));max-width:calc(100vw - 20px);
   max-height:calc(100dvh - 20px);overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;
   scrollbar-gutter:stable;background:#fff;border:1px solid #dbe7f4;border-radius:20px;
   padding:14px 17px 18px;color:#27465e;
   box-shadow:0 24px 70px rgba(24,55,89,.3);
 }
-#vqcMateOneOverlay .vqc-mateone-top{
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-top{
   box-sizing:border-box;display:flex;justify-content:space-between;align-items:center;
   flex-wrap:wrap;gap:8px 16px;margin:0 0 12px;padding:11px 14px;
   background:#f0f8ff;border:1px solid #dbeaf4;border-radius:13px;
 }
-#vqcMateOneOverlay .vqc-mateone-top h2{
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-top h2{
   font-size:clamp(18px,2vw,24px);font-weight:800;line-height:1.3;
   margin:0 0 3px;color:#265d8b;
 }
-#vqcMateOneOverlay .vqc-mateone-top p{
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-top p{
   margin:0;color:#64809b;font-size:13px;line-height:1.35;
 }
-#vqcMateOneOverlay .vqc-mateone-top button{
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-top button{
   min-height:42px;border:1px solid #c6dfef;border-radius:12px;
   background:#eef7ff;color:#426b8c;padding:9px 16px;
   font:inherit;font-weight:750;white-space:nowrap;cursor:pointer;
   box-shadow:0 4px 0 #d4e5f0;
 }
-#vqcMateOneOverlay .vqc-mateone-layout{
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-layout{
   display:grid;grid-template-columns:minmax(0,1fr) minmax(255px,350px);
   align-items:start;justify-items:stretch;gap:clamp(12px,1.4vw,22px);min-width:0;
 }
-#vqcMateOneOverlay .vqc-mateone-board{
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-board{
   position:relative;isolation:isolate;box-sizing:border-box;display:grid;
   grid-template-columns:repeat(8,minmax(0,1fr));
   grid-template-rows:repeat(8,minmax(0,1fr));
@@ -45,128 +45,128 @@
   border:5px solid #e2edf7;border-radius:13px;
   overflow:hidden;background:#fff0c7;box-shadow:0 6px 20px #1c4b7420;
 }
-#vqcMateOneOverlay .vqc-mateone-cell{
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-cell{
   position:relative;display:flex;align-items:center;justify-content:center;
   box-sizing:border-box;width:100%;height:100%;min-width:0;min-height:0;
   border:0;border-radius:0;padding:0;overflow:hidden;
   cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;
 }
-#vqcMateOneOverlay .vqc-mateone-cell.light{background:#fff0c7}
-#vqcMateOneOverlay .vqc-mateone-cell.dark{background:#79b7e8}
-#vqcMateOneOverlay .vqc-mateone-cell.selected{box-shadow:inset 0 0 0 4px #ffc933}
-#vqcMateOneOverlay .vqc-mateone-cell.legal::after{
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-cell.light{background:#fff0c7}
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-cell.dark{background:#79b7e8}
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-cell.selected{box-shadow:inset 0 0 0 4px #ffc933}
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-cell.legal::after{
   content:"";position:absolute;inset:auto;z-index:4;
   width:22%;height:22%;border-radius:50%;background:#3e794e80;pointer-events:none;
 }
-#vqcMateOneOverlay .vqc-mateone-cell.legal:has(.vqc-mateone-piece)::after{
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-cell.legal:has(.vqc-mateone-piece)::after{
   width:82%;height:82%;box-sizing:border-box;border:4px solid #c75a55ad;background:transparent;
 }
-#vqcMateOneOverlay .vqc-mateone-cell.hint-from{outline:4px solid #f6c245;outline-offset:-4px}
-#vqcMateOneOverlay .vqc-mateone-cell.hint-to{box-shadow:inset 0 0 0 4px #169b60}
-#vqcMateOneOverlay .vqc-mateone-piece{
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-cell.hint-from{outline:4px solid #f6c245;outline-offset:-4px}
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-cell.hint-to{box-shadow:inset 0 0 0 4px #169b60}
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-piece{
   width:90%;height:90%;display:flex;align-items:center;justify-content:center;
   pointer-events:none;position:relative;z-index:3;
   font-size:clamp(24px,4.6vw,68px);line-height:1;
 }
-#vqcMateOneOverlay .vqc-mateone-piece svg,
-#vqcMateOneOverlay .vqc-mateone-piece img,
-#vqcMateOneOverlay .vqc-mateone-piece .chess-piece-img{
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-piece svg,
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-piece img,
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-piece .chess-piece-img{
   display:block;max-width:100%;max-height:100%;width:100%;height:100%;
   object-fit:contain;pointer-events:none;user-select:none;
 }
-#vqcMateOneOverlay .vqc-mateone-rank,
-#vqcMateOneOverlay .vqc-mateone-file{
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-rank,
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-file{
   position:absolute;z-index:5;font-size:clamp(10px,1vw,14px);font-weight:850;
   color:#285a83;line-height:1;text-shadow:0 1px 1px #fff8;pointer-events:none;
 }
-#vqcMateOneOverlay .vqc-mateone-rank{top:3px;left:4px}
-#vqcMateOneOverlay .vqc-mateone-file{bottom:3px;right:4px}
-#vqcMateOneOverlay .vqc-mateone-side{
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-rank{top:3px;left:4px}
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-file{bottom:3px;right:4px}
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-side{
   display:flex;flex-direction:column;gap:11px;box-sizing:border-box;
   min-width:0;width:100%;max-height:min(calc(100dvh - 140px),790px);
   overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;align-self:start;padding:0 2px 4px;
 }
-#vqcMateOneOverlay .vqc-mateone-side h3{font-size:17px;color:#1c6195;margin:0}
-#vqcMateOneOverlay .vqc-mateone-feedback{
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-side h3{font-size:17px;color:#1c6195;margin:0}
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-feedback{
   box-sizing:border-box;min-height:94px;margin:0;border:1px solid #f1dfac;
   border-radius:16px;background:#fff5d9;padding:16px 18px;
   color:#33475d;font-size:16px;line-height:1.65;overflow-wrap:anywhere;
 }
-#vqcMateOneOverlay .vqc-mateone-feedback.success{background:#e2f8ed;border-color:#a2dfbf;color:#147344}
-#vqcMateOneOverlay .vqc-mateone-feedback.error{background:#fff0e8;border-color:#efc1a4;color:#9b4a2e}
-#vqcMateOneOverlay .vqc-mateone-progress{
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-feedback.success{background:#e2f8ed;border-color:#a2dfbf;color:#147344}
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-feedback.error{background:#fff0e8;border-color:#efc1a4;color:#9b4a2e}
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-progress{
   order:2;font-weight:750;font-size:13px;color:#3c7196;
   background:#edf7ff;border-radius:11px;padding:10px 12px;
 }
-#vqcMateOneOverlay .vqc-mateone-controls{
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-controls{
   display:flex;flex-direction:column;gap:12px;order:1;
 }
-#vqcMateOneOverlay .vqc-mateone-controls button,
-#vqcMateOneOverlay .vqc-mateone-jump button{
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-controls button,
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-jump button{
   box-sizing:border-box;min-height:58px;cursor:pointer;
   background:#eef7ff;border:1px solid #bfdcf3;border-radius:14px;
   color:#264c70;font:inherit;font-size:16px;font-weight:750;padding:12px 14px;
   transition:background .16s,transform .16s,box-shadow .16s;
 }
-#vqcMateOneOverlay .vqc-mateone-controls button:hover:not(:disabled),
-#vqcMateOneOverlay .vqc-mateone-jump button:hover:not(:disabled){
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-controls button:hover:not(:disabled),
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-jump button:hover:not(:disabled){
   background:#dceeff;transform:translateY(-1px);box-shadow:0 4px 12px #24557b18;
 }
-#vqcMateOneOverlay button:disabled,
-#vqcMateOneOverlay input:disabled{opacity:.5;cursor:not-allowed}
-#vqcMateOneOverlay button:focus-visible,
-#vqcMateOneOverlay input:focus-visible{outline:3px solid #f3b744;outline-offset:2px}
-#vqcMateOneOverlay .vqc-mateone-jump{
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) button:disabled,
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) input:disabled{opacity:.5;cursor:not-allowed}
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) button:focus-visible,
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) input:focus-visible{outline:3px solid #f3b744;outline-offset:2px}
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-jump{
   order:3;display:flex;align-items:center;flex-wrap:wrap;gap:8px;
   font-size:13px;color:#58728c;
 }
-#vqcMateOneOverlay .vqc-mateone-jump input{
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-jump input{
   box-sizing:border-box;width:74px;min-height:42px;
   padding:8px;border-radius:10px;border:1px solid #a7cee9;
   background:#fff;color:#264c70;font-size:14px;
 }
-#vqcMateOneOverlay .vqc-mateone-jump button{min-height:42px;padding:7px 14px;font-size:13px}
-#vqcMateOneOverlay .vqc-mateone-rules{
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-jump button{min-height:42px;padding:7px 14px;font-size:13px}
+:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-rules{
   order:4;margin:0;padding:11px 2px 4px;
   border-top:1px dashed #bbd6e9;color:#627e96;line-height:1.55;font-size:12px;
 }
 /* The main toolbar belongs above the dialog, not behind the overlay.
    [hidden] from annotations.css still takes precedence. */
-body:has(#vqcMateOneOverlay.open) .vqc-annotation-toolbar{
+body:has(:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay).open) .vqc-annotation-toolbar{
   display:flex;z-index:50000;
 }
 @media(max-width:900px){
- #vqcMateOneOverlay{align-items:flex-start}
- #vqcMateOneOverlay .vqc-mateone-layout{grid-template-columns:minmax(0,1fr);gap:14px}
- #vqcMateOneOverlay .vqc-mateone-board{
+ :is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay){align-items:flex-start}
+ :is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-layout{grid-template-columns:minmax(0,1fr);gap:14px}
+ :is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-board{
   width:min(100%,calc(100dvh - 205px),610px);
  }
- #vqcMateOneOverlay .vqc-mateone-side{max-height:none;overflow:visible}
- #vqcMateOneOverlay .vqc-mateone-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
- #vqcMateOneOverlay .vqc-mateone-controls button{min-height:47px;font-size:14px}
+ :is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-side{max-height:none;overflow:visible}
+ :is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ :is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-controls button{min-height:47px;font-size:14px}
 }
 @media(max-width:600px){
- #vqcMateOneOverlay{padding:4px}
- #vqcMateOneOverlay .vqc-mateone-dialog{
+ :is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay){padding:4px}
+ :is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-dialog{
   padding:9px;width:calc(100vw - 8px);max-width:calc(100vw - 8px);
   max-height:calc(100dvh - 8px);border-radius:14px;scrollbar-gutter:auto;
  }
- #vqcMateOneOverlay .vqc-mateone-top{padding:9px 11px;margin-bottom:8px;gap:7px}
- #vqcMateOneOverlay .vqc-mateone-top h2{font-size:17px}
- #vqcMateOneOverlay .vqc-mateone-top p{font-size:12px}
- #vqcMateOneOverlay .vqc-mateone-top button{padding:7px 10px;min-height:38px}
- #vqcMateOneOverlay .vqc-mateone-board{
+ :is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-top{padding:9px 11px;margin-bottom:8px;gap:7px}
+ :is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-top h2{font-size:17px}
+ :is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-top p{font-size:12px}
+ :is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-top button{padding:7px 10px;min-height:38px}
+ :is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-board{
   width:min(100%,calc(100dvh - 205px),480px);border-width:3px;
  }
- #vqcMateOneOverlay .vqc-mateone-side{gap:9px}
- #vqcMateOneOverlay .vqc-mateone-feedback{min-height:0;padding:11px;font-size:14px}
- #vqcMateOneOverlay .vqc-mateone-piece{font-size:clamp(24px,6vw,46px)}
- #vqcMateOneOverlay .vqc-mateone-rank,
- #vqcMateOneOverlay .vqc-mateone-file{font-size:10px}
- body:has(#vqcMateOneOverlay.open) .vqc-annotation-toolbar{
+ :is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-side{gap:9px}
+ :is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-feedback{min-height:0;padding:11px;font-size:14px}
+ :is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-piece{font-size:clamp(24px,6vw,46px)}
+ :is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-rank,
+ :is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-file{font-size:10px}
+ body:has(:is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay).open) .vqc-annotation-toolbar{
   right:8px;bottom:max(8px,env(safe-area-inset-bottom));z-index:50000;
  }
 }
 @media(prefers-reduced-motion:reduce){
- #vqcMateOneOverlay .vqc-mateone-controls button{transition:none}
+ :is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay) .vqc-mateone-controls button{transition:none}
 }
