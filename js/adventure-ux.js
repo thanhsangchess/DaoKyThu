@@ -315,7 +315,7 @@
    const all=groups.flatMap(g=>g.items.map(item=>({...item,kind:g.kind})));
    const position=all.findIndex(item=>item.kind===current?.group&&item.key===current?.key);
    bar._previous.disabled=position<=0;
-   bar._next.textContent=all.every(item=>item.done||item.locked)?'✓ Xem danh sách':'Bài tiếp →';
+   bar._next.textContent=all.every(item=>item.done||item.locked)?'🗺️ Chọn vùng':'Bài tiếp →';
    renderCompletion(bar._completion,snapshot,config.region);
   }
  }
