@@ -1,6 +1,6 @@
 /* Board annotation tools: SVG is an absolute child so the 8x8 grid stays intact. */
 :is(#board,#mateBoard,#mate3Board,#pvpBoard,#captureBoard,#freeCaptureBoard,
-    #defenseBoard,#checkOneBoard,#escapeBoard,#pawnGameBoard,#vqcMateOneBoard,#vqcAdventureBoard).vqc-annotation-board{
+    #defenseBoard,#checkOneBoard,#escapeBoard,#pawnGameBoard,#vqcMateOneBoard,#vqcMateOneBasicBoard,#vqcAdventureBoard).vqc-annotation-board{
  position:relative;
  isolation:isolate;
 }
