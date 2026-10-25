@@ -101,9 +101,12 @@ service cloud.firestore {
      && request.resource.data.volcanoDone is list
      && request.resource.data.volcanoDone.size()<=13
      && request.resource.data.rewardedRegions is list
-     && request.resource.data.rewardedRegions.size()<=7
+     && request.resource.data.rewardedRegions.size()<=5
      // The launched areas are 1–5. Other regions cannot award coins yet.
      && request.resource.data.rewardedRegions.hasOnly([0,1,2,3,4])
+     // Once granted, a region payout cannot be revoked to earn it again.
+     && (resource == null ||
+       request.resource.data.rewardedRegions.hasAll(resource.data.get('rewardedRegions',[])))
      && request.resource.data.purchasedAvatars is list
      && request.resource.data.purchasedAvatars.size()<=3
      && request.resource.data.purchasedAvatars.hasOnly(['knight','queen','king'])
