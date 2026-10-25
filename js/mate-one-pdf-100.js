@@ -41,7 +41,8 @@ function message(s){feedback=s;render();}
 function paint(){
  const board=$('vqcMateOneBoard');if(!board||!game)return;
  board.replaceChildren();
- const black=puzzle().color==='b',ranks=black?[1,2,3,4,5,6,7,8]:[8,7,6,5,4,3,2,1],files=black?[...FILES].reverse():[...FILES];
+ // The PDF always shows White's first rank at the bottom, even when Black moves first.
+ const ranks=[8,7,6,5,4,3,2,1],files=[...FILES];
  const legal=selected?game.moves({square:selected,verbose:true}).map(m=>m.to):[];
  for(let ri=0;ri<8;ri++)for(let fi=0;fi<8;fi++){
   const sq=files[fi]+ranks[ri],p=game.get(sq),button=document.createElement('button');
