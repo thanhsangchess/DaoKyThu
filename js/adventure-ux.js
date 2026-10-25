@@ -207,6 +207,25 @@
    items.append(b);
   }
   toolbar.append(items);
+  // The learner may open a lesson already completed on a previous day.
+  // Show a clear "continue" route without granting its reward twice.
+  let completedBanner=$('vqcJourneyForestAlreadyDone');
+  if(!completedBanner){
+   completedBanner=node('section','vqc-journey-forest-finished');
+   completedBanner.id='vqcJourneyForestAlreadyDone';
+   completedBanner.setAttribute('aria-label','Bài nhặt sao đã hoàn thành');
+   completedBanner.append(
+    node('strong','','✅ Em đã hoàn thành bài này trước đó'),
+    node('p','','Em có thể chơi lại để luyện kỹ năng, hoặc chuyển sang bài chưa hoàn thành. Chơi lại không cộng thêm sao.'),
+    button('Tiếp tục →',()=>nextLesson(),'vqc-journey-primary')
+   );
+   toolbar.insertAdjacentElement('afterend',completedBanner);
+  }
+  const now=group.items.find(item=>item.key===snapshot.currentTask?.key);
+  completedBanner.hidden=!(snapshot.active&&snapshot.region===1&&now?.done);
+  const continueButton=completedBanner.querySelector('button');
+  if(continueButton)continueButton.textContent=
+   group.items.some(item=>!item.done)?'Tiếp tục →':'📚 Xem danh sách bài';
  }
  function renderHarborMenu(snapshot){
   const screen=$('vqcAdventurePlay'),stages=$('vqcAdventureStages');if(!screen||!stages)return;
@@ -490,6 +509,27 @@
   nav()?.next();
   sync();
  }
+ function forestRunCompleted(event){
+  if(!isWorld()||details()?.region!==1||event?.region!==1)return;
+  // The region progress callback must run for both first-time and replayed
+  // lessons. Displaying a completion dialog never changes earned rewards.
+  const overlay=$('starRewardOverlay');
+  if(!overlay)return;
+  if(overlay.parentElement!==document.body)document.body.appendChild(overlay);
+  overlay.classList.add('open');
+  renderForestReward(details());
+  const title=$('starRewardTitle');
+  if(title)title.textContent='🎉 Hoàn thành bài nhặt sao!';
+  const msg=$('starRewardMessage');
+  if(msg){
+   msg.textContent=event.firstTime?
+    'Em đã thu thập đủ 6/6 ngôi sao trong '+event.label+'! ⭐ Bài này được ghi nhận hoàn thành và cộng 6 sao lần đầu.':
+    'Em đã thu thập đủ 6/6 ngôi sao trong '+event.label+'! ✅ Em đã hoàn thành bài này trước đó, vì vậy không cộng thêm sao. Hãy nhấn Tiếp tục để sang bài khác.';
+  }
+  const score=overlay.querySelector('.reward-score');
+  if(score)score.textContent='⭐ 6 / 6 ngôi sao';
+  overlay.querySelector('.reward-close')?.focus();
+ }
  function renderForestReward(snapshot){
   const overlay=$('starRewardOverlay'),card=overlay?.querySelector('.reward-card');
   if(!card)return;
@@ -576,7 +616,7 @@
   sync();
  }
  window.vqcAdventureUX={
-  refresh:sync,completed,regionCompleted,showPicker,next:nextLesson,
+  refresh:sync,completed,forestRunCompleted,regionCompleted,showPicker,next:nextLesson,
   taskStarted:()=>{celebration=null;}
  };
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
