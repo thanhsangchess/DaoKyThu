@@ -18,6 +18,7 @@
  transition:background .12s ease,border-color .12s ease;
 }
 .vqc-journey-button:hover{background:#e3f4ff;border-color:#73afe4}
+.vqc-journey-button:disabled{opacity:.48;cursor:not-allowed;box-shadow:none}
 .vqc-journey-button:focus-visible,.vqc-journey-select:focus-visible{outline:3px solid #f2b74a;outline-offset:2px}
 .vqc-journey-button.vqc-journey-primary{background:#367fcd;color:white;border-color:#2e76c0}
 .vqc-journey-button.vqc-journey-primary:hover{background:#1e68b7}
