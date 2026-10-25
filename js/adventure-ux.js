@@ -410,6 +410,6 @@
   }
   sync();
  }
- window.vqcAdventureUX={refresh:sync,completed,showPicker,next:nextLesson};
+ window.vqcAdventureUX={refresh:sync,completed,showPicker,next:nextLesson,taskStarted:()=>{celebration=null;}};
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
