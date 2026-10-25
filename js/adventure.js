@@ -1422,6 +1422,7 @@ function adventureGoTask(region,kind,key){
  const selected=adventureGroups(region).find(g=>g.kind===kind)?.items.find(item=>item.key===String(key));
  if(!selected||selected.locked)return false;
  if(adventureRegionIndex()!==region&&!adventureGoRegion(region))return false;
+ window.vqcAdventureUX?.taskStarted();
  // Close the previous exercise through its own controller before switching:
  // capture timers, reply animations and board listeners must not leak to the new task.
  for(const [id,fn] of [
@@ -1473,6 +1474,7 @@ for(const [name,region,getGroup] of [
  const original=window[name];
  if(typeof original!=='function')continue;
  window[name]=function(index,...args){
+  if(adventureRegionIndex()===region)window.vqcAdventureUX?.taskStarted();
   const result=original.call(this,index,...args);
   if(adventureRegionIndex()===region&&Number.isInteger(Number(index))){
    const kind=getGroup(Number(index));
