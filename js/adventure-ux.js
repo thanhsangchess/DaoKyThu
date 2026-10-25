@@ -519,6 +519,13 @@
   for(const id of [...REGION_SCREEN,'vqcAdventureMap','vqcModeWorld',...TASK_OVERLAYS.map(x=>x.overlay),'starRewardOverlay']){
    const target=$(id);if(target)observer.observe(target,{attributes:true,attributeFilter:['class','hidden','aria-hidden']});
   }
+  // Multiple pupils may sign in on the same browser: never inherit another
+  // account's local celebration queue or previously shown popups.
+  window.addEventListener('vqc:account-change',()=>{
+   pendingRegionRewards.length=0;announcedRegions.clear();
+   celebration=null;lastTaskId='';selectedTabs={};
+   closeVictory();sync();
+  });
   sync();
  }
  window.vqcAdventureUX={
