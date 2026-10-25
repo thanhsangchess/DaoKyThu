@@ -225,3 +225,24 @@
  /* Keep the lesson chooser available as learners scroll down its chess board. */
  .vqc-journey-taskbar{position:sticky;top:6px;z-index:30}
 }
+
+/* A completed Forest exercise remains replayable, with a visible route forward. */
+.vqc-journey-forest-finished[hidden]{display:none!important}
+.vqc-journey-forest-finished{
+ display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;
+ gap:9px;margin:10px 0 15px;padding:12px 14px;
+ background:linear-gradient(115deg,#edfff5,#f7fcff);
+ border:1px solid #9ad5b2;border-radius:14px;color:#23654b;
+}
+.vqc-journey-forest-finished strong{font-size:14px}
+.vqc-journey-forest-finished p{flex:1 1 230px;margin:0;font-size:12px;line-height:1.5;color:#496f61}
+.vqc-journey-forest-finished .vqc-journey-button{flex:0 0 auto}
+@media(max-width:590px){
+ .vqc-journey-forest-finished .vqc-journey-button{width:100%}
+}
+/* Reward dialog is shared with the classroom, which can be hidden while
+   the chess board itself is re-parented into Forest. Keep it above the
+   region-victory panel and always visible at the document root. */
+body.vqc-mode-world #starRewardOverlay.open{
+ position:fixed;inset:0;z-index:220000;display:flex!important;
+}
