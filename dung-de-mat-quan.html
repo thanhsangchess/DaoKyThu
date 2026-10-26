@@ -8,8 +8,7 @@
 <section class="hero"><div>🛡️ THỬ THÁCH PHÒNG THỦ</div><h1>Đừng để mất quân!</h1><p>Quan sát quân bị đe dọa, rồi di chuyển quân đó tới một ô an toàn. Hãy suy nghĩ trước khi đi!</p></section>
 <div class="layout"><section class="panel"><div class="top"><span class="pill" id="level">Bài 1/6</span><span class="pill" id="side">Lượt Trắng</span></div><div class="meter"><div id="bar" style="width:0%"></div></div><div class="board-frame"><div id="board" class="board" role="group" aria-label="Bàn cờ vua. Chọn quân rồi chọn ô đến"></div></div><div class="coords">a → h · Quân Trắng ở phía dưới</div></section>
 <section class="panel"><span class="pill">🎯 Nhiệm vụ</span><h2 id="heading">Cứu quân cờ!</h2><p class="instruction" id="detail"></p><div class="focus">🔍 Nhìn – Nghĩ – Kiểm tra – Mới đi!</div><div class="message" id="message" role="status" aria-live="polite">Chạm quân cần cứu, rồi chạm ô an toàn.</div><div class="points" id="points">⭐ 0 / 6</div><div class="buttons"><button class="action alt" id="retry" type="button">↻ Thử lại</button><button class="action" id="next" type="button" disabled>Bài tiếp theo →</button></div><p class="footer">Không phải mọi nước thí quân đều là sai lầm. Trong thử thách này, em cần cứu quân đang bị đe dọa bằng cách đi tới ô không bị đối phương tấn công. Bài học hoạt động độc lập và chưa đồng bộ phòng học.</p></section></div></main>
-<script src="https://cdn.jsdelivr.net/npm/chess.js@1.0.0/dist/cjs/chess.js"></script>
-<script>
+<script type="module">\nimport { Chess } from "https://esm.sh/chess.js@1.0.0";
 (function(){
 "use strict";
 const tasks=[
@@ -23,7 +22,7 @@ const tasks=[
 const glyph={wk:"♔",wq:"♕",wr:"♖",wb:"♗",wn:"♘",wp:"♙",bk:"♚",bq:"♛",br:"♜",bb:"♝",bn:"♞",bp:"♟"};
 let idx=0,selected=null,won=false,game=null;
 const $=id=>document.getElementById(id);let completed={};try{completed=JSON.parse(localStorage.getItem("dao-ky-thu-dung-de-mat-quan")||"{}")}catch(e){}
-function createGame(fen){if(window.Chess)return new Chess(fen);if(window.chess&&window.chess.Chess)return new window.chess.Chess(fen);return null;}
+function createGame(fen){return new Chess(fen);}
 function attacked(g,sq){if(typeof g.isAttacked==="function")return g.isAttacked(sq,"b");const alt=new Chess(g.fen());const targets=alt.moves({verbose:true});return targets.some(m=>m.to===sq && m.color==="b");}
 function save(){try{localStorage.setItem("dao-ky-thu-dung-de-mat-quan",JSON.stringify(completed))}catch(e){}}
 function msg(s,kind=""){const el=$("message");el.textContent=s;el.className="message "+kind}
