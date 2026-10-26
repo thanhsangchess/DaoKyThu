@@ -118,7 +118,7 @@ body:has(#vqcLoneMateOverlay.open) #vqcAnnotationToolbar:not([hidden]){
 }
 @media(max-width:760px){
  body.vqc-mobile-logged-in:has(#vqcLoneMateOverlay.open) #vqcAnnotationToolbar:not([hidden]){
-  bottom:max(12px,env(safe-area-inset-bottom,0px))!important;
+  bottom:calc(85px + env(safe-area-inset-bottom,0px))!important;
   z-index:45000!important;
  }
 }
