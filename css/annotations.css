@@ -1,6 +1,6 @@
 /* Board annotation tools: SVG is an absolute child so the 8x8 grid stays intact. */
 :is(#board,#mateBoard,#mate3Board,#pvpBoard,#captureBoard,#freeCaptureBoard,
-    #defenseBoard,#checkOneBoard,#escapeBoard,#pawnGameBoard,#vqcMateOneBoard,#vqcMateOneBasicBoard,#vqcAdventureBoard).vqc-annotation-board{
+    #defenseBoard,#checkOneBoard,#escapeBoard,#pawnGameBoard,#vqcMateOneBoard,#vqcMateOneBasicBoard,#vqcLoneMateBoard,#vqcAdventureBoard).vqc-annotation-board{
  position:relative;
  isolation:isolate;
 }
@@ -109,4 +109,16 @@
 @media(prefers-reduced-motion:reduce){
  .vqc-annotation-toolbar button{transition:none!important}
  .vqc-annotation-toolbar button:hover{transform:none!important}
+}
+
+/* Lone-king checkmate modal sits above the ordinary annotation toolbar.
+   Raise the same shared toolbar only while this exercise is open. */
+body:has(#vqcLoneMateOverlay.open) #vqcAnnotationToolbar:not([hidden]){
+ z-index:45000!important;
+}
+@media(max-width:760px){
+ body.vqc-mobile-logged-in:has(#vqcLoneMateOverlay.open) #vqcAnnotationToolbar:not([hidden]){
+  bottom:max(12px,env(safe-area-inset-bottom,0px))!important;
+  z-index:45000!important;
+ }
 }
