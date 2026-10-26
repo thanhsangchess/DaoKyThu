@@ -6,12 +6,15 @@
 </style></head><body><main class="wrap">
 <div class="top"><a class="back" href="./index.html">← Trở về Đảo Kỳ Thủ</a><span class="logo">♞ ĐẢO KỲ THỦ</span></div>
 <section class="hero"><div>🛡️ THỬ THÁCH PHÒNG THỦ</div><h1>Đừng để mất quân!</h1><p>Quan sát quân bị đe dọa, rồi di chuyển quân đó tới một ô an toàn. Hãy suy nghĩ trước khi đi!</p></section>
-<div class="layout"><section class="panel"><div class="top"><span class="pill" id="level">Bài 1/6</span><span class="pill" id="side">Lượt Trắng</span></div><div class="meter"><div id="bar" style="width:0%"></div></div><div class="board-frame"><div id="board" class="board" role="group" aria-label="Bàn cờ vua. Chọn quân rồi chọn ô đến"></div></div><div class="coords">a → h · Quân Trắng ở phía dưới</div></section>
-<section class="panel"><span class="pill">🎯 Nhiệm vụ</span><h2 id="heading">Cứu quân cờ!</h2><p class="instruction" id="detail"></p><div class="focus">🔍 Nhìn – Nghĩ – Kiểm tra – Mới đi!</div><div class="message" id="message" role="status" aria-live="polite">Chạm quân cần cứu, rồi chạm ô an toàn.</div><div class="points" id="points">⭐ 0 / 6</div><div class="buttons"><button class="action alt" id="retry" type="button">↻ Thử lại</button><button class="action" id="next" type="button" disabled>Bài tiếp theo →</button></div><p class="footer">Không phải mọi nước thí quân đều là sai lầm. Trong thử thách này, em cần cứu quân đang bị đe dọa bằng cách đi tới ô không bị đối phương tấn công. Bài học hoạt động độc lập và chưa đồng bộ phòng học.</p></section></div></main>
-<script type="module">\nimport { Chess } from "https://esm.sh/chess.js@1.0.0";
+<div class="layout"><section class="panel"><div class="top"><span class="pill" id="level">Bài 1/8</span><span class="pill" id="side">Lượt Trắng</span></div><div class="meter"><div id="bar" style="width:0%"></div></div><div class="board-frame"><div id="board" class="board" role="group" aria-label="Bàn cờ vua. Chọn quân rồi chọn ô đến"></div></div><div class="coords">a → h · Quân Trắng ở phía dưới</div></section>
+<section class="panel"><span class="pill">🎯 Nhiệm vụ</span><h2 id="heading">Cứu quân cờ!</h2><p class="instruction" id="detail"></p><div class="focus">🔍 Nhìn – Nghĩ – Kiểm tra – Mới đi!</div><div class="message" id="message" role="status" aria-live="polite">Chạm quân cần cứu, rồi chạm ô an toàn.</div><div class="points" id="points">⭐ 0 / 8</div><div class="buttons"><button class="action alt" id="retry" type="button">↻ Thử lại</button><button class="action" id="next" type="button" disabled>Bài tiếp theo →</button></div><p class="footer">Không phải mọi nước thí quân đều là sai lầm. Trong thử thách này, em cần cứu quân đang bị đe dọa bằng cách đi tới ô không bị đối phương tấn công. Bài học hoạt động độc lập và chưa đồng bộ phòng học.</p></section></div></main>
+<script type="module">
+import { Chess } from "https://esm.sh/chess.js@1.0.0";
 (function(){
 "use strict";
 const tasks=[
+{fen:"r2qk2r/p4ppp/2pp1n2/Q1b2bN1/2P1p3/4P1P1/PP1P1PBP/RNB2RK1 w - - 0 1",square:"a5",name:"Hậu Trắng",threat:"Hình 1: Hậu Trắng vừa đến a5. Hậu Đen ở d8 đang tấn công theo đường chéo d8–c7–b6–a5. Hãy cứu Hậu!"},
+{fen:"2r2rk1/5pp1/p1Bp1q1p/bP3b2/2P5/P1N1P1P1/1B1P1P1P/1R3RK1 w - - 0 1",square:"b1",name:"Xe Trắng",threat:"Hình 2: Xe Trắng vừa đến b1. Tượng Đen ở f5 đang tấn công theo đường chéo f5–e4–d3–c2–b1. Hãy cứu Xe!"},
 {fen:"4k3/6b1/8/8/8/8/8/R3K3 w Q - 0 1",square:"a1",name:"Xe Trắng",threat:"Tượng Đen ở g7 đang nhắm vào Xe Trắng tại a1."},
 {fen:"2r1k3/8/8/8/8/2N5/8/4K3 w - - 0 1",square:"c3",name:"Mã Trắng",threat:"Xe Đen ở c8 đang nhắm dọc cột c vào Mã Trắng."},
 {fen:"4k3/8/8/8/3p4/4B3/8/4K3 w - - 0 1",square:"e3",name:"Tượng Trắng",threat:"Tốt Đen tại d4 đang tấn công Tượng Trắng ở e3."},
