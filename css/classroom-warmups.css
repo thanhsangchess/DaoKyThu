@@ -44,3 +44,16 @@
 .vqc-maze-controls button[data-dir=down]{grid-column:2;grid-row:2}
 .vqc-maze-controls button[data-dir=right]{grid-column:3;grid-row:2}
 @media(max-width:620px){.vqc-warmup-overlay{padding:8px;align-items:flex-start}.vqc-warmup-dialog{max-height:96vh;border-radius:18px}.vqc-warmup-head{padding:17px 15px 13px}.vqc-warmup-body{padding:17px 13px;min-height:240px}.vqc-warmup-cards{grid-template-columns:1fr;gap:9px}.vqc-warmup-card{min-height:94px;display:grid;grid-template-columns:54px 1fr;grid-template-rows:auto auto;text-align:left;justify-items:start;padding:12px}.vqc-warmup-card>span{grid-row:1/3;font-size:34px}.vqc-warmup-card strong,.vqc-warmup-card small{text-align:left}.vqc-warmup-foot{padding:10px 13px}.vqc-warmup-options button{min-width:70px;min-height:64px}.vqc-warmup-progress{font-size:12px}}
+
+/* Additional thinking games: odd-one-out, arrow route, hidden picture. */
+.vqc-odd-items{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:12px;margin:22px auto}
+.vqc-odd-items span{width:clamp(64px,13vw,92px);height:clamp(64px,13vw,92px);display:grid;place-items:center;border:2px solid #dcebf7;border-radius:18px;background:#f8fcff;font-size:clamp(34px,7vw,52px);box-shadow:0 4px 0 #e7f0f7}
+.vqc-arrow-sequence{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:9px;margin:22px auto}
+.vqc-arrow-step,.vqc-arrow-start{min-width:65px;min-height:70px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px;border:2px solid #dcebf7;border-radius:14px;background:#f8fcff;font-size:31px}
+.vqc-arrow-step small,.vqc-arrow-start small{font-size:11px;font-weight:800;color:#718096}
+.vqc-arrow-start{background:#fff7df;border-color:#f0d58a}
+.vqc-picture-grid{width:min(100%,330px);aspect-ratio:1;display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:18px auto;padding:8px;background:#e8f2fa;border-radius:16px}
+.vqc-picture-tile{border:2px solid #c9ddec;border-radius:10px;background:linear-gradient(145deg,#8fc3e8,#5c9bc9);color:#fff;font-size:clamp(24px,6vw,39px);font-weight:900;cursor:pointer;box-shadow:inset 0 2px 5px rgba(255,255,255,.3)}
+.vqc-picture-tile:hover{filter:brightness(1.07)}
+.vqc-picture-tile.revealed{background:#fff;border-color:#d9e7f1;cursor:default}
+@media(max-width:620px){.vqc-odd-items{gap:8px}.vqc-odd-items span{border-radius:13px}.vqc-arrow-sequence{gap:6px}.vqc-arrow-step,.vqc-arrow-start{min-width:54px;min-height:62px;font-size:26px}.vqc-picture-grid{gap:5px;padding:6px}}

@@ -12,6 +12,22 @@
     {items:['⭐','⭐','🌙','⭐','⭐','?'],options:['⭐','🌙','☀️'],answer:'🌙',why:'Quy luật là hai ngôi sao rồi một mặt trăng.'},
     {items:['🔺','🔵','🔵','🔺','🔵','🔵','?'],options:['🔺','🔵','🟩'],answer:'🔺',why:'Một tam giác rồi hai hình tròn được lặp lại.'}
   ];
+
+  const ODD=[
+    {items:['🍎','🍐','🍌','🚗'],answer:'🚗',why:'Ba hình đầu là trái cây, còn ô tô là phương tiện.'},
+    {items:['🔺','🔵','🟩','🐱'],answer:'🐱',why:'Ba hình đầu là hình khối, còn mèo là con vật.'},
+    {items:['🐶','🐱','🐰','🌻'],answer:'🌻',why:'Ba hình đầu là con vật, còn hoa hướng dương là thực vật.'}
+  ];
+  const ARROWS=[
+    {start:[2,2],moves:['⬆️','➡️','⬇️'],options:['(2, 3)','(3, 3)','(2, 1)'],answer:'(2, 3)',why:'Từ giữa đi lên, sang phải rồi xuống một ô.'},
+    {start:[1,1],moves:['➡️','➡️','⬆️'],options:['(1, 3)','(0, 3)','(2, 3)'],answer:'(0, 3)',why:'Đi sang phải hai ô rồi đi lên một ô.'},
+    {start:[3,2],moves:['⬅️','⬆️','⬆️','➡️'],options:['(1, 2)','(2, 3)','(1, 3)'],answer:'(1, 2)',why:'Đi trái một ô, lên hai ô rồi sang phải một ô.'}
+  ];
+  const PICTURES=[
+    {picture:'🐼',options:['🐼','🐻','🐱'],answer:'🐼',hint:'Con vật này có hai mảng màu đen quanh mắt.'},
+    {picture:'🚀',options:['✈️','🚀','🚂'],answer:'🚀',hint:'Đây là phương tiện có thể bay vào không gian.'},
+    {picture:'🍉',options:['🍉','🍓','🍍'],answer:'🍉',hint:'Loại quả này thường có vỏ xanh và ruột đỏ.'}
+  ];
   const MAZE_PATH=[[0,0],[0,1],[1,1],[2,1],[2,2],[2,3],[1,3],[1,4],[2,4],[3,4],[4,4]];
   let state=null, unsubscribe=null, lastReceived='', overlay=null;
   const $=id=>document.getElementById(id);
@@ -38,8 +54,8 @@
     overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.hidden=true;});
   }
   function baseState(game){
-    return {active:true,game,round:0,score:0,phase:game==='memory'?'memorize':game==='pattern'?'question':'playing',
-      answer:null,correct:null,mazeIndex:0,clientId:CLIENT,nonce:Date.now()};
+    return {active:true,game,round:0,score:0,phase:game==='memory'?'memorize':game==='picture'?'reveal':game==='maze'?'playing':'question',
+      answer:null,correct:null,mazeIndex:0,revealed:[],clientId:CLIENT,nonce:Date.now()};
   }
   function open(){
     ensureUI();
@@ -77,6 +93,9 @@
       '<button class="vqc-warmup-card" data-game="memory"><span>🧠</span><strong>Thử thách trí nhớ</strong><small>Quan sát nhanh – tìm hình biến mất</small></button>'+
       '<button class="vqc-warmup-card" data-game="pattern"><span>🔍</span><strong>Giải mã quy luật</strong><small>Tìm hình tiếp theo trong dãy</small></button>'+
       '<button class="vqc-warmup-card" data-game="maze"><span>🧭</span><strong>Nhà thám hiểm tìm đường</strong><small>Lập kế hoạch – tìm lối ra mê cung</small></button>'+
+      '<button class="vqc-warmup-card" data-game="odd"><span>🧩</span><strong>Ai khác biệt?</strong><small>Tìm hình không cùng nhóm</small></button>'+
+      '<button class="vqc-warmup-card" data-game="arrows"><span>➡️</span><strong>Mũi tên thần kỳ</strong><small>Dự đoán vị trí sau các bước đi</small></button>'+
+      '<button class="vqc-warmup-card" data-game="picture"><span>🖼️</span><strong>Bức tranh bí ẩn</strong><small>Mở ô – quan sát – đoán hình</small></button>'+
       '</div>';
     $('vqcWarmupBody').querySelectorAll('[data-game]').forEach(b=>b.addEventListener('click',()=>start(b.dataset.game)));
     $('vqcWarmupSync').textContent='● Đang kết nối lớp';
@@ -97,10 +116,13 @@
     overlay.hidden=false;
     $('vqcWarmupEnd').hidden=!isTeacher();
     $('vqcWarmupSync').textContent='● Đã kết nối đồng bộ';
-    const gameNames={memory:'🧠 Thử thách trí nhớ',pattern:'🔍 Giải mã quy luật',maze:'🧭 Nhà thám hiểm tìm đường'};
+    const gameNames={memory:'🧠 Thử thách trí nhớ',pattern:'🔍 Giải mã quy luật',maze:'🧭 Nhà thám hiểm tìm đường',odd:'🧩 Ai khác biệt?',arrows:'➡️ Mũi tên thần kỳ',picture:'🖼️ Bức tranh bí ẩn'};
     $('vqcWarmupSub').textContent=gameNames[state.game]+' · Giáo viên và học sinh đang cùng tham gia';
     if(state.game==='memory')renderMemory();
     else if(state.game==='pattern')renderPattern();
+    else if(state.game==='odd')renderOdd();
+    else if(state.game==='arrows')renderArrows();
+    else if(state.game==='picture')renderPicture();
     else renderMaze();
   }
   function renderMemory(){
@@ -160,6 +182,61 @@
       if(state.round>=2){state={...state,active:false,phase:'finished',clientId:CLIENT};publish();render();return;}
       state={...state,round:state.round+1,phase:'question',answer:null,correct:null,clientId:CLIENT};publish();render();
     });
+  }
+
+  function renderOdd(){
+    const q=ODD[Math.min(state.round,2)];
+    const top='<div class="vqc-warmup-progress">Câu '+(state.round+1)+'/3 <span>⭐ '+state.score+'/3</span></div>';
+    let html=top+'<p class="vqc-warmup-instruction">Hình nào không cùng nhóm với các hình còn lại?</p><div class="vqc-odd-items">'+q.items.map(x=>'<span>'+x+'</span>').join('')+'</div>';
+    if(state.phase==='question')html+='<div class="vqc-warmup-options">'+q.items.map(x=>'<button data-odd="'+x+'">'+x+'</button>').join('')+'</div>';
+    else html+='<div class="vqc-warmup-result">'+(state.correct?'🎉 Em tìm đúng rồi!':'🌱 Đáp án là '+q.answer)+'</div><p class="vqc-warmup-hint">'+q.why+'</p>'+controls(teacherButton(state.round===2?'Hoàn thành':'Câu tiếp theo →','odd-next'));
+    $('vqcWarmupBody').innerHTML=html;
+    if(state.phase==='question')$('vqcWarmupBody').querySelectorAll('[data-odd]').forEach(b=>b.addEventListener('click',()=>{
+      if(state.phase!=='question')return;const ok=b.dataset.odd===q.answer;
+      state={...state,phase:'result',answer:b.dataset.odd,correct:ok,score:state.score+(ok?1:0),clientId:CLIENT};publish();render();
+    }));
+    if(state.phase==='result')bindAction('odd-next',()=>advanceQuestion('odd'));
+  }
+  function renderArrows(){
+    const q=ARROWS[Math.min(state.round,2)];
+    const moves=q.moves.map((x,i)=>'<span class="vqc-arrow-step"><small>Bước '+(i+1)+'</small>'+x+'</span>').join('');
+    let html='<div class="vqc-warmup-progress">Câu '+(state.round+1)+'/3 <span>⭐ '+state.score+'/3</span></div>'+
+      '<p class="vqc-warmup-instruction">Bạn nhỏ bắt đầu ở ô <strong>'+q.start.join(', ')+'</strong>. Sau các mũi tên, bạn ấy sẽ ở vị trí nào?</p>'+
+      '<div class="vqc-arrow-sequence"><span class="vqc-arrow-start">🚩<small>Bắt đầu</small></span>'+moves+'</div>';
+    if(state.phase==='question')html+='<div class="vqc-warmup-options">'+q.options.map(x=>'<button data-arrow="'+x+'">'+x+'</button>').join('')+'</div>';
+    else html+='<div class="vqc-warmup-result">'+(state.correct?'🌟 Chính xác!':'💡 Vị trí đúng: '+q.answer)+'</div><p class="vqc-warmup-hint">'+q.why+'</p>'+controls(teacherButton(state.round===2?'Hoàn thành':'Câu tiếp theo →','arrow-next'));
+    $('vqcWarmupBody').innerHTML=html;
+    if(state.phase==='question')$('vqcWarmupBody').querySelectorAll('[data-arrow]').forEach(b=>b.addEventListener('click',()=>{
+      if(state.phase!=='question')return;const ok=b.dataset.arrow===q.answer;
+      state={...state,phase:'result',answer:b.dataset.arrow,correct:ok,score:state.score+(ok?1:0),clientId:CLIENT};publish();render();
+    }));
+    if(state.phase==='result')bindAction('arrow-next',()=>advanceQuestion('arrows'));
+  }
+  function renderPicture(){
+    const q=PICTURES[Math.min(state.round,2)],revealed=state.revealed||[];
+    const tiles=Array.from({length:9},(_,i)=>'<button class="vqc-picture-tile '+(revealed.includes(i)?'revealed':'')+'" data-tile="'+i+'">'+(revealed.includes(i)?q.picture:'?')+'</button>').join('');
+    let html='<div class="vqc-warmup-progress">Bức tranh '+(state.round+1)+'/3 <span>🪟 '+revealed.length+'/9 ô</span></div>'+
+      '<p class="vqc-warmup-instruction">Bức tranh đang được che lại. Em hãy mở từng ô và đoán xem đó là gì!</p>'+
+      '<div class="vqc-picture-grid">'+tiles+'</div>';
+    if(state.phase==='reveal'&&revealed.length>=2)html+='<p class="vqc-warmup-hint">Em đã có manh mối. Hãy thử đoán bức tranh!</p><div class="vqc-warmup-options">'+q.options.map(x=>'<button data-picture="'+x+'">'+x+'</button>').join('')+'</div>';
+    if(state.phase==='reveal'&&revealed.length<2)html+='<p class="vqc-warmup-hint">Mở ít nhất 2 ô để nhận các lựa chọn nhé.</p>';
+    if(state.phase==='result')html+='<div class="vqc-warmup-result">'+(state.correct?'🎉 Đoán đúng bức tranh!':'💡 Bức tranh là '+q.answer)+'</div><p class="vqc-warmup-hint">'+q.hint+'</p>'+controls(teacherButton(state.round===2?'Hoàn thành':'Bức tranh tiếp theo →','picture-next'));
+    $('vqcWarmupBody').innerHTML=html;
+    if(state.phase==='reveal')$('vqcWarmupBody').querySelectorAll('[data-tile]').forEach(b=>b.addEventListener('click',()=>{
+      const n=Number(b.dataset.tile);if((state.revealed||[]).includes(n))return;
+      state={...state,revealed:[...(state.revealed||[]),n],clientId:CLIENT};publish();render();
+    }));
+    if(state.phase==='reveal'&&revealed.length>=2)$('vqcWarmupBody').querySelectorAll('[data-picture]').forEach(b=>b.addEventListener('click',()=>{
+      if(state.phase!=='reveal')return;const ok=b.dataset.picture===q.answer;
+      state={...state,phase:'result',answer:b.dataset.picture,correct:ok,score:state.score+(ok?1:0),clientId:CLIENT};publish();render();
+    }));
+    if(state.phase==='result')bindAction('picture-next',()=>advanceQuestion('picture'));
+  }
+  function advanceQuestion(game){
+    if(!isTeacher())return;
+    if(state.round>=2){state={...state,active:false,phase:'finished',clientId:CLIENT};publish();render();return;}
+    state={...state,round:state.round+1,phase:game==='picture'?'reveal':'question',answer:null,correct:null,revealed:[],clientId:CLIENT};
+    publish();render();
   }
   function renderMaze(){
     const idx=state.mazeIndex||0,cur=MAZE_PATH[idx],done=idx===MAZE_PATH.length-1;
