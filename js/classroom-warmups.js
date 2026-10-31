@@ -55,7 +55,7 @@
   }
   function baseState(game){
     return {active:true,game,round:0,score:0,phase:game==='memory'?'memorize':game==='picture'?'reveal':game==='maze'?'playing':'question',
-      answer:null,correct:null,mazeIndex:0,revealed:[],,clientId:CLIENT,nonce:Date.now()};
+      answer:null,correct:null,mazeIndex:0,revealed:[],clientId:CLIENT,nonce:Date.now()};
   }
   function open(){
     ensureUI();
