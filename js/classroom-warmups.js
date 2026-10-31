@@ -200,13 +200,14 @@
   function startListener(){
     const r=getRoom();if(!r||typeof r.onSnapshot!=='function')return;
     if(unsubscribe)unsubscribe();
+    lastReceived='';state=null;if(overlay)overlay.hidden=true;
     unsubscribe=r.onSnapshot(snap=>{
       if(!snap.exists)return;
       const data=snap.data()||{};
       if(data.warmupGame)receive(data.warmupGame);
     },e=>console.warn('Warm-up listener:',e));
   }
-  function stopListener(){if(unsubscribe){unsubscribe();unsubscribe=null;}}
+  function stopListener(){if(unsubscribe){unsubscribe();unsubscribe=null;}state=null;lastReceived='';if(overlay)overlay.hidden=true;}
   const baseListen=window.listenToRoom;
   if(typeof baseListen==='function'){
     window.listenToRoom=function(){const out=baseListen.apply(this,arguments);startListener();return out;};
