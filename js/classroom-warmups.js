@@ -21,7 +21,7 @@
   const ARROWS=[
     {start:[2,2],moves:['⬆️','➡️','⬇️'],options:['(2, 3)','(3, 3)','(2, 1)'],answer:'(2, 3)',why:'Từ giữa đi lên, sang phải rồi xuống một ô.'},
     {start:[1,1],moves:['➡️','➡️','⬆️'],options:['(1, 3)','(0, 3)','(2, 3)'],answer:'(0, 3)',why:'Đi sang phải hai ô rồi đi lên một ô.'},
-    {start:[3,2],moves:['⬅️','⬆️','⬆️','➡️'],options:['(1, 2)','(2, 3)','(1, 3)'],answer:'(1, 3)',why:'Đi trái một ô, lên hai ô rồi sang phải một ô.'}
+    {start:[3,2],moves:['⬅️','⬆️','⬆️','➡️'],options:['(1, 2)','(2, 3)','(1, 3)'],answer:'(1, 2)',why:'Đi trái một ô, lên hai ô rồi sang phải một ô.'}
   ];
   const PICTURES=[
     {picture:'🐼',options:['🐼','🐻','🐱'],answer:'🐼',hint:'Con vật này có hai mảng màu đen quanh mắt.'},
