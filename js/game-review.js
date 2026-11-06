@@ -36,6 +36,7 @@
    if(importBox.open)importBox.scrollIntoView({block:'nearest',behavior:'smooth'});
   });
   controls.appendChild(movePanelToggle);
+  if(importBox)side.appendChild(importBox);
   importBox?.addEventListener('toggle',()=>{
    movePanelToggle?.setAttribute('aria-expanded',String(importBox.open));
   });
