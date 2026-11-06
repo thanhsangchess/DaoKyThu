@@ -290,8 +290,9 @@
  }
  function receiveVariation(data){
   if(!data){
+   const hadSharedVariation=!!variationSharedStamp;
    variationSharedStamp=null;
-   if(variationActive&&variationFromStudent)resetVariation(true);
+   if(hadSharedVariation&&variationActive)resetVariation(true);
    return;
   }
   if(typeof data!=='object'||workspace()?.hidden||!positions.length)return;
