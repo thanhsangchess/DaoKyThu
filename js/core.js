@@ -1580,6 +1580,7 @@ function listenToRoom(){
     }
     // Student sees the teacher's arrows/circles without touching chess pieces.
     if(typeof window.vqcAnnotationsReceive==='function')window.vqcAnnotationsReceive(data.boardAnnotations||null);
+    if(typeof window.vqcGameReviewReceive==='function')window.vqcGameReviewReceive(data.gameReview||null);
 
   },err=>{
     console.error('Firestore classroom listener error',err);
