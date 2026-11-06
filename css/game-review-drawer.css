@@ -212,3 +212,74 @@ body.vqc-review-active #vqcAnnotationToolbar,
 body.vqc-review-active #vqcInviteBell{
   display:none!important;
 }
+
+/* Interactive analysis branch on the PGN review board */
+.vqc-review-variation-actions{
+ flex:0 0 auto;
+ display:flex;
+ flex-direction:column;
+ gap:8px;
+ width:100%;
+ padding:10px;
+ box-sizing:border-box;
+ border:1px solid #d5e5f2;
+ border-radius:12px;
+ background:#fff;
+}
+.vqc-review-variation-actions__heading{display:flex;flex-direction:column;gap:3px}
+.vqc-review-variation-actions__heading strong{color:#24577e;font-size:12px;font-weight:900}
+.vqc-review-variation-actions__heading small{color:#71879b;font-size:10px;line-height:1.4}
+.vqc-review-variation-actions__buttons{display:flex;flex-wrap:wrap;gap:6px}
+.vqc-review-variation-actions__buttons button,
+.vqc-review-promotion button{
+ min-height:34px;
+ padding:7px 10px;
+ border:1px solid #c8dce9;
+ border-radius:9px;
+ background:#f7fbff;
+ color:#315e80;
+ font:800 11px/1.25 system-ui,"Segoe UI",sans-serif;
+ cursor:pointer;
+}
+.vqc-review-variation-actions__buttons button.is-return{
+ border-color:#2677bf;
+ background:#2878cc;
+ color:#fff;
+}
+.vqc-review-variation-actions__buttons button:hover,
+.vqc-review-promotion button:hover{filter:brightness(.97)}
+.vqc-review-promotion{
+ display:flex;
+ align-items:center;
+ flex-wrap:wrap;
+ gap:6px;
+ padding-top:7px;
+ border-top:1px solid #e4edf5;
+}
+.vqc-review-promotion[hidden]{display:none!important}
+.vqc-review-promotion>span{width:100%;color:#506f89;font-size:10px;font-weight:800}
+.vqc-review-promotion button.is-muted{background:#fff;color:#71879b}
+#vqcReviewBoard .square[data-square]{cursor:pointer}
+#vqcReviewBoard .square.review-selected{
+ box-shadow:inset 0 0 0 4px #f7c948, inset 0 0 0 999px rgba(250,204,21,.25)!important;
+ z-index:2;
+}
+#vqcReviewBoard .square.review-legal-target::after{
+ content:"";
+ position:absolute;
+ z-index:4;
+ left:50%;top:50%;
+ width:20%;height:20%;
+ border-radius:50%;
+ background:rgba(25,115,67,.62);
+ transform:translate(-50%,-50%);
+ pointer-events:none;
+}
+#vqcReviewBoard .square.review-legal-capture::after{
+ width:78%;height:78%;
+ border:4px solid rgba(25,115,67,.58);
+ background:transparent;
+ box-sizing:border-box;
+}
+#vqcReviewBoard .square.review-selected .piece,
+#vqcReviewBoard .square.review-legal-target .piece{position:relative;z-index:3}
