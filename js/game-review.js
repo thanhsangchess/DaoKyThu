@@ -9,6 +9,7 @@
  const connected=()=>typeof roomRef!=='undefined'&&!!roomRef;
  let workspaceInstalled=false;
  let variationGame=null,variationActive=false,variationMoves=[],selectedSquare=null,promotionChoices=[];
+ let boardFlipped=false;
  function installMoveDrawer(){
   const workspaceEl=workspace();
   const boardCol=workspaceEl?.querySelector('.vqc-review-workspace__board');
@@ -147,6 +148,18 @@
    selectedSquare=square;renderBoard();
   }
  }
+ function updateFlipButton(){
+  const button=$('vqcReviewFlipBoard');
+  if(!button)return;
+  button.textContent='↻ Đảo bàn cờ · '+(boardFlipped?'Đen':'Trắng');
+  button.setAttribute('aria-pressed',String(boardFlipped));
+  button.title='Góc nhìn hiện tại: '+(boardFlipped?'Đen':'Trắng')+' ở phía dưới. Nhấn để đổi góc nhìn.';
+ }
+ function toggleBoardOrientation(){
+  boardFlipped=!boardFlipped;
+  updateFlipButton();
+  renderBoard();
+ }
  function renderBoard(){
   const board=$('vqcReviewBoard');if(!board)return;
   board.replaceChildren();
@@ -165,7 +178,10 @@
   const last=variationActive?variationMoves[variationMoves.length-1]:moves[current-1];
   const legalTargets=selectedSquare?legalVariationMoves(selectedSquare):[];
   const targetSquares=new Set(legalTargets.map(move=>move.to));
-  for(let r=0;r<8;r++)for(let f=0;f<8;f++){
+  const rows=boardFlipped?[7,6,5,4,3,2,1,0]:[0,1,2,3,4,5,6,7];
+  const files=boardFlipped?[7,6,5,4,3,2,1,0]:[0,1,2,3,4,5,6,7];
+  board.dataset.orientation=boardFlipped?'black':'white';
+  for(const r of rows)for(const f of files){
    const piece=grid[r][f],name='abcdefgh'[f]+(8-r),square=document.createElement('div');
    square.className='square '+((r+f)%2===0?'light':'dark');
    square.dataset.square=name;
@@ -179,10 +195,13 @@
     holder.innerHTML=typeof pieceSvgMarkup==='function'?pieceSvgMarkup(code):(glyph[piece.color+piece.type]||'');
     square.appendChild(holder);
    }
-   if(f===0)square.appendChild(makeCoordinate(String(8-r),'rank'));
-   if(r===7)square.appendChild(makeCoordinate('abcdefgh'[f],'file'));
+   if((!boardFlipped&&f===0)||(boardFlipped&&f===7))
+    square.appendChild(makeCoordinate(String(8-r),'rank'));
+   if((!boardFlipped&&r===7)||(boardFlipped&&r===0))
+    square.appendChild(makeCoordinate('abcdefgh'[f],'file'));
    board.appendChild(square);
   }
+  updateFlipButton();
   updateVariationControls();
  }
  function renderMoveList(){
@@ -334,6 +353,8 @@
   $('vqcReviewNext')?.addEventListener('click',()=>go(current+1));
   $('vqcReviewLast')?.addEventListener('click',()=>go(moves.length));
   $('vqcReviewVariationReset')?.addEventListener('click',()=>resetVariation(true));
+  $('vqcReviewFlipBoard')?.addEventListener('click',toggleBoardOrientation);
+  updateFlipButton();
   $('vqcReviewReturnBoard')?.addEventListener('click',()=>window.vqcGameReviewShowBoard?.());
   updateVariationControls();
  });
