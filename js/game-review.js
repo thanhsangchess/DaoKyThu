@@ -7,9 +7,50 @@
  const workspace=()=> $('vqcReviewWorkspace');
  const isTeacher=()=>typeof role!=='undefined'&&role==='teacher';
  const connected=()=>typeof roomRef!=='undefined'&&!!roomRef;
+ let movePanelOpen=false;
+ let movePanelBackdrop=null;
+ let movePanelToggle=null;
+ function setMovePanel(open){
+  const side=document.querySelector('.vqc-review-workspace__side');
+  if(!side)return;
+  movePanelOpen=!!open;
+  side.classList.toggle('is-drawer-open',movePanelOpen);
+  side.setAttribute('aria-hidden',String(!movePanelOpen));
+  side.inert=!movePanelOpen;
+  movePanelBackdrop?.classList.toggle('is-open',movePanelOpen);
+  if(movePanelToggle){
+   movePanelToggle.setAttribute('aria-expanded',String(movePanelOpen));
+   movePanelToggle.textContent=movePanelOpen?'✕ Đóng biên bản':'☷ Biên bản';
+  }
+ }
+ function installMoveDrawer(){
+  const side=document.querySelector('.vqc-review-workspace__side');
+  const controls=$('vqcReviewControls')||document.querySelector('.vqc-review-controls');
+  if(!side||!controls||movePanelToggle)return;
+  movePanelBackdrop=document.createElement('button');
+  movePanelBackdrop.type='button';
+  movePanelBackdrop.className='vqc-review-drawer-backdrop';
+  movePanelBackdrop.setAttribute('aria-label','Đóng biên bản');
+  movePanelBackdrop.addEventListener('click',()=>setMovePanel(false));
+  document.body.appendChild(movePanelBackdrop);
+  movePanelToggle=document.createElement('button');
+  movePanelToggle.type='button';
+  movePanelToggle.className='vqc-review-drawer-toggle';
+  movePanelToggle.textContent='☷ Biên bản';
+  movePanelToggle.setAttribute('aria-controls','vqcReviewWorkspace');
+  movePanelToggle.setAttribute('aria-expanded','false');
+  movePanelToggle.addEventListener('click',()=>setMovePanel(!movePanelOpen));
+  controls.appendChild(movePanelToggle);
+  side.setAttribute('aria-hidden','true');
+  side.inert=true;
+  document.addEventListener('keydown',event=>{
+   if(event.key==='Escape'&&movePanelOpen){event.preventDefault();setMovePanel(false);movePanelToggle?.focus();}
+  });
+ }
  function setOpen(open){
   const el=workspace();if(!el)return;
   el.hidden=!open;
+  setMovePanel(false);
   const center=document.querySelector('section.center');
   if(center)center.classList.toggle('vqc-review-mode',!!open);
   const app=document.querySelector('main.app');
@@ -191,6 +232,7 @@
  });
  window.vqcGameReviewGo=go;
  document.addEventListener('DOMContentLoaded',()=>{
+  installMoveDrawer();
   $('vqcReviewLoad')?.addEventListener('click',window.vqcGameReviewLoad);
   $('vqcReviewPaste')?.addEventListener('click',pasteClipboard);
   $('vqcReviewFile')?.addEventListener('change',async event=>{
