@@ -65,7 +65,7 @@
      if(!settled){settled=true;if(startupTimer)clearTimeout(startupTimer);startupTimer=null;startupReject=null;enginePromise=null;cleanupWorker();reject(Error(line.replace('VQC_ENGINE_LOAD_ERROR','').trim()||'Không tải được Stockfish.'));}
      return;
     }
-    if(/\\buciok\\b/.test(line)&&!settled){
+    if(/\buciok\b/.test(line)&&!settled){
      /* UCI is initialized. Lite single-threaded Stockfish ignores Threads;
         no extra option handshake is required before position/go commands. */
      settled=true;
