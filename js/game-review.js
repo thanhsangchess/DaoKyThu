@@ -39,8 +39,8 @@
   }
   $('vqcReviewCounter').textContent=current+' / '+moves.length+' nước';
   $('vqcReviewTurn').textContent=(current===moves.length?'Đã đến vị trí cuối ván':(current%2===0?'Trắng đi':'Đen đi'));
-  $('vqcReviewPrev').disabled=current===0;$('vqcReviewFirst').disabled=current===0;
-  $('vqcReviewNext').disabled=current===moves.length;$('vqcReviewLast').disabled=current===moves.length;
+  $('vqcReviewPrev').disabled=!isTeacher()||current===0;$('vqcReviewFirst').disabled=!isTeacher()||current===0;
+  $('vqcReviewNext').disabled=!isTeacher()||current===moves.length;$('vqcReviewLast').disabled=!isTeacher()||current===moves.length;
   const list=$('vqcReviewMoves');list.replaceChildren();
   const start=document.createElement('button');start.textContent='Vị trí ban đầu';start.classList.toggle('active',current===0);start.disabled=!isTeacher();start.addEventListener('click',()=>go(0));list.appendChild(start);
   moves.forEach((m,i)=>{const b=document.createElement('button');b.textContent=(Math.floor(i/2)+1)+(i%2?'... ':' . ')+m.san;b.classList.toggle('active',current===i+1);b.disabled=!isTeacher();b.addEventListener('click',()=>go(i+1));list.appendChild(b);});
