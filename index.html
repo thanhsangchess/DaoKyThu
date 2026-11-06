@@ -771,23 +771,42 @@
     </div>
     <section id="vqcReviewWorkspace" class="vqc-review-workspace" hidden aria-label="Xem lại ván đấu bằng PGN">
       <div class="vqc-review-workspace__board">
-        <div class="vqc-review-status"><strong id="vqcReviewCounter">Chờ PGN</strong><span id="vqcReviewTurn"></span></div>
+        <div class="vqc-review-status">
+          <div><strong id="vqcReviewCounter">Chưa có ván đấu</strong><span id="vqcReviewTurn" class="vqc-review-turn"></span></div>
+          <span class="vqc-review-live"><i></i> Đồng bộ lớp học</span>
+        </div>
         <div class="board-shell vqc-review-board-shell"><div id="vqcReviewBoard" class="board" aria-label="Bàn cờ xem lại"></div></div>
-        <div class="vqc-review-controls">
-          <button id="vqcReviewFirst" type="button">⏮ Đầu</button><button id="vqcReviewPrev" type="button">◀ Trước</button><button id="vqcReviewNext" type="button">Sau ▶</button><button id="vqcReviewLast" type="button">Cuối ⏭</button>
+        <div class="vqc-review-controls" aria-label="Điều khiển nước đi">
+          <button id="vqcReviewFirst" type="button" title="Về đầu (Home)" aria-label="Về đầu"><span>⏮</span><small>Đầu</small></button>
+          <button id="vqcReviewPrev" type="button" title="Nước trước (←)" aria-label="Nước trước"><span>◀</span><small>Trước</small></button>
+          <button id="vqcReviewNext" type="button" title="Nước sau (→)" aria-label="Nước sau"><span>▶</span><small>Sau</small></button>
+          <button id="vqcReviewLast" type="button" title="Đến cuối (End)" aria-label="Đến cuối"><span>⏭</span><small>Cuối</small></button>
+          <span class="vqc-review-shortcut">Dùng phím ← / → để di chuyển</span>
         </div>
       </div>
       <div class="vqc-review-workspace__side">
-        <div id="vqcReviewTeacherTools">
-          <label class="vqc-review-label" for="vqcReviewPgn">Dán PGN ván đấu</label>
-          <textarea id="vqcReviewPgn" class="vqc-review-input" placeholder='[Event "Training"]&#10;[Result "*"]&#10;&#10;1. e4 e5 2. Nf3 Nc6 *'></textarea>
-          <button id="vqcReviewLoad" class="vqc-review-load" type="button">Tải PGN và chia sẻ với lớp</button>
-          <div id="vqcReviewError" class="vqc-review-error" role="alert"></div>
+        <details id="vqcReviewImport" class="vqc-review-import">
+          <summary><span class="vqc-review-import-icon">📥</span><span class="vqc-review-import-copy"><strong>Nhập ván đấu PGN</strong><small>Dán nội dung, lấy từ clipboard hoặc chọn tệp</small></span><span class="vqc-review-chevron">⌄</span></summary>
+          <div class="vqc-review-import-body" id="vqcReviewTeacherTools">
+            <label class="vqc-review-label" for="vqcReviewPgn">Nội dung PGN</label>
+            <textarea id="vqcReviewPgn" class="vqc-review-input" spellcheck="false" placeholder='[Event "Training"]&#10;[Result "*"]&#10;&#10;1. e4 e5 2. Nf3 Nc6 *'></textarea>
+            <div class="vqc-review-import-actions">
+              <button id="vqcReviewPaste" class="vqc-review-secondary" type="button">📋 Dán từ clipboard</button>
+              <label class="vqc-review-file">📂 Chọn file .pgn<input id="vqcReviewFile" type="file" accept=".pgn,.txt,text/plain"></label>
+              <button id="vqcReviewLoad" class="vqc-review-load" type="button">Tải PGN và chia sẻ</button>
+            </div>
+            <div id="vqcReviewError" class="vqc-review-error" role="alert" aria-live="polite"></div>
+          </div>
+        </details>
+        <div id="vqcReviewStudentHint" class="vqc-review-student-hint" hidden>👩‍🏫 Giáo viên đang điều khiển ván đấu. Bàn cờ và nước đi được đồng bộ với lớp.</div>
+        <div class="vqc-review-moves-heading"><div><strong>📋 Biên bản ván đấu</strong><small id="vqcReviewMoveCount">Chưa có nước đi</small></div><div class="vqc-review-actions"><button id="vqcReviewCopy" type="button" title="Sao chép PGN">Sao chép</button><button id="vqcReviewDownload" type="button" title="Tải tệp PGN">Tải .pgn</button></div></div>
+        <div class="vqc-review-moves-wrap">
+          <div class="vqc-review-move-grid" id="vqcReviewMoves" role="list" aria-label="Danh sách nước đi">
+            <div class="vqc-review-move-head"><span>#</span><span>Trắng</span><span>Đen</span></div>
+            <p class="vqc-review-empty">Nhập PGN để xem biên bản các nước đi.</p>
+          </div>
         </div>
-        <div id="vqcReviewStudentHint" class="vqc-review-student-hint" hidden>Giáo viên đang điều khiển ván đấu. Bàn cờ và nước đi được đồng bộ với lớp.</div>
-        <div class="vqc-review-moves-title">Danh sách nước đi</div>
-        <div id="vqcReviewMoves" class="vqc-review-moves" aria-label="Danh sách nước đi"></div>
-        <p class="vqc-review-note">Giáo viên có thể dùng phím ← / → để di chuyển từng nước.</p>
+        <p class="vqc-review-note">Chọn một nước đi để nhảy đến đúng vị trí trên bàn cờ. Học sinh theo dõi thao tác của giáo viên.</p>
       </div>
     </section>
     <div class="board-shell">
