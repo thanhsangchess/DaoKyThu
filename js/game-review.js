@@ -14,6 +14,7 @@
   if(center)center.classList.toggle('vqc-review-mode',!!open);
   const app=document.querySelector('main.app');
   if(app)app.classList.toggle('vqc-review-expanded',!!open);
+  document.body.classList.toggle('vqc-review-active',!!open);
   $('vqcClassBoardTab')?.classList.toggle('is-active',!open);
   $('vqcReviewTab')?.classList.toggle('is-active',!!open);
   $('vqcClassBoardTab')?.setAttribute('aria-selected',String(!open));
