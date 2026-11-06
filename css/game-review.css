@@ -105,3 +105,62 @@ section.center.vqc-review-mode>.board-shell,section.center.vqc-review-mode>.boar
  .vqc-review-move-head,.vqc-review-move-row{grid-template-columns:28px minmax(0,1fr) minmax(0,1fr);gap:4px}
  .vqc-review-move{padding:9px 7px;font-size:12px}
 }
+
+
+/* Wide immersive mode: give the PGN workspace the full classroom canvas. */
+.app.vqc-review-expanded{
+  width:calc(100% - 40px)!important;
+  max-width:1700px!important;
+  margin:18px auto 28px!important;
+  padding:0!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  gap:0!important;
+}
+.app.vqc-review-expanded>.sidebar,
+.app.vqc-review-expanded>aside.card:not(.sidebar){display:none!important}
+.app.vqc-review-expanded>section.center{
+  grid-column:1/-1!important;
+  width:100%!important;
+  max-width:none!important;
+  min-width:0!important;
+  padding:clamp(14px,1.5vw,24px)!important;
+  box-sizing:border-box!important;
+  border:1px solid #d8e8f5;
+  border-radius:22px;
+  background:linear-gradient(145deg,#f8fcff 0%,#edf7ff 100%);
+  box-shadow:0 10px 32px rgba(40,94,138,.10);
+}
+.app.vqc-review-expanded .vqc-review-workspace{
+  grid-template-columns:minmax(420px,1.08fr) minmax(420px,.92fr);
+  gap:clamp(20px,2.2vw,34px);
+  align-items:start;
+}
+.app.vqc-review-expanded .vqc-review-workspace__board{position:sticky;top:14px}
+.app.vqc-review-expanded #vqcReviewBoard.board{
+  max-width:min(100%,min(76vh,780px));
+}
+.app.vqc-review-expanded .vqc-review-move-grid{max-height:min(62vh,680px)}
+.app.vqc-review-expanded .vqc-review-input{min-height:150px;font-size:13px}
+.app.vqc-review-expanded .vqc-review-move{padding:11px 12px;font-size:15px}
+.app.vqc-review-expanded .vqc-review-move-head{font-size:12px;padding:12px 6px}
+.app.vqc-review-expanded .vqc-review-move-number{font-size:13px}
+.app.vqc-review-expanded .vqc-review-status strong{font-size:18px}
+.app.vqc-review-expanded .vqc-review-turn{font-size:14px}
+.app.vqc-review-expanded .vqc-review-import summary{padding:16px 18px}
+.app.vqc-review-expanded .vqc-review-import-copy strong{font-size:16px}
+.app.vqc-review-expanded .vqc-review-import-copy small{font-size:12px}
+.app.vqc-review-expanded .vqc-review-controls button{min-height:50px}
+@media(max-width:1000px){
+ .app.vqc-review-expanded{width:calc(100% - 24px)!important;margin:12px auto!important}
+ .app.vqc-review-expanded .vqc-review-workspace{grid-template-columns:minmax(0,1fr)}
+ .app.vqc-review-expanded .vqc-review-workspace__board{position:static}
+ .app.vqc-review-expanded #vqcReviewBoard.board{max-width:min(100%,min(76vw,68vh,680px))}
+ .app.vqc-review-expanded .vqc-review-move-grid{max-height:42vh}
+}
+@media(max-width:600px){
+ .app.vqc-review-expanded{width:calc(100% - 16px)!important;margin:8px auto!important}
+ .app.vqc-review-expanded>section.center{padding:10px!important;border-radius:14px}
+ .app.vqc-review-expanded .vqc-review-workspace{gap:14px}
+ .app.vqc-review-expanded #vqcReviewBoard.board{max-width:100%}
+ .app.vqc-review-expanded .vqc-review-move{font-size:13px;padding:10px 8px}
+}
