@@ -186,14 +186,20 @@
    square.className='square '+((r+f)%2===0?'light':'dark');
    square.dataset.square=name;
    if(last&&(last.from===name||last.to===name))square.classList.add('last');
-   if(variationActive&&selectedSquare===name)square.classList.add('review-selected');
-   if(variationActive&&targetSquares.has(name))square.classList.add('review-legal-target');
-   if(variationActive&&targetSquares.has(name)&&piece)square.classList.add('review-legal-capture');
+   if(variationActive&&selectedSquare===name){
+    square.classList.add('selected','review-selected');
+   }
    if(piece){
     const holder=document.createElement('span');holder.className='piece';
     const code=piece.color==='w'?piece.type.toUpperCase():piece.type;
     holder.innerHTML=typeof pieceSvgMarkup==='function'?pieceSvgMarkup(code):(glyph[piece.color+piece.type]||'');
     square.appendChild(holder);
+   }
+   if(variationActive&&targetSquares.has(name)){
+    const hint=document.createElement('span');
+    hint.className=piece?'capture-hint':'move-hint';
+    hint.setAttribute('aria-hidden','true');
+    square.appendChild(hint);
    }
    if((!boardFlipped&&f===0)||(boardFlipped&&f===7))
     square.appendChild(makeCoordinate(String(8-r),'rank'));
