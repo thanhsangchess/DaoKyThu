@@ -12,7 +12,7 @@
  let worker=null,workerUrl='',enginePromise=null,engineReady=false,activeSearch=null;
  let runId=0,game=null,results=null,currentIndex=0,analysisRunning=false;
  const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
- const isTeacher=()=>typeof window.role!=='undefined'&&window.role==='teacher';
+ const isTeacher=()=>typeof role!=='undefined'&&role==='teacher';
  const dispatch=(name,detail)=>window.dispatchEvent(new CustomEvent(name,{detail}));
  function setStatus(message,type){
   const node=$('vqcReviewAnalysisStatus');
@@ -122,7 +122,7 @@
    search.timer=setTimeout(()=>{
     if(activeSearch===search){
      activeSearch=null;
-     try{worker.postMessage('stop');}catch(e){}
+     cleanupWorker();
      reject(Error('Engine không phản hồi ở một vị trí. Hãy thử mức phân tích nhanh hơn.'));
     }
    },30000);
@@ -357,8 +357,8 @@
  function cancelAnalysis(){
   if(!analysisRunning)return;
   runId++;
-  if(worker&&activeSearch){try{worker.postMessage('stop');}catch(e){}}
-  setStatus('Đã yêu cầu dừng phân tích.','info');
+  cleanupWorker();
+  setStatus('Đã dừng phân tích. Nhấn Phân tích để chạy lại.','info');
   toggleButtons(false);
  }
  function onGameLoaded(event){
