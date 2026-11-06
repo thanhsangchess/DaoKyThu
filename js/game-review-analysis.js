@@ -229,6 +229,8 @@
  function renderGraph(){
   const svg=$('vqcReviewAnalysisGraph');if(!svg||!results)return;
   svg.replaceChildren();
+  const wrap=$('vqcReviewAnalysisGraphWrap');
+  wrap?.querySelectorAll('.vqc-review-analysis-axis-label').forEach(el=>el.remove());
   const ns='http://www.w3.org/2000/svg',width=600,height=128,mid=height/2;
   const line=(x1,y1,x2,y2,cls)=>{
    const el=document.createElementNS(ns,'line');
@@ -248,7 +250,7 @@
    const index=clamp(currentIndex,0,coords.length-1),point=coords[index];
    const dot=document.createElementNS(ns,'circle');dot.setAttribute('cx',point[0]);dot.setAttribute('cy',point[1]);dot.setAttribute('r','5');dot.setAttribute('class','vqc-review-analysis-current');svg.appendChild(dot);
   }
-  addText($('vqcReviewAnalysisGraphWrap'),'span','vqc-review-analysis-axis-label','Lợi thế Trắng ↑ · Lợi thế Đen ↓');
+  if(wrap)addText(wrap,'span','vqc-review-analysis-axis-label','Lợi thế Trắng ↑ · Lợi thế Đen ↓');
  }
  function renderCoach(){
   const box=$('vqcReviewAnalysisCoach');if(!box||!results)return;
