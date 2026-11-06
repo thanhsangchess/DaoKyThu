@@ -56,7 +56,7 @@
  window.vqcGameReviewOpen=function(){
   if(!connected()){if(typeof vqcNotify==='function')vqcNotify('Hãy tạo hoặc vào phòng học trước khi mở xem lại ván đấu.','warning');return;}
   if(!isTeacher()){if(typeof vqcNotify==='function')vqcNotify('Giáo viên điều khiển chức năng xem lại ván đấu.','warning');return;}
-  setOpen(true);$('vqcReviewTeacherTools').hidden=false;$('vqcReviewStudentHint').hidden=true;
+  setOpen(true);$('vqcReviewTeacherTools').hidden=false;$('vqcReviewStudentHint').hidden=true;$('vqcReviewClose').hidden=false;
   publish();
  };
  window.vqcGameReviewClose=function(){
@@ -75,10 +75,10 @@
  window.vqcGameReviewReceive=function(data){
   if(!data||typeof data!=='object')return;
   if(data.open===false){setOpen(false);return;}
-  if(data.open!==true)return;
+  if(data.open!==true||isTeacher())return;
   applyingRemote=true;
   try{
-   setOpen(true);$('vqcReviewTeacherTools').hidden=true;$('vqcReviewStudentHint').hidden=false;
+   setOpen(true);$('vqcReviewTeacherTools').hidden=true;$('vqcReviewStudentHint').hidden=false;$('vqcReviewClose').hidden=true;
    const pgn=String(data.pgn||'');
    if(pgn&&pgn!==loadedText){
     const parsed=parsePgn(pgn);positions=parsed.positions;moves=parsed.moves;loadedText=pgn;
