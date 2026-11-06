@@ -3,13 +3,7 @@
  'use strict';
  const $=id=>document.getElementById(id);
  const ENGINE_VERSION='19.0.1';
- const ENGINE_FILE='stockfish-19-lite-single.js';
- const ENGINE_WASM='stockfish-19-lite-single.wasm';
- const ENGINE_BASES=[
-  'https://cdn.jsdelivr.net/npm/stockfish@19.0.1/bin/',
-  'https://unpkg.com/stockfish@19.0.1/bin/'
- ];
- let worker=null,workerUrl='',enginePromise=null,engineReady=false,activeSearch=null,startupTimer=null,startupReject=null;
+ let worker=null,enginePromise=null,engineReady=false,activeSearch=null,startupTimer=null,startupReject=null;
  let runId=0,game=null,results=null,currentIndex=0,analysisRunning=false;
  const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
  const isTeacher=()=>typeof role!=='undefined'&&role==='teacher';
@@ -44,19 +38,10 @@
   }
   if(worker){try{worker.terminate();}catch(e){}}
   worker=null;engineReady=false;enginePromise=null;
-  if(workerUrl){URL.revokeObjectURL(workerUrl);workerUrl='';}
  }
  function makeWorker(){
-  const bootstrap=[
-   'self.__vqcSfBase='+JSON.stringify(ENGINE_BASES[0])+';',
-   'self.Module={locateFile:function(path){return (self.__vqcSfBase||'+JSON.stringify(ENGINE_BASES[0])+')+(path&&path.endsWith(\".wasm\")?'+JSON.stringify(ENGINE_WASM)+':path);}};',
-   'try{importScripts(self.__vqcSfBase+'+JSON.stringify(ENGINE_FILE)+');}',
-   'catch(first){try{self.__vqcSfBase='+JSON.stringify(ENGINE_BASES[1])+';importScripts(self.__vqcSfBase+'+JSON.stringify(ENGINE_FILE)+');}',
-   'catch(second){self.postMessage("VQC_ENGINE_LOAD_ERROR "+String(second&&second.message||second||first));}}'
-  ].join('\n');
-  const blob=new Blob([bootstrap],{type:'text/javascript'});
-  workerUrl=URL.createObjectURL(blob);
-  worker=new Worker(workerUrl);
+  /* Load a same-origin worker script; that script loads the pinned engine build. */
+  worker=new Worker('./js/stockfish-loader.js?v=20261106-v1');
  }
  function ensureEngine(){
   if(engineReady)return Promise.resolve();
@@ -69,21 +54,26 @@
     if(!settled){settled=true;startupTimer=null;startupReject=null;enginePromise=null;cleanupWorker();reject(Error('Engine mất quá nhiều thời gian để khởi động.'));}
    },35000);
    worker.onmessage=event=>{
-    const line=typeof event.data==='string'?event.data:String(event.data?.data||'');
+    const line=String(event.data?.data??event.data?.message??event.data??'').trim();
     if(line.startsWith('VQC_ENGINE_LOAD_ERROR')){
      if(!settled){settled=true;if(startupTimer)clearTimeout(startupTimer);startupTimer=null;startupReject=null;enginePromise=null;cleanupWorker();reject(Error(line.replace('VQC_ENGINE_LOAD_ERROR','').trim()||'Không tải được Stockfish.'));}
      return;
     }
-    if(line==='uciok'){
-     worker.postMessage('setoption name Threads value 1');
-     worker.postMessage('setoption name Hash value 32');
-     worker.postMessage('isready');
+    if(/\\buciok\\b/.test(line)&&!settled){
+     /* UCI is initialized. Lite single-threaded Stockfish ignores Threads;
+        no extra option handshake is required before position/go commands. */
+     settled=true;
+     if(startupTimer)clearTimeout(startupTimer);
+     startupTimer=null;startupReject=null;engineReady=true;
+     resolve();
      return;
     }
-    if(line==='readyok'&&!settled){
-     settled=true;if(startupTimer)clearTimeout(startupTimer);startupTimer=null;startupReject=null;engineReady=true;
-     if(workerUrl){URL.revokeObjectURL(workerUrl);workerUrl='';}
-     resolve();
+    if(line.startsWith('VQC_ENGINE_RUNTIME_ERROR')){
+     if(!settled){
+      settled=true;if(startupTimer)clearTimeout(startupTimer);startupTimer=null;startupReject=null;
+      enginePromise=null;cleanupWorker();
+      reject(Error(line.replace('VQC_ENGINE_RUNTIME_ERROR','').trim()||'Stockfish worker gặp lỗi khi chạy WASM.'));
+     }
      return;
     }
     if(activeSearch){
