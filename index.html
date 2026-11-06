@@ -53,7 +53,7 @@
 <link rel="stylesheet" href="./css/mate-one-pdf-100.css?v=20261025-basic-v1">
 <link rel="stylesheet" href="./css/classroom-warmups.css?v=20261031-v1">
 <link rel="stylesheet" href="./css/game-review.css?v=20261106-sidebar-v6">
-<link rel="stylesheet" href="./css/game-review-drawer.css?v=20261106-v5">
+<link rel="stylesheet" href="./css/game-review-drawer.css?v=20261106-v6">
 <link rel="stylesheet" href="./css/game-review-analysis.css?v=20261106-v1">
 </head>
 
@@ -787,6 +787,17 @@
         </div>
       </div>
       <div class="vqc-review-workspace__side">
+        <section class="vqc-review-variation-actions" aria-label="Thử nước đi trên bàn cờ xem lại">
+          <div class="vqc-review-variation-actions__heading">
+            <strong>♟ Thử nước đi</strong>
+            <small id="vqcReviewVariationStatus">Chọn quân cờ trên bàn để tự thử nước đi từ vị trí đang xem.</small>
+          </div>
+          <div class="vqc-review-variation-actions__buttons">
+            <button type="button" id="vqcReviewVariationReset" hidden>↺ Khôi phục vị trí PGN</button>
+            <button type="button" id="vqcReviewReturnBoard" class="is-return">↩ Quay lại bàn cờ lớp học</button>
+          </div>
+          <div id="vqcReviewPromotion" class="vqc-review-promotion" hidden></div>
+        </section>
         <details id="vqcReviewImport" class="vqc-review-import">
           <summary><span class="vqc-review-import-icon">📥</span><span class="vqc-review-import-copy"><strong>Nhập ván đấu PGN</strong><small>Dán nội dung, lấy từ clipboard hoặc chọn tệp</small></span><span class="vqc-review-chevron">⌄</span></summary>
           <div class="vqc-review-import-body" id="vqcReviewTeacherTools">
@@ -1354,7 +1365,7 @@ function vqcToggleLoginPassword(){const el=document.getElementById('accountLogin
 <script src="./js/arcade-online.js?v=arcade-recheck-20261020-4"></script>
 <script src="./js/friend-challenges.js?v=challenges-20261020-2"></script>
 <script src="./js/annotations.js?v=20261106-pgn-review-v1"></script>
-<script src="./js/game-review.js?v=20261106-two-column-v2"></script>
+<script src="./js/game-review.js?v=20261106-variation-v1"></script>
 <script src="./js/game-review-analysis.js?v=20261106-v5"></script>
 <script>
 /* Challenge launcher: direct delegated UI, robust error reporting. */
