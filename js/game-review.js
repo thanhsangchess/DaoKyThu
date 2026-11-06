@@ -76,7 +76,7 @@
    if(variationActive){
     const side=variationGame?.turn()==='w'?'Trắng':'Đen';
     const ending=variationGame?.isCheckmate?.()?' · Chiếu hết':variationGame?.isStalemate?.()?' · Hết nước đi hợp lệ':'';
-    status.textContent='Đang thử biến thể riêng · '+variationMoves.length+' nước · '+side+' đi tiếp'+ending+'. Ván PGN gốc không thay đổi.';
+    status.textContent='Đang thử biến thể riêng · '+variationMoves.length+' nước · '+side+' đi tiếp'+ending+'. Nước thử chỉ nằm trên thiết bị này; ván PGN gốc và ván của lớp không thay đổi.';
    }else{
     status.textContent='Chọn quân cờ trên bàn để tự thử nước đi từ vị trí đang xem.';
    }
@@ -114,7 +114,7 @@
   try{return variationGame.moves({square,verbose:true});}catch(error){return [];}
  }
  function playVariationMove(move){
-  if(!variationActive||!variationGame||!isTeacher())return;
+  if(!variationActive||!variationGame||workspace()?.hidden)return;
   try{
    const made=variationGame.move({from:move.from,to:move.to,promotion:move.promotion||'q'});
    if(!made)return;
@@ -127,7 +127,7 @@
   }
  }
  function handleVariationSquare(square){
-  if(!isTeacher()||!positions.length)return;
+  if(workspace()?.hidden||!positions.length)return;
   if(!variationActive&&!beginVariation())return;
   if(!variationGame||promotionChoices.length)return;
   const piece=variationGame.get(square);
@@ -327,7 +327,13 @@
    setOpen(true);$('vqcReviewTeacherTools').hidden=true;$('vqcReviewStudentHint').hidden=false;
    const pgn=normalizePgn(data.pgn||'');
    if(pgn&&pgn!==loadedText){resetVariation(false);const parsed=parsePgn(pgn);positions=parsed.positions;moves=parsed.moves;loadedText=pgn;window.dispatchEvent(new CustomEvent('vqc:game-review-loaded',{detail:{positions:positions.slice(),moves:moves.map(move=>({...move})),pgn:loadedText}}));}
-   if(positions.length){current=Math.max(0,Math.min(moves.length,Number(data.index)||0));render();}
+   if(positions.length){
+    const incomingIndex=Math.max(0,Math.min(moves.length,Number(data.index)||0));
+    /* Follow the teacher's official PGN timeline if it changes, discarding only
+       this device's temporary variation branch. */
+    if(variationActive&&incomingIndex!==current)resetVariation(false);
+    current=incomingIndex;render();
+   }
    else{$('vqcReviewPgn').value='';render();}
   }catch(e){$('vqcReviewError').textContent='Không đọc được ván đấu được chia sẻ: '+(e.message||String(e));}
   finally{applyingRemote=false;}
