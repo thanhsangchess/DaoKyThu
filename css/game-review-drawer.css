@@ -1,4 +1,4 @@
-/* Dao Ky Thu - maximized review board with an off-canvas move panel */
+/* Dao Ky Thu - two-column PGN review workspace */
 body.vqc-review-active main.app.vqc-review-expanded{
   width:calc(100% - 20px)!important;
   max-width:none!important;
@@ -6,119 +6,203 @@ body.vqc-review-active main.app.vqc-review-expanded{
 body.vqc-review-active .vqc-review-workspace{
   position:relative!important;
   display:grid!important;
-  grid-template-columns:minmax(0,1fr)!important;
+  grid-template-columns:minmax(0,1fr) minmax(310px,360px)!important;
+  grid-template-rows:minmax(0,1fr)!important;
+  align-items:stretch!important;
+  gap:14px!important;
   width:100%!important;
-  height:100%!important;
-  min-height:0!important;
-  overflow:visible!important;
-  gap:0!important;
+  height:calc(100dvh - 205px)!important;
+  min-height:470px!important;
+  max-height:900px!important;
+  overflow:hidden!important;
 }
 body.vqc-review-active .vqc-review-workspace__board{
   position:relative!important;
   top:auto!important;
-  width:100%!important;
+  grid-column:1!important;
+  grid-row:1!important;
+  display:grid!important;
+  grid-template-rows:minmax(0,1fr)!important;
+  justify-items:center!important;
+  align-items:stretch!important;
   min-width:0!important;
   min-height:0!important;
-  display:grid!important;
-  grid-template-rows:auto minmax(0,1fr) auto!important;
-  justify-items:center!important;
-}
-body.vqc-review-active .vqc-review-status{
   width:100%!important;
-  max-width:none!important;
+  padding:0!important;
 }
 body.vqc-review-active .vqc-review-board-shell{
-  width:100%!important;
-  height:100%!important;
-  min-height:0!important;
-  max-height:none!important;
   display:grid!important;
   place-items:center!important;
+  width:100%!important;
+  height:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  max-height:none!important;
+  box-sizing:border-box!important;
+  padding:5px!important;
   overflow:hidden!important;
 }
 body.vqc-review-active #vqcReviewBoard.board{
-  width:min(100%,calc(100dvh - 225px),calc(100vw - 56px))!important;
+  width:min(100%,calc(100dvh - 225px),calc(100vw - 420px))!important;
   max-width:none!important;
   height:auto!important;
   max-height:100%!important;
   aspect-ratio:1/1!important;
   margin:0 auto!important;
 }
-body.vqc-review-active .vqc-review-controls{
-  width:min(100%,900px)!important;
-  flex-wrap:wrap!important;
-  justify-content:center!important;
-}
-.vqc-review-drawer-toggle{
-  flex:0 0 auto!important;
-  min-height:37px!important;
-  padding:7px 13px!important;
-  border:1px solid #b9d5ec!important;
-  border-radius:9px!important;
-  background:#fff!important;
-  color:#245b8d!important;
-  font:800 12px/1.2 inherit!important;
-  cursor:pointer!important;
-}
-.vqc-review-drawer-toggle:hover{background:#eaf4ff!important}
-.vqc-review-workspace__side{
-  position:fixed!important;
-  z-index:1201!important;
-  top:0!important;
-  right:0!important;
-  bottom:0!important;
-  width:min(430px,94vw)!important;
-  height:100vh!important;
-  height:100dvh!important;
-  box-sizing:border-box!important;
-  padding:18px!important;
-  overflow:auto!important;
+body.vqc-review-active .vqc-review-workspace__side{
+  position:relative!important;
+  inset:auto!important;
+  z-index:1!important;
+  grid-column:2!important;
+  grid-row:1!important;
   display:flex!important;
   flex-direction:column!important;
-  gap:12px!important;
-  background:#f8fbff!important;
-  border-left:1px solid #d5e4f1!important;
-  box-shadow:-14px 0 40px rgba(23,54,82,.2)!important;
-  transform:translateX(105%)!important;
-  visibility:hidden!important;
-  pointer-events:none!important;
-  transition:transform .24s ease,visibility .24s ease!important;
-}
-.vqc-review-workspace__side.is-drawer-open{
-  transform:translateX(0)!important;
-  visibility:visible!important;
-  pointer-events:auto!important;
-}
-.vqc-review-drawer-backdrop{
-  position:fixed!important;
-  z-index:1200!important;
-  inset:0!important;
+  align-items:stretch!important;
+  gap:10px!important;
   width:100%!important;
   height:100%!important;
-  border:0!important;
-  padding:0!important;
-  background:rgba(13,35,56,.38)!important;
-  opacity:0!important;
-  visibility:hidden!important;
-  pointer-events:none!important;
-  transition:opacity .24s ease,visibility .24s ease!important;
-}
-.vqc-review-drawer-backdrop.is-open{
-  opacity:1!important;
+  min-width:0!important;
+  min-height:0!important;
+  max-height:none!important;
+  box-sizing:border-box!important;
+  padding:12px!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  background:#f8fbff!important;
+  border:1px solid #d8e7f4!important;
+  border-radius:15px!important;
+  box-shadow:0 5px 18px rgba(32,73,109,.08)!important;
+  transform:none!important;
   visibility:visible!important;
   pointer-events:auto!important;
 }
-@media(max-width:819px){
- body.vqc-review-active #vqcReviewBoard.board{
-  width:min(100%,calc(100dvh - 260px),calc(100vw - 36px))!important;
- }
- .vqc-review-workspace__side{width:min(430px,96vw)!important;padding:14px!important}
+body.vqc-review-active .vqc-review-status{
+  flex:0 0 auto!important;
+  display:flex!important;
+  justify-content:space-between!important;
+  align-items:center!important;
+  gap:8px!important;
+  width:100%!important;
+  min-height:40px!important;
+  margin:0!important;
+  padding:2px 2px 9px!important;
+  border-bottom:1px solid #e1eaf2!important;
 }
-@media(max-height:650px) and (min-width:820px){
- body.vqc-review-active #vqcReviewBoard.board{
-  width:min(100%,calc(100dvh - 180px),calc(100vw - 56px))!important;
- }
+body.vqc-review-active .vqc-review-status strong{font-size:13px!important}
+body.vqc-review-active .vqc-review-live{font-size:10px!important;padding:5px 7px!important}
+body.vqc-review-active .vqc-review-import{
+  display:block!important;
+  flex:0 0 auto!important;
+  width:100%!important;
+  margin:0!important;
+}
+body.vqc-review-active .vqc-review-import[open] .vqc-review-import-body{display:block!important}
+body.vqc-review-active .vqc-review-import-body{padding:10px!important}
+body.vqc-review-active .vqc-review-label{font-size:11px!important}
+body.vqc-review-active .vqc-review-input{
+  width:100%!important;
+  min-height:105px!important;
+  max-height:150px!important;
+  box-sizing:border-box!important;
+  font-size:12px!important;
+}
+body.vqc-review-active .vqc-review-import-actions{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  gap:6px!important;
+}
+body.vqc-review-active .vqc-review-import-actions button,
+body.vqc-review-active .vqc-review-import-actions .vqc-review-file{
+  flex:1 1 120px!important;
+  justify-content:center!important;
+  font-size:11px!important;
+}
+body.vqc-review-active .vqc-review-student-hint{flex:0 0 auto!important}
+body.vqc-review-active .vqc-review-moves-heading{
+  display:flex!important;
+  flex:0 0 auto!important;
+  justify-content:space-between!important;
+  align-items:center!important;
+  gap:8px!important;
+  margin:0!important;
+}
+body.vqc-review-active .vqc-review-moves-heading strong{font-size:13px!important}
+body.vqc-review-active .vqc-review-moves-heading small{font-size:10px!important}
+body.vqc-review-active .vqc-review-moves-wrap{
+  flex:1 1 auto!important;
+  min-height:90px!important;
+  overflow:auto!important;
+}
+body.vqc-review-active .vqc-review-move-grid{
+  max-height:none!important;
+  height:100%!important;
+  min-height:90px!important;
+  overflow:auto!important;
+  scrollbar-width:thin!important;
+}
+body.vqc-review-active .vqc-review-controls{
+  display:flex!important;
+  flex:0 0 auto!important;
+  flex-wrap:wrap!important;
+  justify-content:stretch!important;
+  gap:6px!important;
+  width:100%!important;
+  box-sizing:border-box!important;
+  margin:0!important;
+  padding:7px!important;
+}
+body.vqc-review-active .vqc-review-controls button{
+  flex:1 1 calc(25% - 6px)!important;
+  min-width:56px!important;
+  padding:7px 5px!important;
+  gap:4px!important;
+}
+body.vqc-review-active .vqc-review-shortcut{
+  flex:1 0 100%!important;
+  max-width:none!important;
+  text-align:center!important;
+}
+.vqc-review-drawer-toggle{display:none!important}
+.vqc-review-drawer-backdrop{display:none!important}
+@media(max-width:900px) and (min-width:701px){
+  body.vqc-review-active .vqc-review-workspace{
+    grid-template-columns:minmax(0,1fr) minmax(280px,320px)!important;
+  }
+  body.vqc-review-active #vqcReviewBoard.board{
+    width:min(100%,calc(100dvh - 235px),calc(100vw - 365px))!important;
+  }
+}
+@media(max-width:700px){
+  body.vqc-review-active .vqc-review-workspace{
+    grid-template-columns:minmax(0,1fr)!important;
+    grid-template-rows:minmax(300px,auto) auto!important;
+    height:auto!important;
+    min-height:0!important;
+    max-height:none!important;
+    overflow:visible!important;
+  }
+  body.vqc-review-active .vqc-review-workspace__board{
+    grid-column:1!important;
+    grid-row:1!important;
+    min-height:0!important;
+  }
+  body.vqc-review-active .vqc-review-board-shell{
+    height:auto!important;
+    min-height:0!important;
+  }
+  body.vqc-review-active #vqcReviewBoard.board{
+    width:min(100%,calc(100vw - 48px),calc(100dvh - 235px))!important;
+    max-height:none!important;
+  }
+  body.vqc-review-active .vqc-review-workspace__side{
+    grid-column:1!important;
+    grid-row:2!important;
+    height:auto!important;
+    max-height:70vh!important;
+    overflow:auto!important;
+  }
 }
 @media(prefers-reduced-motion:reduce){
- .vqc-review-workspace__side,.vqc-review-drawer-backdrop{transition:none!important}
+  body.vqc-review-active *{scroll-behavior:auto!important;transition:none!important}
 }
