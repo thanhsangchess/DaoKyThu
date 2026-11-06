@@ -206,3 +206,9 @@ body.vqc-review-active .vqc-review-shortcut{
 @media(prefers-reduced-motion:reduce){
   body.vqc-review-active *{scroll-behavior:auto!important;transition:none!important}
 }
+
+/* Keep global floating controls out of the PGN review workspace only. */
+body.vqc-review-active #vqcAnnotationToolbar,
+body.vqc-review-active #vqcInviteBell{
+  display:none!important;
+}
