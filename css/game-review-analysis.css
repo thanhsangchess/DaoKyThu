@@ -1,0 +1,72 @@
+/* Stockfish analysis panel inside PGN review sidebar */
+.vqc-review-analysis{
+ flex:0 0 auto;
+ width:100%;
+ min-width:0;
+ padding:12px;
+ border:1px solid #d6e5f2;
+ border-radius:14px;
+ background:linear-gradient(145deg,#fff,#f5faff);
+ box-shadow:0 3px 12px rgba(27,76,115,.06);
+ box-sizing:border-box;
+}
+.vqc-review-analysis__head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px}
+.vqc-review-analysis__head strong{display:block;color:#204d73;font-size:14px;font-weight:900}
+.vqc-review-analysis__head small{display:block;margin-top:3px;color:#7b8fa2;font-size:10px;line-height:1.4}
+.vqc-review-analysis__actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.vqc-review-analysis__actions select{
+ min-height:34px;max-width:115px;padding:5px 7px;border:1px solid #cedfeb;border-radius:8px;
+ background:#fff;color:#365c7b;font:700 11px system-ui,sans-serif
+}
+.vqc-review-analysis__actions button{
+ min-height:34px;padding:7px 10px;border:1px solid #2268a8;border-radius:8px;
+ background:#2878cc;color:white;font:800 11px system-ui,sans-serif;cursor:pointer
+}
+.vqc-review-analysis__actions button:disabled{opacity:.45;cursor:not-allowed}
+.vqc-review-analysis__actions button.secondary{background:#fff;color:#315c7c;border-color:#c9dce9}
+.vqc-review-analysis__status{margin:8px 0;color:#617a91;font-size:11px;line-height:1.45}
+.vqc-review-analysis__status[data-state=success]{color:#237c4c}
+.vqc-review-analysis__status[data-state=error]{color:#b43d39}
+.vqc-review-analysis__status[data-state=loading]{color:#2878cc}
+.vqc-review-analysis__progress{height:5px;overflow:hidden;border-radius:99px;background:#e6eef5}
+.vqc-review-analysis__progress>span{display:block;width:0;height:100%;border-radius:99px;background:linear-gradient(90deg,#4e9be2,#37b68a);transition:width .18s}
+.vqc-review-analysis__progress-text{display:block;margin-top:4px;text-align:right;color:#8ba0b2;font-size:9px}
+.vqc-review-analysis__report{margin-top:12px}
+.vqc-review-analysis__metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-bottom:10px}
+.vqc-review-analysis-metric{min-width:0;padding:9px;border:1px solid #e0eaf2;border-radius:10px;background:#fff}
+.vqc-review-analysis-metric small{display:block;color:#8295a6;font-size:9px;font-weight:800}
+.vqc-review-analysis-metric strong{display:block;margin-top:3px;color:#235b86;font-size:19px;line-height:1.15}
+.vqc-review-analysis-metric span{display:block;margin-top:2px;color:#8b9cac;font-size:9px;line-height:1.3}
+.vqc-review-analysis__summary{margin:8px 0 10px;color:#778b9d;font-size:10px;line-height:1.45}
+.vqc-review-analysis__subhead{margin:10px 0 6px;color:#365c7a;font-size:11px;font-weight:900}
+.vqc-review-analysis-graph-wrap{padding:6px 7px 4px;border:1px solid #e1eaf2;border-radius:10px;background:#fff}
+.vqc-review-analysis-graph{display:block;width:100%;height:108px;overflow:visible}
+.vqc-review-analysis-zero{stroke:#dbe5ed;stroke-width:1;stroke-dasharray:4 4}
+.vqc-review-analysis-line{fill:none;stroke:#3989c9;stroke-width:3;stroke-linejoin:round;stroke-linecap:round}
+.vqc-review-analysis-current{fill:#f0a83a;stroke:white;stroke-width:2}
+.vqc-review-analysis-axis-label{display:block;padding:0 2px 3px;text-align:center;color:#879bad;font-size:9px}
+.vqc-review-analysis__moments{display:grid;gap:5px}
+.vqc-review-analysis-moment{
+ display:flex;flex-direction:column;align-items:flex-start;gap:3px;width:100%;padding:8px 9px;
+ border:1px solid #e0e9f1;border-radius:9px;background:#fff;color:#365a78;text-align:left;cursor:pointer
+}
+.vqc-review-analysis-moment strong{font-size:10px;font-weight:900}
+.vqc-review-analysis-moment span{color:#778b9c;font-size:9px;line-height:1.35}
+.vqc-review-analysis-moment:hover{border-color:#9bc4e3;background:#f5faff}
+.vqc-review-analysis-current-box,.vqc-review-analysis-coach{
+ margin-top:9px;padding:9px 10px;border:1px solid #d9e8f4;border-radius:10px;background:#f4f9fe
+}
+.vqc-review-analysis-current-box strong,.vqc-review-analysis-coach strong{display:block;color:#295d84;font-size:11px}
+.vqc-review-analysis-current-box p,.vqc-review-analysis-coach p{margin:5px 0 0;color:#526e86;font-size:10px;line-height:1.5}
+.vqc-review-analysis-coach-title{font-weight:800}
+.vqc-review-analysis-pv{color:#246c9f!important;font-weight:700}
+.vqc-review-move[data-analysis-grade=best]{border-color:#a8d7b7!important;background:#f0fbf3!important}
+.vqc-review-move[data-analysis-grade=good]{border-color:#c2dfed!important;background:#f2f9fd!important}
+.vqc-review-move[data-analysis-grade=inaccuracy]{border-color:#efcf85!important;background:#fffaf0!important}
+.vqc-review-move[data-analysis-grade=mistake]{border-color:#edb57c!important;background:#fff5ea!important}
+.vqc-review-move[data-analysis-grade=blunder]{border-color:#e8a2a2!important;background:#fff1f1!important}
+@media(max-width:700px){
+ .vqc-review-analysis__head{flex-direction:column}
+ .vqc-review-analysis__actions{width:100%}
+ .vqc-review-analysis__actions select{flex:1}
+}
