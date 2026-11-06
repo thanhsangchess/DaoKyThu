@@ -9,7 +9,7 @@
   'https://cdn.jsdelivr.net/npm/stockfish@19.0.1/bin/',
   'https://unpkg.com/stockfish@19.0.1/bin/'
  ];
- let worker=null,workerUrl='',enginePromise=null,engineReady=false,activeSearch=null;
+ let worker=null,workerUrl='',enginePromise=null,engineReady=false,activeSearch=null,startupTimer=null,startupReject=null;
  let runId=0,game=null,results=null,currentIndex=0,analysisRunning=false;
  const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
  const isTeacher=()=>typeof role!=='undefined'&&role==='teacher';
@@ -34,6 +34,9 @@
   if(depth)depth.disabled=running;
  }
  function cleanupWorker(){
+  if(startupTimer){clearTimeout(startupTimer);startupTimer=null;}
+  const rejectStartup=startupReject;startupReject=null;
+  if(rejectStartup)rejectStartup(Error('Đã dừng khởi động engine.'));
   if(activeSearch){
    clearTimeout(activeSearch.timer);
    activeSearch.resolve({cancelled:true});
@@ -61,13 +64,14 @@
   enginePromise=new Promise((resolve,reject)=>{
    try{makeWorker();}catch(error){enginePromise=null;reject(error);return;}
    let settled=false;
-   const timer=setTimeout(()=>{
-    if(!settled){settled=true;enginePromise=null;cleanupWorker();reject(Error('Engine mất quá nhiều thời gian để khởi động.'));}
+   startupReject=error=>{if(!settled){settled=true;reject(error);}};
+   startupTimer=setTimeout(()=>{
+    if(!settled){settled=true;startupTimer=null;startupReject=null;enginePromise=null;cleanupWorker();reject(Error('Engine mất quá nhiều thời gian để khởi động.'));}
    },35000);
    worker.onmessage=event=>{
     const line=typeof event.data==='string'?event.data:String(event.data?.data||'');
     if(line.startsWith('VQC_ENGINE_LOAD_ERROR')){
-     if(!settled){settled=true;clearTimeout(timer);enginePromise=null;cleanupWorker();reject(Error(line.replace('VQC_ENGINE_LOAD_ERROR','').trim()||'Không tải được Stockfish.'));}
+     if(!settled){settled=true;if(startupTimer)clearTimeout(startupTimer);startupTimer=null;startupReject=null;enginePromise=null;cleanupWorker();reject(Error(line.replace('VQC_ENGINE_LOAD_ERROR','').trim()||'Không tải được Stockfish.'));}
      return;
     }
     if(line==='uciok'){
@@ -77,7 +81,7 @@
      return;
     }
     if(line==='readyok'&&!settled){
-     settled=true;clearTimeout(timer);engineReady=true;
+     settled=true;if(startupTimer)clearTimeout(startupTimer);startupTimer=null;startupReject=null;engineReady=true;
      if(workerUrl){URL.revokeObjectURL(workerUrl);workerUrl='';}
      resolve();
      return;
@@ -106,7 +110,7 @@
    };
    worker.onerror=event=>{
     const error=Error(event.message||'Không thể chạy Stockfish trong trình duyệt.');
-    if(!settled){settled=true;clearTimeout(timer);enginePromise=null;cleanupWorker();reject(error);}
+    if(!settled){settled=true;if(startupTimer)clearTimeout(startupTimer);startupTimer=null;startupReject=null;enginePromise=null;cleanupWorker();reject(error);}
     else if(activeSearch){const search=activeSearch;activeSearch=null;clearTimeout(search.timer);search.reject(error);}
    };
    worker.postMessage('uci');
@@ -363,6 +367,7 @@
  }
  function onGameLoaded(event){
   const data=event.detail||{};
+  if(analysisRunning)cleanupWorker();
   if(!Array.isArray(data.positions)||!Array.isArray(data.moves))return;
   runId++;
   game={positions:data.positions.slice(),moves:data.moves.map(x=>({...x}))};
