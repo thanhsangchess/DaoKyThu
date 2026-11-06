@@ -1,73 +1,167 @@
-/* Đảo Kỳ Thủ · shared PGN game review for classroom */
+/* Đảo Kỳ Thủ · PGN game review, classroom-synced */
 (function(){
  'use strict';
  const $=id=>document.getElementById(id);
  const glyph={wk:'♔',wq:'♕',wr:'♖',wb:'♗',wn:'♘',wp:'♙',bk:'♚',bq:'♛',br:'♜',bb:'♝',bn:'♞',bp:'♟︎'};
- let game=null, positions=[], moves=[], current=0, loadedText='', applyingRemote=false, stamp='';
+ let positions=[],moves=[],current=0,loadedText='',applyingRemote=false;
  const workspace=()=> $('vqcReviewWorkspace');
  const isTeacher=()=>typeof role!=='undefined'&&role==='teacher';
  const connected=()=>typeof roomRef!=='undefined'&&!!roomRef;
- function setOpen(open){const el=workspace();if(!el)return;el.hidden=!open;const center=document.querySelector('section.center');if(center)center.classList.toggle('vqc-review-mode',!!open);$('vqcClassBoardTab')?.classList.toggle('is-active',!open);$('vqcReviewTab')?.classList.toggle('is-active',!!open);$('vqcClassBoardTab')?.setAttribute('aria-selected',String(!open));$('vqcReviewTab')?.setAttribute('aria-selected',String(!!open));if(open)requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')));}
+ function setOpen(open){
+  const el=workspace();if(!el)return;
+  el.hidden=!open;
+  const center=document.querySelector('section.center');
+  if(center)center.classList.toggle('vqc-review-mode',!!open);
+  $('vqcClassBoardTab')?.classList.toggle('is-active',!open);
+  $('vqcReviewTab')?.classList.toggle('is-active',!!open);
+  $('vqcClassBoardTab')?.setAttribute('aria-selected',String(!open));
+  $('vqcReviewTab')?.setAttribute('aria-selected',String(!!open));
+  if(open)requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')));
+ }
+ function normalizePgn(value){
+  return String(value||'').replace(/^\uFEFF/,'').replace(/\r\n?/g,'\n')
+   .split('\n').map(line=>line.trim().replace(/[\t ]+/g,' ')).join('\n').trim();
+ }
  function parsePgn(pgn){
   if(!window.Chess)throw Error('Không tải được bộ luật cờ vua.');
-  const clean=String(pgn||'').trim();if(!clean)throw Error('Vui lòng dán nội dung PGN.');
+  const clean=normalizePgn(pgn);
+  if(!clean)throw Error('Bạn hãy dán PGN hoặc chọn tệp .pgn trước nhé.');
   if(clean.length>50000)throw Error('PGN quá dài (tối đa 50.000 ký tự).');
-  const c=new Chess();
-  let ok;
-  try{ok=c.load_pgn(clean);}catch(e){throw Error('PGN không hợp lệ: '+(e.message||'không thể đọc ván đấu'));}
+  const c=new Chess();let ok;
+  try{ok=c.load_pgn(clean);}catch(e){throw Error('PGN không hợp lệ: '+(e.message||'không thể đọc nước đi'));}
   if(ok===false)throw Error('Không thể đọc PGN. Hãy kiểm tra ký hiệu nước đi.');
-  const hist=c.history({verbose:true})||[];
-  const fens=new Array(hist.length+1);fens[hist.length]=c.fen();
-  for(let i=hist.length-1;i>=0;i--){c.undo();fens[i]=c.fen();}
-  if(hist.length===0)throw Error('PGN chưa có nước đi hợp lệ.');
-  return {positions:fens,moves:hist.map(m=>({san:m.san,from:m.from,to:m.to,color:m.color}))};
+  const history=c.history({verbose:true})||[];
+  if(!history.length)throw Error('PGN chưa có nước đi hợp lệ.');
+  const fens=new Array(history.length+1);fens[history.length]=c.fen();
+  for(let i=history.length-1;i>=0;i--){c.undo();fens[i]=c.fen();}
+  return {positions:fens,moves:history.map(m=>({san:m.san,from:m.from,to:m.to,color:m.color}))};
  }
- function render(){
+ function makeCoordinate(text,cls){
+  const el=document.createElement('span');el.className='vqc-review-coordinate '+cls;el.textContent=text;return el;
+ }
+ function renderBoard(){
   const board=$('vqcReviewBoard');if(!board)return;
   board.replaceChildren();
-  const fen=positions[current];if(!fen)return;
-  const c=new Chess();c.load(fen);
+  if(!positions.length)return;
+  const c=new Chess();if(!c.load(positions[current]))return;
   const grid=c.board(),last=moves[current-1];
   for(let r=0;r<8;r++)for(let f=0;f<8;f++){
-   const piece=grid[r][f],sq='abcdefgh'[f]+(8-r),el=document.createElement('div');
-   el.className='square '+((r+f)%2?'dark':'light');
-   if(last&&(last.from===sq||last.to===sq))el.classList.add('last');
-   if(piece){const p=document.createElement('span');p.className='piece';p.textContent=glyph[piece.color+piece.type]||'';el.appendChild(p);}
-   if(f===0){const coord=document.createElement('span');coord.className='coord';coord.textContent=8-r;el.appendChild(coord);}
-   if(r===7){const coord=document.createElement('span');coord.className='coord';coord.style.left='auto';coord.style.right='3px';coord.style.top='auto';coord.style.bottom='3px';coord.textContent='abcdefgh'[f];el.appendChild(coord);}
-   board.appendChild(el);
+   const piece=grid[r][f],name='abcdefgh'[f]+(8-r),square=document.createElement('div');
+   square.className='square '+((r+f)%2===0?'light':'dark');
+   if(last&&(last.from===name||last.to===name))square.classList.add('last');
+   if(piece){
+    const holder=document.createElement('span');holder.className='piece';
+    const code=piece.color==='w'?piece.type.toUpperCase():piece.type;
+    holder.innerHTML=typeof pieceSvgMarkup==='function'?pieceSvgMarkup(code):(glyph[piece.color+piece.type]||'');
+    square.appendChild(holder);
+   }
+   if(f===0)square.appendChild(makeCoordinate(String(8-r),'rank'));
+   if(r===7)square.appendChild(makeCoordinate('abcdefgh'[f],'file'));
+   board.appendChild(square);
   }
-  $('vqcReviewCounter').textContent=current+' / '+moves.length+' nước';
-  $('vqcReviewTurn').textContent=(current===moves.length?'Đã đến vị trí cuối ván':(current%2===0?'Trắng đi':'Đen đi'));
-  $('vqcReviewPrev').disabled=!isTeacher()||current===0;$('vqcReviewFirst').disabled=!isTeacher()||current===0;
-  $('vqcReviewNext').disabled=!isTeacher()||current===moves.length;$('vqcReviewLast').disabled=!isTeacher()||current===moves.length;
-  const list=$('vqcReviewMoves');list.replaceChildren();
-  const start=document.createElement('button');start.textContent='Vị trí ban đầu';start.classList.toggle('active',current===0);start.disabled=!isTeacher();start.addEventListener('click',()=>go(0));list.appendChild(start);
-  moves.forEach((m,i)=>{const b=document.createElement('button');b.textContent=(Math.floor(i/2)+1)+(i%2?'... ':' . ')+m.san;b.classList.toggle('active',current===i+1);b.disabled=!isTeacher();b.addEventListener('click',()=>go(i+1));list.appendChild(b);});
  }
- function go(n,share=true){if(!positions.length)return;current=Math.max(0,Math.min(moves.length,Number(n)||0));render();if(share&&isTeacher())publish();}
+ function renderMoveList(){
+  const list=$('vqcReviewMoves');if(!list)return;list.replaceChildren();
+  const header=document.createElement('div');header.className='vqc-review-move-head';
+  ['#','Trắng','Đen'].forEach(label=>{const cell=document.createElement('span');cell.textContent=label;header.appendChild(cell);});
+  list.appendChild(header);
+  if(!moves.length){
+   const empty=document.createElement('p');empty.className='vqc-review-empty';empty.textContent='Nhập PGN để xem biên bản các nước đi.';list.appendChild(empty);return;
+  }
+  const startRow=document.createElement('div');startRow.className='vqc-review-start-position';
+  const startBtn=document.createElement('button');startBtn.type='button';startBtn.textContent='Vị trí ban đầu';startBtn.disabled=!isTeacher();startBtn.addEventListener('click',()=>go(0));
+  startRow.appendChild(startBtn);list.appendChild(startRow);
+  for(let ply=0;ply<moves.length;ply+=2){
+   const row=document.createElement('div');row.className='vqc-review-move-row';
+   const number=document.createElement('span');number.className='vqc-review-move-number';number.textContent=String(Math.floor(ply/2)+1)+'.';row.appendChild(number);
+   const white=document.createElement('button');white.type='button';white.className='vqc-review-move';white.textContent=moves[ply].san;
+   white.disabled=!isTeacher();white.setAttribute('aria-label','Nước Trắng '+(Math.floor(ply/2)+1)+': '+moves[ply].san);
+   if(current===ply+1){white.classList.add('is-current');white.setAttribute('aria-current','step');}
+   white.addEventListener('click',()=>go(ply+1));row.appendChild(white);
+   const black=document.createElement('button');black.type='button';black.className='vqc-review-move';
+   if(moves[ply+1]){
+    black.textContent=moves[ply+1].san;black.disabled=!isTeacher();
+    black.setAttribute('aria-label','Nước Đen '+(Math.floor(ply/2)+1)+': '+moves[ply+1].san);
+    if(current===ply+2){black.classList.add('is-current');black.setAttribute('aria-current','step');}
+    black.addEventListener('click',()=>go(ply+2));
+   }else{black.textContent='—';black.disabled=true;black.classList.add('is-empty');}
+   row.appendChild(black);list.appendChild(row);
+  }
+  const active=list.querySelector('.vqc-review-move.is-current');
+  if(active)active.scrollIntoView({block:'nearest',behavior:'smooth'});
+ }
+ function render(){
+  renderBoard();renderMoveList();
+  $('vqcReviewCounter').textContent=positions.length?(current+' / '+moves.length+' nước'):'Chưa có ván đấu';
+  $('vqcReviewTurn').textContent=positions.length?(current===moves.length?'Đã đến vị trí cuối ván':(current%2===0?'Trắng đi tiếp':'Đen đi tiếp')):'';
+  $('vqcReviewMoveCount').textContent=moves.length?moves.length+' nước đi':'Chưa có nước đi';
+  $('vqcReviewFirst').disabled=!isTeacher()||!moves.length||current===0;
+  $('vqcReviewPrev').disabled=!isTeacher()||!moves.length||current===0;
+  $('vqcReviewNext').disabled=!isTeacher()||!moves.length||current===moves.length;
+  $('vqcReviewLast').disabled=!isTeacher()||!moves.length||current===moves.length;
+  $('vqcReviewCopy').disabled=!loadedText;
+  $('vqcReviewDownload').disabled=!loadedText;
+ }
+ function go(n,share=true){
+  if(!positions.length||!isTeacher())return;
+  current=Math.max(0,Math.min(moves.length,Number(n)||0));render();
+  if(share)publish();
+ }
  function publish(){
   if(!connected()||!isTeacher()||applyingRemote)return;
   const payload={open:true,pgn:loadedText,index:current,stamp:Date.now()+'-'+Math.random().toString(36).slice(2,8)};
-  stamp=payload.stamp;
   roomRef.update({gameReview:payload,updatedAt:firebase.firestore.FieldValue.serverTimestamp()})
    .catch(e=>{console.error('PGN classroom sync',e);$('vqcReviewError').textContent='Chưa đồng bộ được với học sinh. Kiểm tra kết nối phòng.';});
  }
- window.vqcGameReviewShowBoard=function(){setOpen(false);if(isTeacher()&&connected())roomRef.update({gameReview:{open:false,stamp:Date.now()+'-closed'},updatedAt:firebase.firestore.FieldValue.serverTimestamp()}).catch(console.warn);};
+ function importPgn(raw){
+  const normalized=normalizePgn(raw);
+  const parsed=parsePgn(normalized);
+  positions=parsed.positions;moves=parsed.moves;loadedText=normalized;current=0;
+  $('vqcReviewPgn').value=normalized;
+  $('vqcReviewImport').open=false;
+  $('vqcReviewError').textContent='';
+  render();publish();
+ }
+ async function pasteClipboard(){
+  if(!isTeacher())return;
+  try{
+   if(!navigator.clipboard?.readText)throw Error('Trình duyệt chưa hỗ trợ đọc clipboard.');
+   const text=await navigator.clipboard.readText();
+   if(!text.trim())throw Error('Clipboard đang trống.');
+   $('vqcReviewPgn').value=normalizePgn(text);
+   $('vqcReviewPgn').focus();
+   $('vqcReviewError').textContent='Đã dán nội dung. Nhấn “Tải PGN và chia sẻ” để mở ván đấu.';
+  }catch(e){
+   $('vqcReviewError').textContent=(e.message||'Không đọc được clipboard.')+' Bạn có thể nhấn vào ô PGN rồi Ctrl + V.';
+   $('vqcReviewPgn').focus();
+  }
+ }
+ async function copyPgn(){
+  if(!loadedText)return;
+  try{await navigator.clipboard.writeText(loadedText);$('vqcReviewError').textContent='Đã sao chép PGN.';}
+  catch(e){$('vqcReviewError').textContent='Trình duyệt không cho phép sao chép tự động. Hãy chọn nội dung trong ô PGN rồi Ctrl + C.';$('vqcReviewImport').open=true;$('vqcReviewPgn').focus();}
+ }
+ function downloadPgn(){
+  if(!loadedText)return;
+  const blob=new Blob([loadedText+'\n'],{type:'application/x-chess-pgn;charset=utf-8'});
+  const url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download='dao-ky-thu-van-dau.pgn';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+ }
+ window.vqcGameReviewShowBoard=function(){
+  setOpen(false);
+  if(isTeacher()&&connected())roomRef.update({gameReview:{open:false,stamp:Date.now()+'-closed'},updatedAt:firebase.firestore.FieldValue.serverTimestamp()}).catch(console.warn);
+ };
  window.vqcGameReviewOpen=function(){
-  if(!connected()){if(typeof vqcNotify==='function')vqcNotify('Hãy tạo hoặc vào phòng học trước khi mở xem lại ván đấu.','warning');return;}
+  if(!connected()){if(typeof vqcNotify==='function')vqcNotify('Hãy tạo hoặc vào phòng học trước khi xem lại ván đấu.','warning');return;}
   if(!isTeacher()){if(typeof vqcNotify==='function')vqcNotify('Giáo viên điều khiển chức năng xem lại ván đấu.','warning');return;}
   setOpen(true);$('vqcReviewTeacherTools').hidden=false;$('vqcReviewStudentHint').hidden=true;
-  publish();
+  render();publish();
  };
  window.vqcGameReviewClose=window.vqcGameReviewShowBoard;
  window.vqcGameReviewLoad=function(){
   if(!isTeacher())return;
-  $('vqcReviewError').textContent='';
-  try{
-   const raw=$('vqcReviewPgn').value.trim(),parsed=parsePgn(raw);
-   positions=parsed.positions;moves=parsed.moves;loadedText=raw;current=0;render();publish();
-  }catch(e){$('vqcReviewError').textContent=e.message||'Không thể đọc PGN.';}
+  try{importPgn($('vqcReviewPgn').value);}
+  catch(e){$('vqcReviewError').textContent=e.message||'Không thể đọc PGN.';}
  };
  window.vqcGameReviewReceive=function(data){
   if(!data||typeof data!=='object')return;
@@ -76,22 +170,37 @@
   applyingRemote=true;
   try{
    setOpen(true);$('vqcReviewTeacherTools').hidden=true;$('vqcReviewStudentHint').hidden=false;
-   const pgn=String(data.pgn||'');
-   if(pgn&&pgn!==loadedText){
-    const parsed=parsePgn(pgn);positions=parsed.positions;moves=parsed.moves;loadedText=pgn;
-   }
+   const pgn=normalizePgn(data.pgn||'');
+   if(pgn&&pgn!==loadedText){const parsed=parsePgn(pgn);positions=parsed.positions;moves=parsed.moves;loadedText=pgn;}
    if(positions.length){current=Math.max(0,Math.min(moves.length,Number(data.index)||0));render();}
-   else{$('vqcReviewCounter').textContent='Chờ giáo viên nhập PGN';$('vqcReviewTurn').textContent='';$('vqcReviewBoard').replaceChildren();$('vqcReviewMoves').replaceChildren();}
+   else{$('vqcReviewPgn').value='';render();}
   }catch(e){$('vqcReviewError').textContent='Không đọc được ván đấu được chia sẻ: '+(e.message||String(e));}
   finally{applyingRemote=false;}
  };
- window.addEventListener('keydown',e=>{if(workspace()?.hidden||!isTeacher())return;if(e.key==='ArrowLeft')go(current-1);if(e.key==='ArrowRight')go(current+1);});
+ window.addEventListener('keydown',e=>{
+  if(workspace()?.hidden||!isTeacher())return;
+  const target=e.target;
+  if(target&&(target.matches('textarea,input,select')||target.isContentEditable))return;
+  if(e.key==='ArrowLeft'){e.preventDefault();go(current-1);}
+  else if(e.key==='ArrowRight'){e.preventDefault();go(current+1);}
+  else if(e.key==='Home'){e.preventDefault();go(0);}
+  else if(e.key==='End'){e.preventDefault();go(moves.length);}
+ });
  window.vqcGameReviewGo=go;
  document.addEventListener('DOMContentLoaded',()=>{
-  $('vqcReviewLoad').addEventListener('click',window.vqcGameReviewLoad);
-  $('vqcReviewFirst').addEventListener('click',()=>go(0));
-  $('vqcReviewPrev').addEventListener('click',()=>go(current-1));
-  $('vqcReviewNext').addEventListener('click',()=>go(current+1));
-  $('vqcReviewLast').addEventListener('click',()=>go(moves.length));
+  $('vqcReviewLoad')?.addEventListener('click',window.vqcGameReviewLoad);
+  $('vqcReviewPaste')?.addEventListener('click',pasteClipboard);
+  $('vqcReviewFile')?.addEventListener('change',async event=>{
+   const file=event.target.files?.[0];if(!file)return;
+   try{const text=await file.text();$('vqcReviewPgn').value=normalizePgn(text);$('vqcReviewError').textContent='Đã đọc tệp '+file.name+'. Nhấn “Tải PGN và chia sẻ” để tiếp tục.';$('vqcReviewImport').open=true;}
+   catch(e){$('vqcReviewError').textContent='Không đọc được tệp PGN: '+(e.message||String(e));}
+   event.target.value='';
+  });
+  $('vqcReviewCopy')?.addEventListener('click',copyPgn);
+  $('vqcReviewDownload')?.addEventListener('click',downloadPgn);
+  $('vqcReviewFirst')?.addEventListener('click',()=>go(0));
+  $('vqcReviewPrev')?.addEventListener('click',()=>go(current-1));
+  $('vqcReviewNext')?.addEventListener('click',()=>go(current+1));
+  $('vqcReviewLast')?.addEventListener('click',()=>go(moves.length));
  });
 })();
