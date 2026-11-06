@@ -1,0 +1,124 @@
+/* Dao Ky Thu - maximized review board with an off-canvas move panel */
+body.vqc-review-active main.app.vqc-review-expanded{
+  width:calc(100% - 20px)!important;
+  max-width:none!important;
+}
+body.vqc-review-active .vqc-review-workspace{
+  position:relative!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  width:100%!important;
+  height:100%!important;
+  min-height:0!important;
+  overflow:visible!important;
+  gap:0!important;
+}
+body.vqc-review-active .vqc-review-workspace__board{
+  position:relative!important;
+  top:auto!important;
+  width:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  display:grid!important;
+  grid-template-rows:auto minmax(0,1fr) auto!important;
+  justify-items:center!important;
+}
+body.vqc-review-active .vqc-review-status{
+  width:100%!important;
+  max-width:none!important;
+}
+body.vqc-review-active .vqc-review-board-shell{
+  width:100%!important;
+  height:100%!important;
+  min-height:0!important;
+  max-height:none!important;
+  display:grid!important;
+  place-items:center!important;
+  overflow:hidden!important;
+}
+body.vqc-review-active #vqcReviewBoard.board{
+  width:min(100%,calc(100dvh - 225px),calc(100vw - 56px))!important;
+  max-width:none!important;
+  height:auto!important;
+  max-height:100%!important;
+  aspect-ratio:1/1!important;
+  margin:0 auto!important;
+}
+body.vqc-review-active .vqc-review-controls{
+  width:min(100%,900px)!important;
+  flex-wrap:wrap!important;
+  justify-content:center!important;
+}
+.vqc-review-drawer-toggle{
+  flex:0 0 auto!important;
+  min-height:37px!important;
+  padding:7px 13px!important;
+  border:1px solid #b9d5ec!important;
+  border-radius:9px!important;
+  background:#fff!important;
+  color:#245b8d!important;
+  font:800 12px/1.2 inherit!important;
+  cursor:pointer!important;
+}
+.vqc-review-drawer-toggle:hover{background:#eaf4ff!important}
+.vqc-review-workspace__side{
+  position:fixed!important;
+  z-index:1201!important;
+  top:0!important;
+  right:0!important;
+  bottom:0!important;
+  width:min(430px,94vw)!important;
+  height:100vh!important;
+  height:100dvh!important;
+  box-sizing:border-box!important;
+  padding:18px!important;
+  overflow:auto!important;
+  display:flex!important;
+  flex-direction:column!important;
+  gap:12px!important;
+  background:#f8fbff!important;
+  border-left:1px solid #d5e4f1!important;
+  box-shadow:-14px 0 40px rgba(23,54,82,.2)!important;
+  transform:translateX(105%)!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+  transition:transform .24s ease,visibility .24s ease!important;
+}
+.vqc-review-workspace__side.is-drawer-open{
+  transform:translateX(0)!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+}
+.vqc-review-drawer-backdrop{
+  position:fixed!important;
+  z-index:1200!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  border:0!important;
+  padding:0!important;
+  background:rgba(13,35,56,.38)!important;
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+  transition:opacity .24s ease,visibility .24s ease!important;
+}
+.vqc-review-drawer-backdrop.is-open{
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+}
+@media(max-width:819px){
+ body.vqc-review-active #vqcReviewBoard.board{
+  width:min(100%,calc(100dvh - 260px),calc(100vw - 36px))!important;
+ }
+ .vqc-review-workspace__side{width:min(430px,96vw)!important;padding:14px!important}
+}
+@media(max-height:650px) and (min-width:820px){
+ body.vqc-review-active #vqcReviewBoard.board{
+  width:min(100%,calc(100dvh - 180px),calc(100vw - 56px))!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ .vqc-review-workspace__side,.vqc-review-drawer-backdrop{transition:none!important}
+}
