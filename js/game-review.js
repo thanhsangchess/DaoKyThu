@@ -53,18 +53,14 @@
   roomRef.update({gameReview:payload,updatedAt:firebase.firestore.FieldValue.serverTimestamp()})
    .catch(e=>{console.error('PGN classroom sync',e);$('vqcReviewError').textContent='Chưa đồng bộ được với học sinh. Kiểm tra kết nối phòng.';});
  }
- window.vqcGameReviewShowBoard=function(){if(isTeacher()&&connected()&&loadedText){}setOpen(false);};
+ window.vqcGameReviewShowBoard=function(){setOpen(false);if(isTeacher()&&connected())roomRef.update({gameReview:{open:false,stamp:Date.now()+'-closed'},updatedAt:firebase.firestore.FieldValue.serverTimestamp()}).catch(console.warn);};
  window.vqcGameReviewOpen=function(){
   if(!connected()){if(typeof vqcNotify==='function')vqcNotify('Hãy tạo hoặc vào phòng học trước khi mở xem lại ván đấu.','warning');return;}
   if(!isTeacher()){if(typeof vqcNotify==='function')vqcNotify('Giáo viên điều khiển chức năng xem lại ván đấu.','warning');return;}
-  setOpen(true);$('vqcReviewTeacherTools').hidden=false;$('vqcReviewStudentHint').hidden=true;$('vqcReviewClose').hidden=false;
+  setOpen(true);$('vqcReviewTeacherTools').hidden=false;$('vqcReviewStudentHint').hidden=true;
   publish();
  };
- window.vqcGameReviewClose=function(){
-  if(!isTeacher())return;
-  setOpen(false);
-  if(connected())roomRef.update({gameReview:{open:false,stamp:Date.now()+'-closed'},updatedAt:firebase.firestore.FieldValue.serverTimestamp()}).catch(console.warn);
- };
+ window.vqcGameReviewClose=window.vqcGameReviewShowBoard;
  window.vqcGameReviewLoad=function(){
   if(!isTeacher())return;
   $('vqcReviewError').textContent='';
@@ -79,7 +75,7 @@
   if(data.open!==true||isTeacher())return;
   applyingRemote=true;
   try{
-   setOpen(true);$('vqcReviewTeacherTools').hidden=true;$('vqcReviewStudentHint').hidden=false;$('vqcReviewClose').hidden=true;
+   setOpen(true);$('vqcReviewTeacherTools').hidden=true;$('vqcReviewStudentHint').hidden=false;
    const pgn=String(data.pgn||'');
    if(pgn&&pgn!==loadedText){
     const parsed=parsePgn(pgn);positions=parsed.positions;moves=parsed.moves;loadedText=pgn;
