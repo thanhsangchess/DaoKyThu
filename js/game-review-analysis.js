@@ -3,7 +3,7 @@
  'use strict';
  const $=id=>document.getElementById(id);
  const ENGINE_VERSION='19.0.1';
- let worker=null,enginePromise=null,engineReady=false,activeSearch=null,startupTimer=null,startupReject=null;
+ let worker=null,enginePromise=null,engineReady=false,activeSearch=null,startupTimer=null,startupReject=null,startupLastMessage='';
  let runId=0,game=null,results=null,currentIndex=0,analysisRunning=false;
  const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
  const isTeacher=()=>typeof role!=='undefined'&&role==='teacher';
@@ -41,7 +41,8 @@
  }
  function makeWorker(){
   /* Load a same-origin worker script; that script loads the pinned engine build. */
-  worker=new Worker('./js/stockfish-loader.js?v=20261106-v1');
+  startupLastMessage='';
+  worker=new Worker('./js/stockfish-loader.js?v=20261106-v2');
  }
  function ensureEngine(){
   if(engineReady)return Promise.resolve();
@@ -51,10 +52,15 @@
    let settled=false;
    startupReject=error=>{if(!settled){settled=true;reject(error);}};
    startupTimer=setTimeout(()=>{
-    if(!settled){settled=true;startupTimer=null;startupReject=null;enginePromise=null;cleanupWorker();reject(Error('Engine mất quá nhiều thời gian để khởi động.'));}
+    if(!settled){
+     const detail=startupLastMessage?' Phản hồi gần nhất: '+startupLastMessage.slice(0,120):'';
+     settled=true;startupTimer=null;startupReject=null;enginePromise=null;cleanupWorker();
+     reject(Error('Không nhận được tín hiệu khởi động từ Stockfish. Hãy tải lại trang và kiểm tra kết nối Internet.'+detail));
+    }
    },35000);
    worker.onmessage=event=>{
     const line=String(event.data?.data??event.data?.message??event.data??'').trim();
+    if(line)startupLastMessage=line;
     if(line.startsWith('VQC_ENGINE_LOAD_ERROR')){
      if(!settled){settled=true;if(startupTimer)clearTimeout(startupTimer);startupTimer=null;startupReject=null;enginePromise=null;cleanupWorker();reject(Error(line.replace('VQC_ENGINE_LOAD_ERROR','').trim()||'Không tải được Stockfish.'));}
      return;
