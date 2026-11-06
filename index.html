@@ -52,6 +52,7 @@
 <link rel="stylesheet" href="./css/chess-exercise-layout.css?v=20261025-fit-board-v1">
 <link rel="stylesheet" href="./css/mate-one-pdf-100.css?v=20261025-basic-v1">
 <link rel="stylesheet" href="./css/classroom-warmups.css?v=20261031-v1">
+<link rel="stylesheet" href="./css/game-review.css?v=20261106-v1">
 </head>
 
 
@@ -1009,6 +1010,8 @@
 
 
 
+        <button type="button" class="btn btn-blue" style="width:100%;margin:10px 0" onclick="vqcGameReviewOpen()">♟ Xem lại ván đấu bằng PGN</button>
+
         <div class="log-title">
 
             📋 Hoạt động gần đây
@@ -1058,6 +1061,7 @@
 
 
 
+<div id="vqcGameReviewOverlay" class="vqc-review-overlay" role="dialog" aria-modal="true" aria-label="Xem lại ván đấu PGN" aria-hidden="true"><div class="vqc-review-dialog"><div class="vqc-review-head"><div><h2>♟ Xem lại ván đấu</h2><div id="vqcReviewCounter" class="vqc-review-meta">Chờ giáo viên nhập PGN</div></div><button class="btn btn-soft" type="button" onclick="vqcGameReviewClose()">✕ Đóng</button></div><div class="vqc-review-layout"><div id="vqcReviewBoard" class="vqc-review-board" aria-label="Bàn cờ xem lại"></div><div class="vqc-review-side"><div id="vqcReviewTeacherTools"><p class="vqc-review-note">Dán PGN của ván đấu vào đây. Sau khi tải, học sinh sẽ thấy cùng bàn cờ và cùng vị trí nước đi.</p><textarea id="vqcReviewPgn" class="vqc-review-input" placeholder='[Event "Training"]&#10;[Result "*"]&#10;&#10;1. e4 e5 2. Nf3 Nc6 *'></textarea><button id="vqcReviewLoad" class="vqc-review-load" type="button">Tải PGN và chia sẻ với lớp</button><div id="vqcReviewError" class="vqc-review-error" role="alert"></div></div><div id="vqcReviewStudentHint" class="vqc-review-student-hint" hidden>Giáo viên đang điều khiển ván đấu. Các nước đi và hình vẽ trên bàn cờ được đồng bộ với lớp.</div><div id="vqcReviewTurn" class="vqc-review-meta"></div><div class="vqc-review-controls"><button id="vqcReviewFirst" type="button">⏮ Đầu</button><button id="vqcReviewPrev" type="button">◀ Trước</button><button id="vqcReviewNext" type="button">Sau ▶</button><button id="vqcReviewLast" type="button">Cuối ⏭</button></div><div id="vqcReviewMoves" class="vqc-review-moves" aria-label="Danh sách nước đi"></div><p class="vqc-review-note">Có thể dùng phím ← / → để lùi hoặc tiến từng nước (trên máy giáo viên).</p></div></div></div></div>
 <div id="vqcToasts" aria-live="polite"></div>
 <div id="editorPromotionDialog" class="vqc-promotion" role="dialog" aria-modal="true" aria-label="Chọn quân phong cấp">
  <div class="vqc-promotion-card"><h3>♟ Tốt được phong cấp!</h3><p>Chọn quân muốn phong cấp để tiếp tục thế cờ.</p><div id="editorPromotionChoices" class="vqc-promotion-choices"></div><button class="btn btn-soft" onclick="editorClosePromotion()">Hủy</button></div>
@@ -1268,6 +1272,7 @@ function vqcToggleLoginPassword(){const el=document.getElementById('accountLogin
 <script src="./js/arcade-online.js?v=arcade-recheck-20261020-4"></script>
 <script src="./js/friend-challenges.js?v=challenges-20261020-2"></script>
 <script src="./js/annotations.js?v=lonemate-draw-20261026-2"></script>
+<script src="./js/game-review.js?v=20261106-v1"></script>
 <script>
 /* Challenge launcher: direct delegated UI, robust error reporting. */
 (function(){
