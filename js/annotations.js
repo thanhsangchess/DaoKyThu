@@ -211,8 +211,7 @@
  window.vqcAnnotationsClearAll=clearAllLocal;
  function publish(boardId){
   if(typeof roomRef==='undefined'||!roomRef||
-     typeof role==='undefined'||role!=='teacher'||
-     window.vqcCurrentLearningMode!=='class')return;
+     typeof role==='undefined'||role!=='teacher')return;
   clearTimeout(publishTimer);
   const ref=roomRef;
   const data={
