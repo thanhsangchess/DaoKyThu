@@ -7,7 +7,7 @@
  const workspace=()=> $('vqcReviewWorkspace');
  const isTeacher=()=>typeof role!=='undefined'&&role==='teacher';
  const connected=()=>typeof roomRef!=='undefined'&&!!roomRef;
- let movePanelToggle=null;
+ let workspaceInstalled=false;
  function installMoveDrawer(){
   const workspaceEl=workspace();
   const boardCol=workspaceEl?.querySelector('.vqc-review-workspace__board');
@@ -15,29 +15,18 @@
   const status=workspaceEl?.querySelector('.vqc-review-status');
   const controls=workspaceEl?.querySelector('.vqc-review-controls');
   const importBox=$('vqcReviewImport');
-  if(!workspaceEl||!boardCol||!side||!status||!controls||movePanelToggle)return;
+  if(!workspaceEl||!boardCol||!side||!status||!controls||workspaceInstalled)return;
 
-  /* Keep the board in the left column; move all supporting UI into the right column. */
+  /* Two-column layout: board left, status/import/moves/navigation right. */
   side.prepend(status);
+  if(importBox){
+   importBox.open=true;
+   const movesHeading=side.querySelector('.vqc-review-moves-heading');
+   if(movesHeading)side.insertBefore(importBox,movesHeading);
+   else side.appendChild(importBox);
+  }
   side.appendChild(controls);
-
-  movePanelToggle=document.createElement('button');
-  movePanelToggle.type='button';
-  movePanelToggle.className='vqc-review-drawer-toggle';
-  movePanelToggle.textContent='📥 Nhập PGN';
-  movePanelToggle.setAttribute('aria-controls','vqcReviewImport');
-  movePanelToggle.setAttribute('aria-expanded','false');
-  movePanelToggle.addEventListener('click',()=>{
-   if(!importBox)return;
-   importBox.open=!importBox.open;
-   movePanelToggle.setAttribute('aria-expanded',String(importBox.open));
-   if(importBox.open)importBox.scrollIntoView({block:'nearest',behavior:'smooth'});
-  });
-  controls.appendChild(movePanelToggle);
-  if(importBox)side.appendChild(importBox);
-  importBox?.addEventListener('toggle',()=>{
-   movePanelToggle?.setAttribute('aria-expanded',String(importBox.open));
-  });
+  workspaceInstalled=true;
  }
  function setOpen(open){
   const el=workspace();if(!el)return;
