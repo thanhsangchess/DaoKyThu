@@ -9,6 +9,8 @@
  const connected=()=>typeof roomRef!=='undefined'&&!!roomRef;
  let workspaceInstalled=false;
  let variationGame=null,variationActive=false,variationMoves=[],selectedSquare=null,promotionChoices=[];
+ let variationBaseIndex=null,variationFromStudent=false,variationSharedStamp=null,variationRevision=0,applyingRemoteVariation=false;
+ const variationClientId='review-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,10);
  let boardFlipped=false;
  function installMoveDrawer(){
   const workspaceEl=workspace();
@@ -76,9 +78,9 @@
    if(variationActive){
     const side=variationGame?.turn()==='w'?'Trắng':'Đen';
     const ending=variationGame?.isCheckmate?.()?' · Chiếu hết':variationGame?.isStalemate?.()?' · Hết nước đi hợp lệ':'';
-    status.textContent='Đang thử biến thể riêng · '+variationMoves.length+' nước · '+side+' đi tiếp'+ending+'. Nước thử chỉ nằm trên thiết bị này; ván PGN gốc và ván của lớp không thay đổi.';
+    status.textContent=(variationFromStudent?'Học sinh đang thử':'Đang thử')+' biến thể riêng · '+variationMoves.length+' nước · '+side+' đi tiếp'+ending+'. Nước thử được đồng bộ trong phòng học; PGN gốc không thay đổi.';
    }else{
-    status.textContent='Chọn quân cờ trên bàn để tự thử nước đi từ vị trí đang xem.';
+    status.textContent='Chọn quân để thử nước đi. Các nước thử sẽ hiển thị trên cả máy giáo viên và học sinh.';
    }
   }
   if(promo){
@@ -97,7 +99,7 @@
   }
  }
  function resetVariation(shouldRender=true){
-  variationGame=null;variationActive=false;variationMoves=[];selectedSquare=null;promotionChoices=[];
+  variationGame=null;variationActive=false;variationMoves=[];selectedSquare=null;promotionChoices=[];variationBaseIndex=null;variationFromStudent=false;
   updateVariationControls();
   if(shouldRender&&positions.length)render();
  }
@@ -105,7 +107,7 @@
   if(!positions.length)return false;
   const chess=new Chess();
   if(!chess.load(positions[current]))return false;
-  variationGame=chess;variationActive=true;variationMoves=[];selectedSquare=null;promotionChoices=[];
+  variationGame=chess;variationActive=true;variationMoves=[];selectedSquare=null;promotionChoices=[];variationBaseIndex=current;variationFromStudent=false;
   updateVariationControls();
   return true;
  }
@@ -118,9 +120,10 @@
   try{
    const made=variationGame.move({from:move.from,to:move.to,promotion:move.promotion||'q'});
    if(!made)return;
-   variationMoves.push({san:made.san,from:made.from,to:made.to,color:made.color,fen:variationGame.fen()});
+   variationMoves.push({san:made.san,from:made.from,to:made.to,color:made.color,promotion:made.promotion||'',fen:variationGame.fen()});
    selectedSquare=null;promotionChoices=[];
    updateVariationControls();renderBoard();render();
+   publishVariation();
   }catch(error){
    const status=$('vqcReviewVariationStatus');
    if(status)status.textContent='Nước đi không hợp lệ. Hãy chọn một ô được đánh dấu.';
@@ -262,8 +265,57 @@
  function publish(){
   if(!connected()||!isTeacher()||applyingRemote)return;
   const payload={open:true,pgn:loadedText,index:current,stamp:Date.now()+'-'+Math.random().toString(36).slice(2,8)};
-  roomRef.update({gameReview:payload,updatedAt:firebase.firestore.FieldValue.serverTimestamp()})
+  roomRef.update({gameReview:payload,gameReviewVariation:null,updatedAt:firebase.firestore.FieldValue.serverTimestamp()})
    .catch(e=>{console.error('PGN classroom sync',e);$('vqcReviewError').textContent='Chưa đồng bộ được với học sinh. Kiểm tra kết nối phòng.';});
+ }
+ function publishVariation(){
+  if(!connected()||isTeacher()||applyingRemoteVariation||!variationActive||!variationGame||!variationMoves.length)return;
+  const stamp=Date.now()+'-'+Math.random().toString(36).slice(2,10);
+  const payload={baseIndex:Number.isInteger(variationBaseIndex)?variationBaseIndex:current,
+   moves:variationMoves.map(move=>({from:move.from,to:move.to,promotion:move.promotion||''})),
+   fen:variationGame.fen(),stamp,clientId:variationClientId,revision:++variationRevision};
+  variationSharedStamp=stamp;
+  roomRef.update({gameReviewVariation:payload,updatedAt:firebase.firestore.FieldValue.serverTimestamp()})
+   .catch(error=>{
+    console.error('PGN variation classroom sync',error);
+    const status=$('vqcReviewVariationStatus');
+    if(status)status.textContent='Chưa đồng bộ được nước thử. Hãy kiểm tra kết nối phòng học.';
+   });
+ }
+ function clearSharedVariation(){
+  if(!connected())return;
+  variationSharedStamp=null;
+  roomRef.update({gameReviewVariation:null,updatedAt:firebase.firestore.FieldValue.serverTimestamp()})
+   .catch(error=>console.error('Clear PGN variation',error));
+ }
+ function receiveVariation(data){
+  if(!data){
+   variationSharedStamp=null;
+   if(variationActive&&variationFromStudent)resetVariation(true);
+   return;
+  }
+  if(typeof data!=='object'||workspace()?.hidden||!positions.length)return;
+  if(data.clientId===variationClientId){variationSharedStamp=data.stamp||variationSharedStamp;return;}
+  const baseIndex=Number(data.baseIndex);
+  if(!Number.isInteger(baseIndex)||baseIndex!==current||!Array.isArray(data.moves)||data.moves.length>300)return;
+  try{
+   const chess=new Chess();
+   if(!chess.load(positions[baseIndex]))return;
+   const replayed=[];
+   for(const item of data.moves){
+    if(!item||typeof item.from!=='string'||typeof item.to!=='string')return;
+    const move={from:item.from,to:item.to};
+    if(['q','r','b','n'].includes(String(item.promotion||'').toLowerCase()))move.promotion=String(item.promotion).toLowerCase();
+    const made=chess.move(move);if(!made)return;
+    replayed.push({san:made.san,from:made.from,to:made.to,color:made.color,promotion:made.promotion||'',fen:chess.fen()});
+   }
+   if(data.fen&&data.fen!==chess.fen())return;
+   applyingRemoteVariation=true;
+   variationGame=chess;variationActive=true;variationMoves=replayed;variationBaseIndex=baseIndex;
+   selectedSquare=null;promotionChoices=[];variationFromStudent=true;variationSharedStamp=data.stamp||null;
+   updateVariationControls();render();
+  }catch(error){console.warn('Không thể khôi phục biến thể của học sinh:',error);}
+  finally{applyingRemoteVariation=false;}
  }
  function importPgn(raw){
   const normalized=normalizePgn(raw);
@@ -304,7 +356,7 @@
  }
  window.vqcGameReviewShowBoard=function(){
   setOpen(false);
-  if(isTeacher()&&connected())roomRef.update({gameReview:{open:false,stamp:Date.now()+'-closed'},updatedAt:firebase.firestore.FieldValue.serverTimestamp()}).catch(console.warn);
+  if(isTeacher()&&connected())roomRef.update({gameReview:{open:false,stamp:Date.now()+'-closed'},gameReviewVariation:null,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}).catch(console.warn);
  };
  window.vqcGameReviewOpen=function(){
   if(!connected()){if(typeof vqcNotify==='function')vqcNotify('Hãy tạo hoặc vào phòng học trước khi xem lại ván đấu.','warning');return;}
@@ -348,6 +400,7 @@
   else if(e.key==='End'){e.preventDefault();go(moves.length);}
  });
  window.vqcGameReviewGo=go;
+ window.vqcGameReviewVariationReceive=receiveVariation;
  document.addEventListener('DOMContentLoaded',()=>{
   installMoveDrawer();
   $('vqcReviewLoad')?.addEventListener('click',window.vqcGameReviewLoad);
@@ -364,7 +417,7 @@
   $('vqcReviewPrev')?.addEventListener('click',()=>go(current-1));
   $('vqcReviewNext')?.addEventListener('click',()=>go(current+1));
   $('vqcReviewLast')?.addEventListener('click',()=>go(moves.length));
-  $('vqcReviewVariationReset')?.addEventListener('click',()=>resetVariation(true));
+  $('vqcReviewVariationReset')?.addEventListener('click',()=>{resetVariation(true);clearSharedVariation();});
   $('vqcReviewFlipBoard')?.addEventListener('click',toggleBoardOrientation);
   updateFlipButton();
   $('vqcReviewReturnBoard')?.addEventListener('click',()=>window.vqcGameReviewShowBoard?.());
