@@ -126,6 +126,7 @@
   $('vqcReviewLast').disabled=!isTeacher()||!moves.length||current===moves.length;
   $('vqcReviewCopy').disabled=!loadedText;
   $('vqcReviewDownload').disabled=!loadedText;
+  window.dispatchEvent(new CustomEvent('vqc:game-review-position',{detail:{index:current,total:moves.length}}));
  }
  function go(n,share=true){
   if(!positions.length||!isTeacher())return;
@@ -145,7 +146,9 @@
   $('vqcReviewPgn').value=normalized;
   $('vqcReviewImport').open=false;
   $('vqcReviewError').textContent='';
-  render();publish();
+  render();
+  window.dispatchEvent(new CustomEvent('vqc:game-review-loaded',{detail:{positions:positions.slice(),moves:moves.map(move=>({...move})),pgn:loadedText}}));
+  publish();
  }
  async function pasteClipboard(){
   if(!isTeacher())return;
@@ -196,7 +199,7 @@
   try{
    setOpen(true);$('vqcReviewTeacherTools').hidden=true;$('vqcReviewStudentHint').hidden=false;
    const pgn=normalizePgn(data.pgn||'');
-   if(pgn&&pgn!==loadedText){const parsed=parsePgn(pgn);positions=parsed.positions;moves=parsed.moves;loadedText=pgn;}
+   if(pgn&&pgn!==loadedText){const parsed=parsePgn(pgn);positions=parsed.positions;moves=parsed.moves;loadedText=pgn;window.dispatchEvent(new CustomEvent('vqc:game-review-loaded',{detail:{positions:positions.slice(),moves:moves.map(move=>({...move})),pgn:loadedText}}));}
    if(positions.length){current=Math.max(0,Math.min(moves.length,Number(data.index)||0));render();}
    else{$('vqcReviewPgn').value='';render();}
   }catch(e){$('vqcReviewError').textContent='Không đọc được ván đấu được chia sẻ: '+(e.message||String(e));}
