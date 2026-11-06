@@ -53,7 +53,8 @@
 <link rel="stylesheet" href="./css/mate-one-pdf-100.css?v=20261025-basic-v1">
 <link rel="stylesheet" href="./css/classroom-warmups.css?v=20261031-v1">
 <link rel="stylesheet" href="./css/game-review.css?v=20261106-sidebar-v6">
-<link rel="stylesheet" href="./css/game-review-drawer.css?v=20261106-v4">
+<link rel="stylesheet" href="./css/game-review-drawer.css?v=20261106-v5">
+<link rel="stylesheet" href="./css/game-review-analysis.css?v=20261106-v1">
 </head>
 
 
@@ -799,6 +800,43 @@
             <div id="vqcReviewError" class="vqc-review-error" role="alert" aria-live="polite"></div>
           </div>
         </details>
+        <section class="vqc-review-analysis" id="vqcReviewAnalysis" aria-label="Phân tích ván đấu bằng Stockfish">
+          <div class="vqc-review-analysis__head">
+            <div>
+              <strong>♟ Phân tích ván đấu</strong>
+              <small>Stockfish 19 · Engine chạy trực tiếp trên trình duyệt</small>
+            </div>
+            <div class="vqc-review-analysis__actions">
+              <select id="vqcReviewAnalysisDepth" aria-label="Độ sâu phân tích">
+                <option value="10">Nhanh · 10</option>
+                <option value="12" selected>Cân bằng · 12</option>
+                <option value="14">Sâu · 14</option>
+              </select>
+              <button type="button" id="vqcReviewAnalyzeStart" disabled>Phân tích</button>
+              <button type="button" id="vqcReviewAnalyzeStop" class="secondary" hidden>Dừng</button>
+            </div>
+          </div>
+          <p class="vqc-review-analysis__status" id="vqcReviewAnalysisStatus" data-state="info" aria-live="polite">Nhập PGN để bắt đầu phân tích.</p>
+          <div class="vqc-review-analysis__progress"><span id="vqcReviewAnalysisProgress"></span></div>
+          <small class="vqc-review-analysis__progress-text" id="vqcReviewAnalysisProgressText"></small>
+          <div class="vqc-review-analysis__report" id="vqcReviewAnalysisReport" hidden>
+            <div class="vqc-review-analysis__metrics" id="vqcReviewAnalysisMetrics"></div>
+            <p class="vqc-review-analysis__summary" id="vqcReviewAnalysisSummary"></p>
+            <h4 class="vqc-review-analysis__subhead">Diễn biến đánh giá · góc nhìn Trắng</h4>
+            <div class="vqc-review-analysis-graph-wrap" id="vqcReviewAnalysisGraphWrap">
+              <svg class="vqc-review-analysis-graph" id="vqcReviewAnalysisGraph" viewBox="0 0 600 128" role="img" aria-label="Biểu đồ lợi thế qua từng nước đi"></svg>
+            </div>
+            <h4 class="vqc-review-analysis__subhead">Những thời điểm cần xem lại</h4>
+            <div class="vqc-review-analysis__moments" id="vqcReviewAnalysisMoments"></div>
+            <div class="vqc-review-analysis-current-box" id="vqcReviewAnalysisCurrent"></div>
+            <div class="vqc-review-analysis-coach" id="vqcReviewAnalysisCoach">
+              <strong>Gợi ý học tập</strong>
+              <p>Chọn một nước đi để xem nhận xét từ kết quả engine.</p>
+            </div>
+          </div>
+          <p class="vqc-review-analysis__summary">Lần đầu sử dụng sẽ tải engine khoảng 1,7 MB. Phân tích được xử lý trên thiết bị, không gửi PGN lên máy chủ. Độ chính xác là chỉ số ước tính của Đảo Kỳ Thủ.</p>
+          <small>Stockfish.js · GPL-3.0 · <a href="https://github.com/nmrugg/stockfish.js" target="_blank" rel="noopener">Mã nguồn engine</a> · <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener">Giấy phép</a></small>
+        </section>
         <div id="vqcReviewStudentHint" class="vqc-review-student-hint" hidden>👩‍🏫 Giáo viên đang điều khiển ván đấu. Bàn cờ và nước đi được đồng bộ với lớp.</div>
         <div class="vqc-review-moves-heading"><div><strong>📋 Biên bản ván đấu</strong><small id="vqcReviewMoveCount">Chưa có nước đi</small></div><div class="vqc-review-actions"><button id="vqcReviewCopy" type="button" title="Sao chép PGN">Sao chép</button><button id="vqcReviewDownload" type="button" title="Tải tệp PGN">Tải .pgn</button></div></div>
         <div class="vqc-review-moves-wrap">
@@ -1317,6 +1355,7 @@ function vqcToggleLoginPassword(){const el=document.getElementById('accountLogin
 <script src="./js/friend-challenges.js?v=challenges-20261020-2"></script>
 <script src="./js/annotations.js?v=20261106-pgn-review-v1"></script>
 <script src="./js/game-review.js?v=20261106-two-column-v1"></script>
+<script src="./js/game-review-analysis.js?v=20261106-v1"></script>
 <script>
 /* Challenge launcher: direct delegated UI, robust error reporting. */
 (function(){
