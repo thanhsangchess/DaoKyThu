@@ -49,7 +49,7 @@
  function makeWorker(){
   const bootstrap=[
    'self.__vqcSfBase='+JSON.stringify(ENGINE_BASES[0])+';',
-   'self.Module={locateFile:function(path){return (self.__vqcSfBase||'+JSON.stringify(ENGINE_BASES[0])+')+path;}};',
+   'self.Module={locateFile:function(path){return (self.__vqcSfBase||'+JSON.stringify(ENGINE_BASES[0])+')+(path&&path.endsWith(\".wasm\")?'+JSON.stringify(ENGINE_WASM)+':path);}};',
    'try{importScripts(self.__vqcSfBase+'+JSON.stringify(ENGINE_FILE)+');}',
    'catch(first){try{self.__vqcSfBase='+JSON.stringify(ENGINE_BASES[1])+';importScripts(self.__vqcSfBase+'+JSON.stringify(ENGINE_FILE)+');}',
    'catch(second){self.postMessage("VQC_ENGINE_LOAD_ERROR "+String(second&&second.message||second||first));}}'
