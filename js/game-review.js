@@ -8,6 +8,7 @@
  const isTeacher=()=>typeof role!=='undefined'&&role==='teacher';
  const connected=()=>typeof roomRef!=='undefined'&&!!roomRef;
  let workspaceInstalled=false;
+ let variationGame=null,variationActive=false,variationMoves=[],selectedSquare=null,promotionChoices=[];
  function installMoveDrawer(){
   const workspaceEl=workspace();
   const boardCol=workspaceEl?.querySelector('.vqc-review-workspace__board');
@@ -31,6 +32,7 @@
  function setOpen(open){
   const el=workspace();if(!el)return;
   el.hidden=!open;
+  if(!open&&variationActive)resetVariation(false);
   if(!open)window.vqcGameReviewAnalysisCancel?.();
 
   const center=document.querySelector('section.center');
@@ -65,16 +67,112 @@
  function makeCoordinate(text,cls){
   const el=document.createElement('span');el.className='vqc-review-coordinate '+cls;el.textContent=text;return el;
  }
+ function updateVariationControls(){
+  const reset=$('vqcReviewVariationReset'),status=$('vqcReviewVariationStatus'),promo=$('vqcReviewPromotion');
+  if(reset)reset.hidden=!variationActive;
+  if(promo)promo.hidden=!promotionChoices.length;
+  if(status){
+   if(variationActive){
+    const side=variationGame?.turn()==='w'?'Trắng':'Đen';
+    const ending=variationGame?.isCheckmate?.()?' · Chiếu hết':variationGame?.isStalemate?.()?' · Hết nước đi hợp lệ':'';
+    status.textContent='Đang thử biến thể riêng · '+variationMoves.length+' nước · '+side+' đi tiếp'+ending+'. Ván PGN gốc không thay đổi.';
+   }else{
+    status.textContent='Chọn quân cờ trên bàn để tự thử nước đi từ vị trí đang xem.';
+   }
+  }
+  if(promo){
+   promo.replaceChildren();
+   if(promotionChoices.length){
+    const label=document.createElement('span');label.textContent='Phong cấp thành:';promo.appendChild(label);
+    const labels={q:'Hậu ♕',r:'Xe ♖',b:'Tượng ♗',n:'Mã ♘'};
+    promotionChoices.forEach(move=>{
+     const button=document.createElement('button');button.type='button';button.textContent=labels[move.promotion]||move.promotion;
+     button.addEventListener('click',()=>playVariationMove(move));promo.appendChild(button);
+    });
+    const cancel=document.createElement('button');cancel.type='button';cancel.className='is-muted';cancel.textContent='Hủy';
+    cancel.addEventListener('click',()=>{promotionChoices=[];updateVariationControls();renderBoard();});
+    promo.appendChild(cancel);
+   }
+  }
+ }
+ function resetVariation(shouldRender=true){
+  variationGame=null;variationActive=false;variationMoves=[];selectedSquare=null;promotionChoices=[];
+  updateVariationControls();
+  if(shouldRender&&positions.length)render();
+ }
+ function beginVariation(){
+  if(!positions.length)return false;
+  const chess=new Chess();
+  if(!chess.load(positions[current]))return false;
+  variationGame=chess;variationActive=true;variationMoves=[];selectedSquare=null;promotionChoices=[];
+  updateVariationControls();
+  return true;
+ }
+ function legalVariationMoves(square){
+  if(!variationGame||!square)return [];
+  try{return variationGame.moves({square,verbose:true});}catch(error){return [];}
+ }
+ function playVariationMove(move){
+  if(!variationActive||!variationGame||!isTeacher())return;
+  try{
+   const made=variationGame.move({from:move.from,to:move.to,promotion:move.promotion||'q'});
+   if(!made)return;
+   variationMoves.push({san:made.san,from:made.from,to:made.to,color:made.color,fen:variationGame.fen()});
+   selectedSquare=null;promotionChoices=[];
+   updateVariationControls();renderBoard();render();
+  }catch(error){
+   const status=$('vqcReviewVariationStatus');
+   if(status)status.textContent='Nước đi không hợp lệ. Hãy chọn một ô được đánh dấu.';
+  }
+ }
+ function handleVariationSquare(square){
+  if(!isTeacher()||!positions.length)return;
+  if(!variationActive&&!beginVariation())return;
+  if(!variationGame||promotionChoices.length)return;
+  const piece=variationGame.get(square);
+  if(selectedSquare){
+   const choices=legalVariationMoves(selectedSquare).filter(move=>move.to===square);
+   if(choices.length){
+    if(choices.some(move=>move.promotion)){
+     promotionChoices=choices;updateVariationControls();renderBoard();return;
+    }
+    playVariationMove(choices[0]);return;
+   }
+   if(piece&&piece.color===variationGame.turn()){
+    selectedSquare=square;renderBoard();return;
+   }
+   selectedSquare=null;renderBoard();return;
+  }
+  if(piece&&piece.color===variationGame.turn()){
+   selectedSquare=square;renderBoard();
+  }
+ }
  function renderBoard(){
   const board=$('vqcReviewBoard');if(!board)return;
   board.replaceChildren();
   if(!positions.length)return;
-  const c=new Chess();if(!c.load(positions[current]))return;
-  const grid=c.board(),last=moves[current-1];
+  let chess;
+  if(variationActive&&variationGame)chess=variationGame;
+  else{chess=new Chess();if(!chess.load(positions[current]))return;}
+  if(!board.dataset.variationBound){
+   board.addEventListener('click',event=>{
+    const square=event.target.closest('.square[data-square]');
+    if(square)handleVariationSquare(square.dataset.square);
+   });
+   board.dataset.variationBound='true';
+  }
+  const grid=chess.board();
+  const last=variationActive?variationMoves[variationMoves.length-1]:moves[current-1];
+  const legalTargets=selectedSquare?legalVariationMoves(selectedSquare):[];
+  const targetSquares=new Set(legalTargets.map(move=>move.to));
   for(let r=0;r<8;r++)for(let f=0;f<8;f++){
    const piece=grid[r][f],name='abcdefgh'[f]+(8-r),square=document.createElement('div');
    square.className='square '+((r+f)%2===0?'light':'dark');
+   square.dataset.square=name;
    if(last&&(last.from===name||last.to===name))square.classList.add('last');
+   if(variationActive&&selectedSquare===name)square.classList.add('review-selected');
+   if(variationActive&&targetSquares.has(name))square.classList.add('review-legal-target');
+   if(variationActive&&targetSquares.has(name)&&piece)square.classList.add('review-legal-capture');
    if(piece){
     const holder=document.createElement('span');holder.className='piece';
     const code=piece.color==='w'?piece.type.toUpperCase():piece.type;
@@ -85,6 +183,7 @@
    if(r===7)square.appendChild(makeCoordinate('abcdefgh'[f],'file'));
    board.appendChild(square);
   }
+  updateVariationControls();
  }
  function renderMoveList(){
   const list=$('vqcReviewMoves');if(!list)return;list.replaceChildren();
@@ -118,8 +217,8 @@
  }
  function render(){
   renderBoard();renderMoveList();
-  $('vqcReviewCounter').textContent=positions.length?(current+' / '+moves.length+' nước'):'Chưa có ván đấu';
-  $('vqcReviewTurn').textContent=positions.length?(current===moves.length?'Đã đến vị trí cuối ván':(current%2===0?'Trắng đi tiếp':'Đen đi tiếp')):'';
+  $('vqcReviewCounter').textContent=positions.length?(variationActive?'Thử biến thể · '+variationMoves.length+' nước':'Ván gốc · '+current+' / '+moves.length+' nước'):'Chưa có ván đấu';
+  $('vqcReviewTurn').textContent=positions.length?(variationActive?(variationGame?.turn()==='w'?'Trắng đi tiếp':'Đen đi tiếp')+(variationGame?.isCheck?.()?' · Đang bị chiếu':''):(current===moves.length?'Đã đến vị trí cuối ván':(current%2===0?'Trắng đi tiếp':'Đen đi tiếp'))):'';
   $('vqcReviewMoveCount').textContent=moves.length?moves.length+' nước đi':'Chưa có nước đi';
   $('vqcReviewFirst').disabled=!isTeacher()||!moves.length||current===0;
   $('vqcReviewPrev').disabled=!isTeacher()||!moves.length||current===0;
@@ -131,6 +230,7 @@
  }
  function go(n,share=true){
   if(!positions.length||!isTeacher())return;
+  if(variationActive)resetVariation(false);
   current=Math.max(0,Math.min(moves.length,Number(n)||0));render();
   if(share)publish();
  }
@@ -146,6 +246,7 @@
   positions=parsed.positions;moves=parsed.moves;loadedText=normalized;current=0;
   $('vqcReviewPgn').value=normalized;
   $('vqcReviewImport').open=false;
+  resetVariation(false);
   $('vqcReviewError').textContent='';
   render();
   window.dispatchEvent(new CustomEvent('vqc:game-review-loaded',{detail:{positions:positions.slice(),moves:moves.map(move=>({...move})),pgn:loadedText}}));
@@ -200,7 +301,7 @@
   try{
    setOpen(true);$('vqcReviewTeacherTools').hidden=true;$('vqcReviewStudentHint').hidden=false;
    const pgn=normalizePgn(data.pgn||'');
-   if(pgn&&pgn!==loadedText){const parsed=parsePgn(pgn);positions=parsed.positions;moves=parsed.moves;loadedText=pgn;window.dispatchEvent(new CustomEvent('vqc:game-review-loaded',{detail:{positions:positions.slice(),moves:moves.map(move=>({...move})),pgn:loadedText}}));}
+   if(pgn&&pgn!==loadedText){resetVariation(false);const parsed=parsePgn(pgn);positions=parsed.positions;moves=parsed.moves;loadedText=pgn;window.dispatchEvent(new CustomEvent('vqc:game-review-loaded',{detail:{positions:positions.slice(),moves:moves.map(move=>({...move})),pgn:loadedText}}));}
    if(positions.length){current=Math.max(0,Math.min(moves.length,Number(data.index)||0));render();}
    else{$('vqcReviewPgn').value='';render();}
   }catch(e){$('vqcReviewError').textContent='Không đọc được ván đấu được chia sẻ: '+(e.message||String(e));}
@@ -232,5 +333,8 @@
   $('vqcReviewPrev')?.addEventListener('click',()=>go(current-1));
   $('vqcReviewNext')?.addEventListener('click',()=>go(current+1));
   $('vqcReviewLast')?.addEventListener('click',()=>go(moves.length));
+  $('vqcReviewVariationReset')?.addEventListener('click',()=>resetVariation(true));
+  $('vqcReviewReturnBoard')?.addEventListener('click',()=>window.vqcGameReviewShowBoard?.());
+  updateVariationControls();
  });
 })();
