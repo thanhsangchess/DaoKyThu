@@ -68,7 +68,7 @@
   if(!moves.length){
    const empty=document.createElement('p');empty.className='vqc-review-empty';empty.textContent='Nhập PGN để xem biên bản các nước đi.';list.appendChild(empty);return;
   }
-  const startRow=document.createElement('div');startRow.className='vqc-review-start-position';
+  const startRow=document.createElement('div');startRow.className='vqc-review-start-position';if(current===0)startRow.classList.add('is-current');
   const startBtn=document.createElement('button');startBtn.type='button';startBtn.textContent='Vị trí ban đầu';startBtn.disabled=!isTeacher();startBtn.addEventListener('click',()=>go(0));
   startRow.appendChild(startBtn);list.appendChild(startRow);
   for(let ply=0;ply<moves.length;ply+=2){
