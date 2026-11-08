@@ -79,7 +79,7 @@
     const side=variationGame?.turn()==='w'?'Trắng':'Đen';
     const ending=variationGame?.isCheckmate?.()?' · Chiếu hết':variationGame?.isStalemate?.()?' · Hết nước đi hợp lệ':'';
     const actorLabel=variationActorRole==='teacher'?'Giáo viên đang thử':variationActorRole==='student'?'Học sinh đang thử':'Đang thử';
-    status.textContent=actorLabel+' biến thể riêng · '+variationMoves.length+' nước · '+side+' đi tiếp'+ending+'. Hai bên có thể thay phiên đi; PGN gốc không thay đổi.';
+    status.textContent=actorLabel+' biến thể chung · '+variationMoves.length+' nước · có thể chọn bất kỳ quân Trắng hoặc Đen'+ending+'. Không bắt buộc luân phiên; PGN gốc không thay đổi.';
    }else{
     status.textContent='Chọn quân để thử nước đi. Các nước thử sẽ hiển thị trên cả máy giáo viên và học sinh.';
    }
@@ -112,15 +112,30 @@
   updateVariationControls();
   return true;
  }
+ function variationPositionForPiece(game,square){
+  if(!game||!square)return null;
+  const piece=game.get(square);if(!piece)return null;
+  const fields=game.fen().split(/\s+/);
+  if(fields[1]!==piece.color){
+   fields[1]=piece.color;
+   fields[3]='-';
+  }
+  const candidate=new Chess();
+  try{return candidate.load(fields.join(' '))?candidate:null;}catch(error){return null;}
+ }
  function legalVariationMoves(square){
-  if(!variationGame||!square)return [];
-  try{return variationGame.moves({square,verbose:true});}catch(error){return [];}
+  const candidate=variationPositionForPiece(variationGame,square);
+  if(!candidate)return [];
+  try{return candidate.moves({square,verbose:true});}catch(error){return [];}
  }
  function playVariationMove(move){
   if(!variationActive||!variationGame||workspace()?.hidden)return;
   try{
-   const made=variationGame.move({from:move.from,to:move.to,promotion:move.promotion||'q'});
+   const candidate=variationPositionForPiece(variationGame,move.from);
+   if(!candidate)return;
+   const made=candidate.move({from:move.from,to:move.to,promotion:move.promotion||'q'});
    if(!made)return;
+   variationGame=candidate;
    variationMoves.push({san:made.san,from:made.from,to:made.to,color:made.color,promotion:made.promotion||'',fen:variationGame.fen()});
    variationActorRole=isTeacher()?'teacher':'student';
    selectedSquare=null;promotionChoices=[];
@@ -144,12 +159,12 @@
     }
     playVariationMove(choices[0]);return;
    }
-   if(piece&&piece.color===variationGame.turn()){
+   if(piece){
     selectedSquare=square;renderBoard();return;
    }
    selectedSquare=null;renderBoard();return;
   }
-  if(piece&&piece.color===variationGame.turn()){
+  if(piece){
    selectedSquare=square;renderBoard();
   }
  }
@@ -302,14 +317,16 @@
   const baseIndex=Number(data.baseIndex);
   if(!Number.isInteger(baseIndex)||baseIndex!==current||!Array.isArray(data.moves)||data.moves.length>300)return;
   try{
-   const chess=new Chess();
+   let chess=new Chess();
    if(!chess.load(positions[baseIndex]))return;
    const replayed=[];
    for(const item of data.moves){
     if(!item||typeof item.from!=='string'||typeof item.to!=='string')return;
     const move={from:item.from,to:item.to};
     if(['q','r','b','n'].includes(String(item.promotion||'').toLowerCase()))move.promotion=String(item.promotion).toLowerCase();
-    const made=chess.move(move);if(!made)return;
+    const candidate=variationPositionForPiece(chess,item.from);if(!candidate)return;
+    const made=candidate.move(move);if(!made)return;
+    chess=candidate;
     replayed.push({san:made.san,from:made.from,to:made.to,color:made.color,promotion:made.promotion||'',fen:chess.fen()});
    }
    if(data.fen&&data.fen!==chess.fen())return;
