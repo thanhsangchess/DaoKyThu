@@ -9,7 +9,7 @@
  const connected=()=>typeof roomRef!=='undefined'&&!!roomRef;
  let workspaceInstalled=false;
  let variationGame=null,variationActive=false,variationMoves=[],selectedSquare=null,promotionChoices=[];
- let variationBaseIndex=null,variationFromStudent=false,variationSharedStamp=null,variationRevision=0,applyingRemoteVariation=false;
+ let variationBaseIndex=null,variationActorRole=null,variationSharedStamp=null,variationRevision=0,applyingRemoteVariation=false;
  const variationClientId='review-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,10);
  let boardFlipped=false;
  function installMoveDrawer(){
@@ -78,7 +78,8 @@
    if(variationActive){
     const side=variationGame?.turn()==='w'?'Trắng':'Đen';
     const ending=variationGame?.isCheckmate?.()?' · Chiếu hết':variationGame?.isStalemate?.()?' · Hết nước đi hợp lệ':'';
-    status.textContent=(variationFromStudent?'Học sinh đang thử':'Đang thử')+' biến thể riêng · '+variationMoves.length+' nước · '+side+' đi tiếp'+ending+'. Nước thử được đồng bộ trong phòng học; PGN gốc không thay đổi.';
+    const actorLabel=variationActorRole==='teacher'?'Giáo viên đang thử':variationActorRole==='student'?'Học sinh đang thử':'Đang thử';
+    status.textContent=actorLabel+' biến thể riêng · '+variationMoves.length+' nước · '+side+' đi tiếp'+ending+'. Hai bên có thể thay phiên đi; PGN gốc không thay đổi.';
    }else{
     status.textContent='Chọn quân để thử nước đi. Các nước thử sẽ hiển thị trên cả máy giáo viên và học sinh.';
    }
@@ -99,7 +100,7 @@
   }
  }
  function resetVariation(shouldRender=true){
-  variationGame=null;variationActive=false;variationMoves=[];selectedSquare=null;promotionChoices=[];variationBaseIndex=null;variationFromStudent=false;
+  variationGame=null;variationActive=false;variationMoves=[];selectedSquare=null;promotionChoices=[];variationBaseIndex=null;variationActorRole=null;
   updateVariationControls();
   if(shouldRender&&positions.length)render();
  }
@@ -107,7 +108,7 @@
   if(!positions.length)return false;
   const chess=new Chess();
   if(!chess.load(positions[current]))return false;
-  variationGame=chess;variationActive=true;variationMoves=[];selectedSquare=null;promotionChoices=[];variationBaseIndex=current;variationFromStudent=false;
+  variationGame=chess;variationActive=true;variationMoves=[];selectedSquare=null;promotionChoices=[];variationBaseIndex=current;variationActorRole=null;
   updateVariationControls();
   return true;
  }
@@ -121,6 +122,7 @@
    const made=variationGame.move({from:move.from,to:move.to,promotion:move.promotion||'q'});
    if(!made)return;
    variationMoves.push({san:made.san,from:made.from,to:made.to,color:made.color,promotion:made.promotion||'',fen:variationGame.fen()});
+   variationActorRole=isTeacher()?'teacher':'student';
    selectedSquare=null;promotionChoices=[];
    updateVariationControls();renderBoard();render();
    publishVariation();
@@ -269,11 +271,11 @@
    .catch(e=>{console.error('PGN classroom sync',e);$('vqcReviewError').textContent='Chưa đồng bộ được với học sinh. Kiểm tra kết nối phòng.';});
  }
  function publishVariation(){
-  if(!connected()||isTeacher()||applyingRemoteVariation||!variationActive||!variationGame||!variationMoves.length)return;
+  if(!connected()||applyingRemoteVariation||!variationActive||!variationGame||!variationMoves.length)return;
   const stamp=Date.now()+'-'+Math.random().toString(36).slice(2,10);
   const payload={baseIndex:Number.isInteger(variationBaseIndex)?variationBaseIndex:current,
    moves:variationMoves.map(move=>({from:move.from,to:move.to,promotion:move.promotion||''})),
-   fen:variationGame.fen(),stamp,clientId:variationClientId,revision:++variationRevision};
+   fen:variationGame.fen(),stamp,clientId:variationClientId,actorRole:isTeacher()?'teacher':'student',revision:++variationRevision};
   variationSharedStamp=stamp;
   roomRef.update({gameReviewVariation:payload,updatedAt:firebase.firestore.FieldValue.serverTimestamp()})
    .catch(error=>{
@@ -313,9 +315,9 @@
    if(data.fen&&data.fen!==chess.fen())return;
    applyingRemoteVariation=true;
    variationGame=chess;variationActive=true;variationMoves=replayed;variationBaseIndex=baseIndex;
-   selectedSquare=null;promotionChoices=[];variationFromStudent=true;variationSharedStamp=data.stamp||null;
+   selectedSquare=null;promotionChoices=[];variationActorRole=data.actorRole==='teacher'?'teacher':'student';variationSharedStamp=data.stamp||null;
    updateVariationControls();render();
-  }catch(error){console.warn('Không thể khôi phục biến thể của học sinh:',error);}
+  }catch(error){console.warn('Không thể khôi phục biến thể thử được chia sẻ:',error);}
   finally{applyingRemoteVariation=false;}
  }
  function importPgn(raw){
