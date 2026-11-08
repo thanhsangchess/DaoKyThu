@@ -76,10 +76,9 @@
   if(promo)promo.hidden=!promotionChoices.length;
   if(status){
    if(variationActive){
-    const side=variationGame?.turn()==='w'?'Trắng':'Đen';
-    const ending=variationGame?.isCheckmate?.()?' · Chiếu hết':variationGame?.isStalemate?.()?' · Hết nước đi hợp lệ':'';
-    const actorLabel=variationActorRole==='teacher'?'Giáo viên đang thử':variationActorRole==='student'?'Học sinh đang thử':'Đang thử';
-    status.textContent=actorLabel+' biến thể chung · '+variationMoves.length+' nước · có thể chọn bất kỳ quân Trắng hoặc Đen'+ending+'. Không bắt buộc luân phiên; PGN gốc không thay đổi.';
+    const ending=variationGame?.isCheckmate?.()?' · Thế cờ chiếu hết':variationGame?.isStalemate?.()?' · Không còn nước hợp lệ theo lượt chuẩn':'';
+    const actorLabel=variationActorRole==='teacher'?'Giáo viên vừa thử':variationActorRole==='student'?'Học sinh vừa thử':'Đang thử';
+    status.textContent=actorLabel+' · '+variationMoves.length+' nước · chọn bất kỳ quân Trắng hoặc Đen, không bắt buộc luân phiên'+ending+'. PGN gốc không thay đổi.';
    }else{
     status.textContent='Chọn quân để thử nước đi. Các nước thử sẽ hiển thị trên cả máy giáo viên và học sinh.';
    }
