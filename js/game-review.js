@@ -36,7 +36,6 @@
   const el=workspace();if(!el)return;
   el.hidden=!open;
   if(!open&&variationActive)resetVariation(false);
-  if(!open)window.vqcGameReviewAnalysisCancel?.();
 
   const center=document.querySelector('section.center');
   if(center)center.classList.toggle('vqc-review-mode',!!open);
