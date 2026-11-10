@@ -203,6 +203,7 @@
    const piece=grid[r][f],name='abcdefgh'[f]+(8-r),square=document.createElement('div');
    square.className='square '+((r+f)%2===0?'light':'dark');
    square.dataset.square=name;
+   square.dataset.piece=piece?(piece.color==='w'?piece.type.toUpperCase():piece.type):'';
    if(last&&(last.from===name||last.to===name))square.classList.add('last');
    if(variationActive&&selectedSquare===name){
     square.classList.add('selected','review-selected');
