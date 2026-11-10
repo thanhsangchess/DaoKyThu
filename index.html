@@ -55,6 +55,7 @@
 <link rel="stylesheet" href="./css/game-review.css?v=20261110-deeper-yellow-v1">
 <link rel="stylesheet" href="./css/game-review-drawer.css?v=20261106-move-hints-v1">
 
+<link rel="stylesheet" href="./css/castling.css?v=20261110-castling-v1">
 </head>
 
 
@@ -728,6 +729,7 @@
 
     <div class="lesson" id="escapeMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('escapeOpen',0)"><div class="lesson-icon">🛡️</div> Thoát chiếu</div>
     <div class="lesson" id="checkOneMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('checkOneOpen',0)"><div class="lesson-icon">⚡</div> Chiếu trong 1 nước</div>
+    <div class="lesson" id="castlingMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('castlingOpen',0)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();vqcOpenChallengeSafe('castlingOpen',0);}"><div class="lesson-icon">♔</div> Nhập thành: Có hay Không?</div>
     <div class="lesson" id="mateOneBasicMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('vqcMateOneBasicOpen',0)"><div class="lesson-icon">♕</div> Chiếu hết trong 1 nước (Cơ bản)</div>
     <div class="lesson" id="mateOnePdfMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('vqcMateOneOpen',0)"><div class="lesson-icon">♛</div> Chiếu hết trong 1 nước (Nâng cao)</div>
     <div class="lesson" id="pawnGamesMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('pawnGameOpen',0)"><div class="lesson-icon">♟️</div> Trò chơi Tốt và Mã</div>
@@ -1532,6 +1534,37 @@ window.vqcCloseMembershipSafe=function(){
 </div>
 <script src="./js/mate-one-basic-10.js?v=20261025-basic-v1"></script>
 <script src="./js/classroom-warmups.js?v=20261031-v1"></script>
+<script src="./js/castling.js?v=20261110-castling-v1"></script>
+<div class="castling-overlay" id="castlingOverlay" role="dialog" aria-modal="true" aria-labelledby="castlingTitle" hidden>
+ <div class="castling-dialog">
+  <header class="castling-top">
+   <div><h2 id="castlingTitle">♔ Bài tập: Nước nhập thành</h2><p>Quan sát thế cờ và xác định Vua có thể nhập thành hay không.</p></div>
+   <button class="castling-close" type="button" onclick="castlingClose()">✕ Đóng</button>
+  </header>
+  <div class="castling-body">
+   <div class="castling-assumption"><span aria-hidden="true">📌</span><span><strong>Lưu ý:</strong> Giả sử Vua và Xe ở cánh được hỏi chưa từng di chuyển. Hãy xét thêm đường đi có trống và các ô Vua đi qua có bị quân đối phương tấn công hay không.</span></div>
+   <div class="castling-progress"><span id="castlingProgressText">Hình 141 · Câu 1/10</span><span id="castlingScore">Đã trả lời 0/10 · Đúng 0/10</span></div>
+   <div class="castling-progress-track" aria-hidden="true"><span id="castlingProgressFill"></span></div>
+   <div class="castling-layout">
+    <div><div class="castling-board-wrap"><div class="castling-board" id="castlingBoard" aria-label="Bàn cờ bài tập nhập thành"></div></div><p class="castling-board-caption">Góc nhìn Trắng ở phía dưới · Hàng ngang a–h, hàng dọc 1–8</p></div>
+    <section class="castling-question-card">
+     <div class="castling-kicker" id="castlingFigure">HÌNH 141</div>
+     <div class="castling-side" id="castlingSide">⚪ Trắng · Nhập thành ngắn (O-O)</div>
+     <h3>Em hãy quan sát bàn cờ</h3>
+     <p class="castling-prompt" id="castlingQuestion">Trắng có thể nhập thành ngắn không?</p>
+     <div class="castling-choice-label">Chọn câu trả lời của em</div>
+     <div class="castling-answers"><button class="castling-answer" type="button" id="castlingYes">✓ Có</button><button class="castling-answer" type="button" id="castlingNo">✕ Không</button></div>
+     <div class="castling-feedback" id="castlingFeedback" role="status" aria-live="polite"></div>
+     <div class="castling-summary">Cả bộ có 10 thế cờ từ Hình 141 đến Hình 150.</div>
+     <div class="castling-controls">
+      <button type="button" id="castlingPrev">← Hình trước</button><button type="button" class="primary" id="castlingNext">Hình tiếp →</button><button type="button" id="castlingRetry">↻ Thử lại câu này</button><button type="button" id="castlingReset">Làm lại cả 10 câu</button>
+     </div>
+     <p class="castling-room-note" id="castlingRoomNote">Chọn Có hoặc Không. Sau khi trả lời, em sẽ thấy lý do đúng/sai.</p>
+    </section>
+   </div>
+  </div>
+ </div>
+</div>
 </body>
 
 </html>
