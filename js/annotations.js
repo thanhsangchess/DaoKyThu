@@ -135,6 +135,36 @@
  function center(index){
   return {x:(index%8)*100+50,y:Math.floor(index/8)*100+50};
  }
+ function boardPieceAt(board,displayIndex){
+  const square=board?.children?.[displayIndex];
+  return String(square?.dataset?.piece||square?.querySelector?.('.piece')?.dataset?.piece||'');
+ }
+ function drawKnightArrow(svg,a,b,color,opacity){
+  const dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy);
+  if(d<10)return;
+  const ux=dx/d,uy=dy/d,px=-uy,py=ux;
+  const mid={x:(a.x+b.x)/2,y:(a.y+b.y)/2};
+  const outward=(mid.x-400)*px+(mid.y-400)*py;
+  const sign=Math.abs(outward)>1?(outward>0?1:-1):((Math.round(a.x+a.y+b.x+b.y)%2)?1:-1);
+  const control={x:mid.x+px*38*sign,y:mid.y+py*38*sign};
+  const endLength=Math.hypot(b.x-control.x,b.y-control.y);
+  if(endLength<1)return;
+  const ex=(b.x-control.x)/endLength,ey=(b.y-control.y)/endLength;
+  const tip={x:b.x-ex*13,y:b.y-ey*13};
+  const base={x:tip.x-ex*29,y:tip.y-ey*29};
+  const startLength=Math.hypot(control.x-a.x,control.y-a.y);
+  const sx=(control.x-a.x)/Math.max(1,startLength),sy=(control.y-a.y)/Math.max(1,startLength);
+  const start={x:a.x+sx*13,y:a.y+sy*13};
+  const normal={x:-ey,y:ex};
+  svg.appendChild(svgNode('path',{
+   d:'M '+start.x+' '+start.y+' Q '+control.x+' '+control.y+' '+base.x+' '+base.y,
+   fill:'none',stroke:color,'stroke-width':14,'stroke-opacity':opacity,'stroke-linecap':'round','stroke-linejoin':'round'
+  }));
+  svg.appendChild(svgNode('polygon',{
+   points:[tip.x+','+tip.y,(base.x+normal.x*20)+','+(base.y+normal.y*20),(base.x-normal.x*20)+','+(base.y-normal.y*20)].join(' '),
+   fill:color,'fill-opacity':opacity,'stroke-linejoin':'round'
+  }));
+ }
  function drawMark(svg,mark,isPreview=false){
   const opacity=isPreview?0.45:0.82;
   const a=center(mark.from);
@@ -147,6 +177,13 @@
    return;
   }
   const b=center(mark.to);
+  const originPiece=boardPieceAt(svg.parentElement,mark.from).toLowerCase();
+  const fileDelta=Math.abs((mark.from%8)-(mark.to%8));
+  const rankDelta=Math.abs(Math.floor(mark.from/8)-Math.floor(mark.to/8));
+  if(originPiece==='n'&&((fileDelta===1&&rankDelta===2)||(fileDelta===2&&rankDelta===1))){
+   drawKnightArrow(svg,a,b,color,opacity);
+   return;
+  }
   const dx=b.x-a.x,dy=b.y-a.y;
   const d=Math.hypot(dx,dy);
   if(d<10)return;
