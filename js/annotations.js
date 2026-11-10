@@ -125,6 +125,14 @@
   scheduleToolbar();
  }
  function squareAt(board,clientX,clientY){
+  if(board?.id==='castlingBoard'){
+   const cells=board.querySelectorAll(':scope > .castling-square');
+   for(let index=0;index<cells.length;index++){
+    const rect=cells[index].getBoundingClientRect();
+    if(clientX>=rect.left&&clientX<rect.right&&clientY>=rect.top&&clientY<rect.bottom)return index;
+   }
+   return null;
+  }
   const rect=board.getBoundingClientRect();
   const insetX=board.clientLeft||0,insetY=board.clientTop||0;
   const width=Math.max(1,board.clientWidth),height=Math.max(1,board.clientHeight);
@@ -142,7 +150,9 @@
   return (fileDelta===1&&rankDelta===2)||(fileDelta===2&&rankDelta===1);
  }
  function boardPieceAt(board,displayIndex){
-  const square=board?.children?.[displayIndex];
+  const square=board?.id==='castlingBoard'
+   ?board.querySelectorAll(':scope > .castling-square')[displayIndex]
+   :board?.children?.[displayIndex];
   return String(square?.dataset?.piece||square?.querySelector?.('.piece')?.dataset?.piece||'');
  }
  function drawKnightArrow(svg,a,b,color,opacity){
