@@ -83,7 +83,7 @@
   toolbar.innerHTML=
    '<button type="button" data-action="draw" aria-pressed="false" title="Bật hoặc tắt vẽ bằng chuột trái hoặc cảm ứng">✏️ Vẽ</button>'+
    '<button type="button" data-action="clear" title="Xóa các nét vẽ trên bàn cờ này">🧹 Xóa</button>'+
-   '<span class="vqc-annotation-hint" title="Chuột phải: nhấp để khoanh ô, kéo để vẽ mũi tên. Mặc định vàng cam · Shift: đỏ · Ctrl: xanh dương · Alt: xanh lá. Trên điện thoại, bật Vẽ.">ⓘ</span>';
+   '<span class="vqc-annotation-hint" title="Chuột phải: kéo để vẽ. Mã: vẽ tiếp từ ô đích để nối các đoạn chữ L. Mặc định vàng cam · Shift: đỏ · Ctrl: xanh dương · Alt: xanh lá. Trên điện thoại, bật Vẽ.">ⓘ</span>';
   toolbar.addEventListener('pointerdown',event=>event.stopPropagation());
   toolbar.addEventListener('click',event=>{
    const button=event.target.closest('button[data-action]');
@@ -136,6 +136,11 @@
  function center(index){
   return {x:(index%8)*100+50,y:Math.floor(index/8)*100+50};
  }
+ function isKnightJump(from,to){
+  const fileDelta=Math.abs((from%8)-(to%8));
+  const rankDelta=Math.abs(Math.floor(from/8)-Math.floor(to/8));
+  return (fileDelta===1&&rankDelta===2)||(fileDelta===2&&rankDelta===1);
+ }
  function boardPieceAt(board,displayIndex){
   const square=board?.children?.[displayIndex];
   return String(square?.dataset?.piece||square?.querySelector?.('.piece')?.dataset?.piece||'');
@@ -160,10 +165,10 @@
   const normal={x:-uy,y:ux};
   svg.appendChild(svgNode('path',{
    d:'M '+start.x+' '+start.y+' L '+corner.x+' '+corner.y+' L '+base.x+' '+base.y,
-   fill:'none',stroke:color,'stroke-width':27,'stroke-opacity':opacity,'stroke-linecap':'round','stroke-linejoin':'round'
+   fill:'none',stroke:color,'stroke-width':16,'stroke-opacity':opacity,'stroke-linecap':'round','stroke-linejoin':'round'
   }));
   svg.appendChild(svgNode('polygon',{
-   points:[tip.x+','+tip.y,(base.x+normal.x*29)+','+(base.y+normal.y*29),(base.x-normal.x*29)+','+(base.y-normal.y*29)].join(' '),
+   points:[tip.x+','+tip.y,(base.x+normal.x*20)+','+(base.y+normal.y*20),(base.x-normal.x*20)+','+(base.y-normal.y*20)].join(' '),
    fill:color,'fill-opacity':opacity,'stroke-linejoin':'round'
   }));
  }
@@ -179,10 +184,13 @@
    return;
   }
   const b=center(mark.to);
-  const originPiece=boardPieceAt(svg.parentElement,mark.from).toLowerCase();
-  const fileDelta=Math.abs((mark.from%8)-(mark.to%8));
-  const rankDelta=Math.abs(Math.floor(mark.from/8)-Math.floor(mark.to/8));
-  if(originPiece==='n'&&((fileDelta===1&&rankDelta===2)||(fileDelta===2&&rankDelta===1))){
+  const board=svg.parentElement;
+  const originPiece=boardPieceAt(board,mark.from).toLowerCase();
+  const existingMarks=marks.get(board?.id)||[];
+  const continuesKnightPath=existingMarks.some(previous=>
+   previous!==mark&&previous.kind==='arrow'&&previous.to===mark.from&&previous.knightPath===true
+  );
+  if(isKnightJump(mark.from,mark.to)&&(mark.knightPath===true||originPiece==='n'||continuesKnightPath)){
    drawKnightArrow(svg,a,b,color,opacity);
    return;
   }
@@ -223,7 +231,12 @@
   const match=items.findIndex(m=>m.kind===kind&&m.from===from&&m.to===to);
   if(match>=0)items.splice(match,1);
   else{
-   items.push({kind,from,to,color});
+   const startsOnKnight=boardPieceAt(boards.get(boardId),from).toLowerCase()==='n';
+   const continuesKnightPath=items.some(previous=>
+    previous.kind==='arrow'&&previous.to===from&&previous.knightPath===true
+   );
+   const knightPath=kind==='arrow'&&isKnightJump(from,to)&&(startsOnKnight||continuesKnightPath);
+   items.push({kind,from,to,color,...(knightPath?{knightPath:true}:{})});
    if(items.length>MAX_MARKS)items.shift();
   }
   marks.set(boardId,items);
