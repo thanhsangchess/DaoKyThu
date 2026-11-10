@@ -508,9 +508,8 @@ function renderBoard(){
 
 
 
-            square.dataset.index =
-
-                index;
+            square.dataset.index = index;
+            square.dataset.piece = piece || "";
 
 
 
