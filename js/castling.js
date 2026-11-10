@@ -34,13 +34,16 @@
  }
  function renderBoard(task){
   const board=$('castlingBoard');if(!board)return;
-  board.replaceChildren();
+  const annotationLayer=board.querySelector(':scope > .vqc-annotation-overlay');
+  board.querySelectorAll(':scope > .castling-square').forEach(square=>square.remove());
   const pieces=new Map(placementToBoard(task.fen).map(p=>[p.file+','+p.rank,p.code]));
   for(let rank=8;rank>=1;rank--){
    for(let file=0;file<8;file++){
     const cell=document.createElement('div');
     cell.className='castling-square '+(((8-rank+file)%2===0)?'light':'dark');
     const code=pieces.get(file+','+rank);
+    cell.dataset.piece=code||'';
+    cell.dataset.square='abcdefgh'[file]+rank;
     cell.setAttribute('aria-label',(code?pieceName(code)+', ':'')+'ô '+'abcdefgh'[file]+rank);
     if(code){
      const holder=document.createElement('span');holder.className='piece';
@@ -53,6 +56,7 @@
     board.appendChild(cell);
    }
   }
+  if(annotationLayer&&annotationLayer.parentElement!==board)board.appendChild(annotationLayer);
  }
  function calculateAnswer(task){
   if(typeof window.Chess!=='function')return task.answer;
