@@ -139,30 +139,32 @@
   const square=board?.children?.[displayIndex];
   return String(square?.dataset?.piece||square?.querySelector?.('.piece')?.dataset?.piece||'');
  }
- function drawKnightArrow(svg,a,b,color,opacity){
-  const dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy);
-  if(d<10)return;
-  const ux=dx/d,uy=dy/d,px=-uy,py=ux;
-  const mid={x:(a.x+b.x)/2,y:(a.y+b.y)/2};
-  const outward=(mid.x-400)*px+(mid.y-400)*py;
-  const sign=Math.abs(outward)>1?(outward>0?1:-1):((Math.round(a.x+a.y+b.x+b.y)%2)?1:-1);
-  const control={x:mid.x+px*38*sign,y:mid.y+py*38*sign};
-  const endLength=Math.hypot(b.x-control.x,b.y-control.y);
-  if(endLength<1)return;
-  const ex=(b.x-control.x)/endLength,ey=(b.y-control.y)/endLength;
-  const tip={x:b.x-ex*13,y:b.y-ey*13};
-  const base={x:tip.x-ex*29,y:tip.y-ey*29};
-  const startLength=Math.hypot(control.x-a.x,control.y-a.y);
-  const sx=(control.x-a.x)/Math.max(1,startLength),sy=(control.y-a.y)/Math.max(1,startLength);
-  const start={x:a.x+sx*13,y:a.y+sy*13};
-  const normal={x:-ey,y:ex};
+ function drawKnightArrow(svg,a,b,opacity){
+  const dx=b.x-a.x,dy=b.y-a.y;
+  const fileDelta=Math.abs(dx),rankDelta=Math.abs(dy);
+  if(!((fileDelta===100&&rankDelta===200)||(fileDelta===200&&rankDelta===100)))return;
+  /* Knight route: travel the two-square leg first, then turn 90 degrees. */
+  const corner=fileDelta===100
+   ? {x:a.x,y:b.y}
+   : {x:b.x,y:a.y};
+  const lastDx=b.x-corner.x,lastDy=b.y-corner.y;
+  const length=Math.hypot(lastDx,lastDy);
+  if(length<1)return;
+  const ux=lastDx/length,uy=lastDy/length;
+  const tip={x:b.x-ux*5,y:b.y-uy*5};
+  const base={x:tip.x-ux*42,y:tip.y-uy*42};
+  const startLength=Math.hypot(corner.x-a.x,corner.y-a.y);
+  const sx=(corner.x-a.x)/Math.max(1,startLength),sy=(corner.y-a.y)/Math.max(1,startLength);
+  const start={x:a.x+sx*16,y:a.y+sy*16};
+  const normal={x:-uy,y:ux};
+  const gold='#f2b52a';
   svg.appendChild(svgNode('path',{
-   d:'M '+start.x+' '+start.y+' Q '+control.x+' '+control.y+' '+base.x+' '+base.y,
-   fill:'none',stroke:color,'stroke-width':14,'stroke-opacity':opacity,'stroke-linecap':'round','stroke-linejoin':'round'
+   d:'M '+start.x+' '+start.y+' L '+corner.x+' '+corner.y+' L '+base.x+' '+base.y,
+   fill:'none',stroke:gold,'stroke-width':27,'stroke-opacity':opacity,'stroke-linecap':'round','stroke-linejoin':'round'
   }));
   svg.appendChild(svgNode('polygon',{
-   points:[tip.x+','+tip.y,(base.x+normal.x*20)+','+(base.y+normal.y*20),(base.x-normal.x*20)+','+(base.y-normal.y*20)].join(' '),
-   fill:color,'fill-opacity':opacity,'stroke-linejoin':'round'
+   points:[tip.x+','+tip.y,(base.x+normal.x*29)+','+(base.y+normal.y*29),(base.x-normal.x*29)+','+(base.y-normal.y*29)].join(' '),
+   fill:gold,'fill-opacity':opacity,'stroke-linejoin':'round'
   }));
  }
  function drawMark(svg,mark,isPreview=false){
@@ -181,7 +183,7 @@
   const fileDelta=Math.abs((mark.from%8)-(mark.to%8));
   const rankDelta=Math.abs(Math.floor(mark.from/8)-Math.floor(mark.to/8));
   if(originPiece==='n'&&((fileDelta===1&&rankDelta===2)||(fileDelta===2&&rankDelta===1))){
-   drawKnightArrow(svg,a,b,color,opacity);
+   drawKnightArrow(svg,a,b,opacity);
    return;
   }
   const dx=b.x-a.x,dy=b.y-a.y;
