@@ -1341,6 +1341,7 @@ function vqcCloseOtherViews(target){
   if(target!=='lonemate')document.getElementById('vqcLoneMateOverlay')?.classList.remove('open');
   if(target!=='mate1')document.getElementById('vqcMateOneOverlay')?.classList.remove('open');
   if(target!=='mate1basic')document.getElementById('vqcMateOneBasicOverlay')?.classList.remove('open');
+  if(target!=='castling')document.getElementById('castlingOverlay')?.classList.remove('open');
 }
 function vqcBroadcastView(view,index=0){
   if(vqcNavApplying)return;
@@ -1369,7 +1370,7 @@ function vqcSafeReceiveExercise(label,receiver,payload){
 }
 function vqcReceiveView(data){
   if(!data||!data.stamp)return;
-  const dialogIds={mate2:'mateOverlay',mate3:'mate3Overlay',pvp:'pvpOverlay',capture:'captureOverlay',freecapture:'freeCaptureOverlay',defense:'defenseOverlay',pawngame:'pawnGameOverlay',check1:'checkOneOverlay',escape:'escapeOverlay',lonemate:'vqcLoneMateOverlay',mate1:'vqcMateOneOverlay',mate1basic:'vqcMateOneBasicOverlay'};
+  const dialogIds={mate2:'mateOverlay',mate3:'mate3Overlay',pvp:'pvpOverlay',capture:'captureOverlay',freecapture:'freeCaptureOverlay',defense:'defenseOverlay',pawngame:'pawnGameOverlay',check1:'checkOneOverlay',escape:'escapeOverlay',lonemate:'vqcLoneMateOverlay',mate1:'vqcMateOneOverlay',mate1basic:'vqcMateOneBasicOverlay',castling:'castlingOverlay'};
   const activeDialog=dialogIds[data.view]&&document.getElementById(dialogIds[data.view]);
   // Reopen a classroom dialog on the student machine if its DOM was hidden
   // after the snapshot had already been marked as received.
@@ -1385,7 +1386,7 @@ function vqcReceiveView(data){
       document.getElementById('vqcModeHome')?.setAttribute('aria-hidden','true');
       document.getElementById('vqcModeWorld')?.setAttribute('aria-hidden','true');
     }
-    const dialogs={mate2:'mateOverlay',mate3:'mate3Overlay',pvp:'pvpOverlay',capture:'captureOverlay',freecapture:'freeCaptureOverlay',defense:'defenseOverlay',pawngame:'pawnGameOverlay',check1:'checkOneOverlay',escape:'escapeOverlay',lonemate:'vqcLoneMateOverlay',mate1:'vqcMateOneOverlay',mate1basic:'vqcMateOneBasicOverlay'};
+    const dialogs={mate2:'mateOverlay',mate3:'mate3Overlay',pvp:'pvpOverlay',capture:'captureOverlay',freecapture:'freeCaptureOverlay',defense:'defenseOverlay',pawngame:'pawnGameOverlay',check1:'checkOneOverlay',escape:'escapeOverlay',lonemate:'vqcLoneMateOverlay',mate1:'vqcMateOneOverlay',mate1basic:'vqcMateOneBasicOverlay',castling:'castlingOverlay'};
     const overlay=dialogs[view]&&document.getElementById(dialogs[view]);
     if(overlay&&overlay.parentElement!==document.body)document.body.appendChild(overlay);
     vqcCloseOtherViews(view);
@@ -1401,6 +1402,7 @@ function vqcReceiveView(data){
     else if(view==='pawngame')pawnGameOpen(index);
     else if(view==='check1')checkOneOpen(index);
     else if(view==='escape')escapeOpen(index);
+    else if(view==='castling')window.castlingOpen?.(index,true);
     else if(view==='piece'&&pieceGameNames[data.piece])startPieceGame(data.piece);
     else if(view==='board')exitPieceGame();
     if(overlay)overlay.classList.add('open');
