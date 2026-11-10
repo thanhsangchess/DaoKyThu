@@ -12,7 +12,7 @@
  const SELECTOR=BOARD_IDS.map(id=>'#'+id).join(',');
  const SVG_NS='http://www.w3.org/2000/svg';
  const ANNOTATION_COLOR='#f2b52a';
- const COLORS={green:ANNOTATION_COLOR,red:ANNOTATION_COLOR,blue:ANNOTATION_COLOR,yellow:ANNOTATION_COLOR};
+ const COLORS={green:'#31985f',red:'#df4848',blue:'#357edb',yellow:ANNOTATION_COLOR};
  const MAX_MARKS=72;
  const boards=new Map();
  const marks=new Map();
@@ -83,7 +83,7 @@
   toolbar.innerHTML=
    '<button type="button" data-action="draw" aria-pressed="false" title="Bật hoặc tắt vẽ bằng chuột trái hoặc cảm ứng">✏️ Vẽ</button>'+
    '<button type="button" data-action="clear" title="Xóa các nét vẽ trên bàn cờ này">🧹 Xóa</button>'+
-   '<span class="vqc-annotation-hint" title="Chuột phải: nhấp để khoanh ô, kéo để vẽ mũi tên. Tất cả nét vẽ dùng cùng màu vàng cam. Trên điện thoại, bật Vẽ.">ⓘ</span>';
+   '<span class="vqc-annotation-hint" title="Chuột phải: nhấp để khoanh ô, kéo để vẽ mũi tên. Mặc định vàng cam · Shift: đỏ · Ctrl: xanh dương · Alt: xanh lá. Trên điện thoại, bật Vẽ.">ⓘ</span>';
   toolbar.addEventListener('pointerdown',event=>event.stopPropagation());
   toolbar.addEventListener('click',event=>{
    const button=event.target.closest('button[data-action]');
@@ -140,7 +140,7 @@
   const square=board?.children?.[displayIndex];
   return String(square?.dataset?.piece||square?.querySelector?.('.piece')?.dataset?.piece||'');
  }
- function drawKnightArrow(svg,a,b,opacity){
+ function drawKnightArrow(svg,a,b,color,opacity){
   const dx=b.x-a.x,dy=b.y-a.y;
   const fileDelta=Math.abs(dx),rankDelta=Math.abs(dy);
   if(!((fileDelta===100&&rankDelta===200)||(fileDelta===200&&rankDelta===100)))return;
@@ -158,20 +158,19 @@
   const sx=(corner.x-a.x)/Math.max(1,startLength),sy=(corner.y-a.y)/Math.max(1,startLength);
   const start={x:a.x+sx*16,y:a.y+sy*16};
   const normal={x:-uy,y:ux};
-  const gold='#f2b52a';
   svg.appendChild(svgNode('path',{
    d:'M '+start.x+' '+start.y+' L '+corner.x+' '+corner.y+' L '+base.x+' '+base.y,
-   fill:'none',stroke:gold,'stroke-width':27,'stroke-opacity':opacity,'stroke-linecap':'round','stroke-linejoin':'round'
+   fill:'none',stroke:color,'stroke-width':27,'stroke-opacity':opacity,'stroke-linecap':'round','stroke-linejoin':'round'
   }));
   svg.appendChild(svgNode('polygon',{
    points:[tip.x+','+tip.y,(base.x+normal.x*29)+','+(base.y+normal.y*29),(base.x-normal.x*29)+','+(base.y-normal.y*29)].join(' '),
-   fill:gold,'fill-opacity':opacity,'stroke-linejoin':'round'
+   fill:color,'fill-opacity':opacity,'stroke-linejoin':'round'
   }));
  }
  function drawMark(svg,mark,isPreview=false){
   const opacity=isPreview?0.45:0.82;
   const a=center(mark.from);
-  const color=ANNOTATION_COLOR;
+  const color=COLORS[mark.color]||ANNOTATION_COLOR;
   if(mark.from===mark.to||mark.kind==='circle'){
    svg.appendChild(svgNode('circle',{
     cx:a.x,cy:a.y,r:38,fill:'none',stroke:color,'stroke-width':15,
@@ -184,7 +183,7 @@
   const fileDelta=Math.abs((mark.from%8)-(mark.to%8));
   const rankDelta=Math.abs(Math.floor(mark.from/8)-Math.floor(mark.to/8));
   if(originPiece==='n'&&((fileDelta===1&&rankDelta===2)||(fileDelta===2&&rankDelta===1))){
-   drawKnightArrow(svg,a,b,opacity);
+   drawKnightArrow(svg,a,b,color,opacity);
    return;
   }
   const dx=b.x-a.x,dy=b.y-a.y;
@@ -212,6 +211,9 @@
   updateToolbar();
  }
  function currentColor(event){
+  if(event.shiftKey)return 'red';
+  if(event.ctrlKey||event.metaKey)return 'blue';
+  if(event.altKey)return 'green';
   return 'yellow';
  }
  function addMark(boardId,from,to,color){
