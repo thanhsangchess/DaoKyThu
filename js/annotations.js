@@ -11,7 +11,8 @@
  ];
  const SELECTOR=BOARD_IDS.map(id=>'#'+id).join(',');
  const SVG_NS='http://www.w3.org/2000/svg';
- const COLORS={green:'#31985f',red:'#df4848',blue:'#357edb',yellow:'#d0a21a'};
+ const ANNOTATION_COLOR='#f2b52a';
+ const COLORS={green:ANNOTATION_COLOR,red:ANNOTATION_COLOR,blue:ANNOTATION_COLOR,yellow:ANNOTATION_COLOR};
  const MAX_MARKS=72;
  const boards=new Map();
  const marks=new Map();
@@ -82,7 +83,7 @@
   toolbar.innerHTML=
    '<button type="button" data-action="draw" aria-pressed="false" title="Bật hoặc tắt vẽ bằng chuột trái hoặc cảm ứng">✏️ Vẽ</button>'+
    '<button type="button" data-action="clear" title="Xóa các nét vẽ trên bàn cờ này">🧹 Xóa</button>'+
-   '<span class="vqc-annotation-hint" title="Chuột phải: nhấp để khoanh ô, kéo để vẽ mũi tên. Shift: đỏ · Ctrl: xanh dương · Alt: vàng. Trên điện thoại, bật Vẽ.">ⓘ</span>';
+   '<span class="vqc-annotation-hint" title="Chuột phải: nhấp để khoanh ô, kéo để vẽ mũi tên. Tất cả nét vẽ dùng cùng màu vàng cam. Trên điện thoại, bật Vẽ.">ⓘ</span>';
   toolbar.addEventListener('pointerdown',event=>event.stopPropagation());
   toolbar.addEventListener('click',event=>{
    const button=event.target.closest('button[data-action]');
@@ -170,7 +171,7 @@
  function drawMark(svg,mark,isPreview=false){
   const opacity=isPreview?0.45:0.82;
   const a=center(mark.from);
-  const color=COLORS[mark.color]||COLORS.green;
+  const color=ANNOTATION_COLOR;
   if(mark.from===mark.to||mark.kind==='circle'){
    svg.appendChild(svgNode('circle',{
     cx:a.x,cy:a.y,r:38,fill:'none',stroke:color,'stroke-width':15,
@@ -211,10 +212,7 @@
   updateToolbar();
  }
  function currentColor(event){
-  if(event.shiftKey)return 'red';
-  if(event.ctrlKey||event.metaKey)return 'blue';
-  if(event.altKey)return 'yellow';
-  return 'green';
+  return 'yellow';
  }
  function addMark(boardId,from,to,color){
   if(!Number.isInteger(from)||!Number.isInteger(to)||from<0||to<0||from>63||to>63)return;
