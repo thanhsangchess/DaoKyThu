@@ -108,12 +108,12 @@
   }
   current=Math.max(0,Math.min(TASKS.length-1,Number(index)||0));
   if(typeof vqcCloseOtherViews==='function')vqcCloseOtherViews('castling');
-  render();overlay()?.classList.add('open');
+  render();if(overlay())overlay().hidden=false;overlay()?.classList.add('open');
   if(!fromSync&&typeof vqcBroadcastView==='function')vqcBroadcastView('castling',current);
  };
  window.castlingClose=function(){
-  overlay()?.classList.remove('open');
-  if(typeof vqcBroadcastView==='function')vqcBroadcastView('board');
+  if(overlay()){overlay().classList.remove('open');overlay().hidden=true;}
+  if((typeof roomRef==='undefined'||!roomRef||role==='teacher')&&typeof vqcBroadcastView==='function')vqcBroadcastView('board');
  };
  window.castlingPrev=function(){if(current>0)window.castlingOpen(current-1);};
  window.castlingNext=function(){if(current<TASKS.length-1)window.castlingOpen(current+1);};
