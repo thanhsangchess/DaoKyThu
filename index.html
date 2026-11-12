@@ -56,6 +56,7 @@
 <link rel="stylesheet" href="./css/game-review-drawer.css?v=20261106-move-hints-v1">
 
 <link rel="stylesheet" href="./css/castling.css?v=20261111-no-scroll-standard-form-v1">
+<link rel="stylesheet" href="./css/double-attack.css?v=20261112-pdf24-v1">
 </head>
 
 
@@ -730,6 +731,7 @@
     <div class="lesson" id="escapeMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('escapeOpen',0)"><div class="lesson-icon">🛡️</div> Thoát chiếu</div>
     <div class="lesson" id="checkOneMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('checkOneOpen',0)"><div class="lesson-icon">⚡</div> Chiếu trong 1 nước</div>
     <div class="lesson" id="castlingMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('castlingOpen',0)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();vqcOpenChallengeSafe('castlingOpen',0);}"><div class="lesson-icon">♔</div> Nhập thành: Có hay Không?</div>
+    <div class="lesson" id="doubleAttackMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('doubleAttackOpen',0)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();vqcOpenChallengeSafe('doubleAttackOpen',0);}"><div class="lesson-icon">⚔️</div> Tấn công đôi (24 bài)</div>
     <div class="lesson" id="mateOneBasicMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('vqcMateOneBasicOpen',0)"><div class="lesson-icon">♕</div> Chiếu hết trong 1 nước (Cơ bản)</div>
     <div class="lesson" id="mateOnePdfMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('vqcMateOneOpen',0)"><div class="lesson-icon">♛</div> Chiếu hết trong 1 nước (Nâng cao)</div>
     <div class="lesson" id="pawnGamesMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('pawnGameOpen',0)"><div class="lesson-icon">♟️</div> Trò chơi Tốt và Mã</div>
@@ -1331,7 +1333,7 @@ function vqcToggleLoginPassword(){const el=document.getElementById('accountLogin
 <script src="./js/arcade-games.js?v=lastmove-20261023-1"></script>
 <script src="./js/arcade-online.js?v=arcade-recheck-20261020-4"></script>
 <script src="./js/friend-challenges.js?v=challenges-20261020-2"></script>
-<script src="./js/annotations.js?v=20261111-castling-draw-v1"></script>
+<script src="./js/annotations.js?v=20261112-double-attack-v1"></script>
 <script src="./js/game-review.js?v=20261110-knight-arc-v1"></script>
 
 <script>
@@ -1341,6 +1343,7 @@ function vqcToggleLoginPassword(){const el=document.getElementById('accountLogin
   escapeMenu:['escapeOpen','escapeOverlay'],
   checkOneMenu:['checkOneOpen','checkOneOverlay'],
   castlingMenu:['castlingOpen','castlingOverlay'],
+  doubleAttackMenu:['doubleAttackOpen','doubleAttackOverlay'],
   pawnGamesMenu:['pawnGameOpen','pawnGameOverlay'],
   defenseAttackMenu:['defenseOpenNew','defenseOverlay'],
   defenseMenu:['defenseOpen','defenseOverlay'],
@@ -1565,6 +1568,34 @@ window.vqcCloseMembershipSafe=function(){
   </div>
  </div>
 </div>
+<div id="doubleAttackOverlay" role="dialog" aria-modal="true" aria-labelledby="doubleAttackTitle">
+ <div class="double-attack-dialog">
+  <header class="double-attack-top">
+   <div><h2 id="doubleAttackTitle">⚔️ Tấn công đôi — Bài 1/24</h2><p id="doubleAttackSubtitle">Trắng đi trước · Theo sơ đồ PDF</p></div>
+   <button type="button" id="doubleAttackClose">✕ Đóng</button>
+  </header>
+  <div class="double-attack-layout">
+   <div id="doubleAttackBoard" class="double-attack-board" aria-label="Bàn cờ bài tập Tấn công đôi"></div>
+   <section class="double-attack-side">
+    <div id="doubleAttackNumber" class="double-attack-number">Bài 1/24</div>
+    <p id="doubleAttackFeedback" class="double-attack-feedback" role="status" aria-live="polite">Hãy tìm một nước đi tạo đòn tấn công đôi.</p>
+    <div id="doubleAttackTargets" class="double-attack-progress"></div>
+    <div id="doubleAttackProgress" class="double-attack-progress">Đã hoàn thành 0/24 bài</div>
+    <div class="double-attack-controls">
+     <button type="button" id="doubleAttackPrev">← Bài trước</button><button type="button" id="doubleAttackNext">Bài tiếp →</button>
+     <button type="button" id="doubleAttackReset">↻ Thử lại</button><button type="button" id="doubleAttackHint">💡 Gợi ý</button>
+     <button type="button" id="doubleAttackConfirm" hidden>✓ GV xác nhận hoàn thành</button>
+    </div>
+    <div class="double-attack-jump">
+     <label for="doubleAttackJump">Chuyển đến bài</label><input id="doubleAttackJump" type="number" min="1" max="24" value="1" inputmode="numeric"><button type="button" id="doubleAttackGo">Chuyển</button>
+    </div>
+    <p class="double-attack-rules">Mục tiêu: sau một nước đi hợp lệ, quân vừa di chuyển đồng thời tấn công ít nhất hai quân đối phương. Có thể có nhiều nước giải đúng. Giáo viên có thể dùng công cụ Vẽ để minh họa các đường tấn công.</p>
+    <p id="doubleAttackSourceNote" class="double-attack-source"></p>
+   </section>
+  </div>
+ </div>
+</div>
+<script src="./js/double-attack.js?v=20261112-pdf24-v1"></script>
 </body>
 
 </html>
