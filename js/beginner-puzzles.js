@@ -19,7 +19,7 @@ function validateCatalog(){
 function progressKey(){return 'vqc-beginner-puzzles-'+(window.accountProfile?.uid||window.accountProfile?.id||'guest');}
 function restoreDone(){try{const a=JSON.parse(localStorage.getItem(progressKey())||'[]');if(Array.isArray(a))a.forEach(n=>{if(Number.isInteger(n)&&n>=0&&n<10)done.add(n);});}catch(e){}}
 function saveDone(){try{localStorage.setItem(progressKey(),JSON.stringify([...done]));}catch(e){}}
-function resetPosition(){puzzleSession++;game=new Chess(task().fen);selected=null;solved=false;answerShown=false;hintShown=false;attempts=0;lastMove=null;thinking=false;started=false;goalSquare=task().goal?.square||'';moveHistory=[];engineFailed=false;feedback=task().prompt;}
+function resetPosition(){stopEngineSearch();puzzleSession++;game=new Chess(task().fen);selected=null;solved=false;answerShown=false;hintShown=false;attempts=0;lastMove=null;thinking=false;started=false;goalSquare=task().goal?.square||'';moveHistory=[];engineFailed=false;feedback=task().prompt;}
 function renderBoard(){
  const board=$('beginnerPuzzleBoard');if(!board||!game)return;
  const layer=board.querySelector(':scope > .vqc-annotation-overlay');
@@ -96,7 +96,13 @@ function terminalFeedback(){
  thinking=false;feedback=game.in_checkmate()?'Ván cờ kết thúc bằng chiếu hết trước khi đạt mục tiêu.':'Ván cờ kết thúc trước khi đạt mục tiêu câu đố.';
  render();publish();return true;
 }
+// Stockfish.js 19.0.1 (GPL-3.0), loaded only when an opponent reply is needed.
 const STOCKFISH_BASE='https://cdn.jsdelivr.net/npm/stockfish@19.0.1/bin/';
+function stopEngineSearch(){
+ if(engineBestReject){const cancel=engineBestReject;engineBestReject=null;engineBestResolve=null;engineWorker?.postMessage('stop');cancel(new Error('Đã hủy lượt phân tích cũ.'));}
+ else if(engineWorker&&engineReady)engineWorker.postMessage('stop');
+}
+
 function ensurePuzzleEngine(){
  if(engineReady)return Promise.resolve();
  if(engineInitPromise)return engineInitPromise;
@@ -117,8 +123,11 @@ function ensurePuzzleEngine(){
   };
   engineWorker.onerror=event=>{
    const error=new Error(event.message||'Không thể khởi động Stockfish.');
+   engineReady=false;engineInitPromise=null;
    if(engineReadyReject){const fail=engineReadyReject;engineReadyReject=null;fail(error);}
-   if(engineBestReject){const fail=engineBestReject;engineBestReject=null;fail(error);}
+   if(engineBestReject){const fail=engineBestReject;engineBestReject=null;engineBestResolve=null;fail(error);}
+   if(engineWorker){engineWorker.terminate();engineWorker=null;}
+   if(engineBlobUrl){URL.revokeObjectURL(engineBlobUrl);engineBlobUrl='';}
   };
   engineReadyReject=error=>{clearTimeout(engineReadyTimer);reject(error);};
   engineWorker.postMessage('uci');
@@ -193,7 +202,7 @@ function open(n=0,remote=false){
  if(!remote){if(window.vqcBroadcastView)window.vqcBroadcastView('beginnerpuzzles',index);publish();}
 }
 function close(){
- puzzleSession++;
+ stopEngineSearch();puzzleSession++;
  if(student()){if(window.vqcNotify)window.vqcNotify('Giáo viên điều khiển việc đóng bài chung.','warning');return;}
  isOpen=false;selected=null;if(overlay()){overlay().classList.remove('open');overlay().hidden=true;}
  if(inRoom()&&window.vqcBroadcastView)window.vqcBroadcastView('board');
