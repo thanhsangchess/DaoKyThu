@@ -265,7 +265,8 @@
   $('vqcReviewTurn').textContent=positions.length?(variationActive?(variationGame?.turn()==='w'?'Trắng đi tiếp':'Đen đi tiếp')+(variationGame?.isCheck?.()?' · Đang bị chiếu':''):(current===moves.length?'Đã đến vị trí cuối ván':(current%2===0?'Trắng đi tiếp':'Đen đi tiếp'))):'';
   $('vqcReviewMoveCount').textContent=moves.length?moves.length+' nước đi':'Chưa có nước đi';
   $('vqcReviewFirst').disabled=!isTeacher()||!moves.length||current===0;
-  $('vqcReviewPrev').disabled=!isTeacher()||!moves.length||current===0;
+  const canUndoVariation=variationActive&&variationMoves.length>0;
+  $('vqcReviewPrev').disabled=canUndoVariation?false:(!isTeacher()||!moves.length||current===0);
   $('vqcReviewNext').disabled=!isTeacher()||!moves.length||current===moves.length;
   $('vqcReviewLast').disabled=!isTeacher()||!moves.length||current===moves.length;
   $('vqcReviewCopy').disabled=!loadedText;
@@ -277,6 +278,46 @@
   if(variationActive)resetVariation(false);
   current=Math.max(0,Math.min(moves.length,Number(n)||0));render();
   if(share)publish();
+ }
+ function stepBackward(){
+  if(!positions.length)return;
+  /* While exploring a shared variation, go back exactly one trial move.
+     Do not discard the whole branch and jump to the original PGN position. */
+  if(variationActive&&variationMoves.length){
+   const remaining=variationMoves.slice(0,-1);
+   if(!remaining.length){
+    resetVariation(false);
+    clearSharedVariation();
+    render();
+    return;
+   }
+   try{
+    const chess=new Chess();
+    if(!Number.isInteger(variationBaseIndex)||!chess.load(positions[variationBaseIndex]))return;
+    const replayed=[];
+    for(const item of remaining){
+     const move={from:item.from,to:item.to};
+     if(['q','r','b','n'].includes(String(item.promotion||'').toLowerCase()))move.promotion=String(item.promotion).toLowerCase();
+     const candidate=variationPositionForPiece(chess,item.from);
+     if(!candidate)return;
+     const made=candidate.move(move);
+     if(!made)return;
+     replayed.push({san:made.san,from:made.from,to:made.to,color:made.color,promotion:made.promotion||'',fen:candidate.fen()});
+     /* Use exactly the same side-to-move normalization as a live trial move. */
+     // The candidate is already normalized for the color of the piece being moved.
+     // The next replay iteration will normalize again if the other color is chosen.
+     chess.load(candidate.fen());
+    }
+    variationGame=chess;
+    variationMoves=replayed;
+    variationActorRole=isTeacher()?'teacher':'student';
+    selectedSquare=null;promotionChoices=[];
+    updateVariationControls();render();publishVariation();
+   }catch(error){console.warn('Không thể lùi một nước trong biến thể:',error);}
+   return;
+  }
+  if(!isTeacher()||current<=0)return;
+  go(current-1);
  }
  function publish(){
   if(!connected()||!isTeacher()||applyingRemote)return;
@@ -410,10 +451,12 @@
   finally{applyingRemote=false;}
  };
  window.addEventListener('keydown',e=>{
-  if(workspace()?.hidden||!isTeacher())return;
+  if(workspace()?.hidden)return;
   const target=e.target;
   if(target&&(target.matches('textarea,input,select')||target.isContentEditable))return;
-  if(e.key==='ArrowLeft'){e.preventDefault();go(current-1);}
+  if(e.key==='ArrowLeft'&&variationActive&&variationMoves.length){e.preventDefault();stepBackward();return;}
+  if(!isTeacher())return;
+  if(e.key==='ArrowLeft'){e.preventDefault();stepBackward();}
   else if(e.key==='ArrowRight'){e.preventDefault();go(current+1);}
   else if(e.key==='Home'){e.preventDefault();go(0);}
   else if(e.key==='End'){e.preventDefault();go(moves.length);}
@@ -433,7 +476,7 @@
   $('vqcReviewCopy')?.addEventListener('click',copyPgn);
   $('vqcReviewDownload')?.addEventListener('click',downloadPgn);
   $('vqcReviewFirst')?.addEventListener('click',()=>go(0));
-  $('vqcReviewPrev')?.addEventListener('click',()=>go(current-1));
+  $('vqcReviewPrev')?.addEventListener('click',stepBackward);
   $('vqcReviewNext')?.addEventListener('click',()=>go(current+1));
   $('vqcReviewLast')?.addEventListener('click',()=>go(moves.length));
   $('vqcReviewVariationReset')?.addEventListener('click',()=>{resetVariation(true);clearSharedVariation();});
