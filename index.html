@@ -56,6 +56,7 @@
 <link rel="stylesheet" href="./css/game-review-drawer.css?v=20261106-move-hints-v1">
 
 <link rel="stylesheet" href="./css/castling.css?v=20261111-no-scroll-standard-form-v1">
+<link rel="stylesheet" href="./css/castling-practice.css?v=20261113-multimove-practice-v1">
 <link rel="stylesheet" href="./css/double-attack.css?v=20261112-pdf24-v1">
 </head>
 
@@ -731,6 +732,7 @@
     <div class="lesson" id="escapeMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('escapeOpen',0)"><div class="lesson-icon">🛡️</div> Thoát chiếu</div>
     <div class="lesson" id="checkOneMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('checkOneOpen',0)"><div class="lesson-icon">⚡</div> Chiếu trong 1 nước</div>
     <div class="lesson" id="castlingMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('castlingOpen',0)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();vqcOpenChallengeSafe('castlingOpen',0);}"><div class="lesson-icon">♔</div> Nhập thành: Có hay Không?</div>
+    <div class="lesson" id="castlingPracticeMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('castlingPracticeOpen',0)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();vqcOpenChallengeSafe('castlingPracticeOpen',0);}"><div class="lesson-icon">♜</div> Thực hành Nhập thành (9 bài)</div>
     <div class="lesson" id="doubleAttackMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('doubleAttackOpen',0)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();vqcOpenChallengeSafe('doubleAttackOpen',0);}"><div class="lesson-icon">⚔️</div> Tấn công đôi (24 bài)</div>
     <div class="lesson" id="mateOneBasicMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('vqcMateOneBasicOpen',0)"><div class="lesson-icon">♕</div> Chiếu hết trong 1 nước (Cơ bản)</div>
     <div class="lesson" id="mateOnePdfMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('vqcMateOneOpen',0)"><div class="lesson-icon">♛</div> Chiếu hết trong 1 nước (Nâng cao)</div>
@@ -1343,6 +1345,7 @@ function vqcToggleLoginPassword(){const el=document.getElementById('accountLogin
   escapeMenu:['escapeOpen','escapeOverlay'],
   checkOneMenu:['checkOneOpen','checkOneOverlay'],
   castlingMenu:['castlingOpen','castlingOverlay'],
+  castlingPracticeMenu:['castlingPracticeOpen','castlingPracticeOverlay'],
   doubleAttackMenu:['doubleAttackOpen','doubleAttackOverlay'],
   pawnGamesMenu:['pawnGameOpen','pawnGameOverlay'],
   defenseAttackMenu:['defenseOpenNew','defenseOverlay'],
@@ -1596,6 +1599,24 @@ window.vqcCloseMembershipSafe=function(){
  </div>
 </div>
 <script src="./js/double-attack.js?v=20261112-pdf24-v1"></script>
+<div id="castlingPracticeOverlay" role="dialog" aria-modal="true" aria-labelledby="castlingPracticeTitle" hidden>
+ <div class="castling-practice-dialog">
+  <header class="castling-practice-top"><div><h2 id="castlingPracticeTitle">♔ Thực hành Nhập thành — Bài 1/9</h2><p id="castlingPracticeSubtitle">Nhập thành gần · Trắng đi liên tiếp</p></div><button type="button" id="castlingPracticeClose">✕ Đóng</button></header>
+  <div class="castling-practice-progress"><span id="castlingPracticeNumber">Bài 1/9</span><span id="castlingPracticeDone">Đã hoàn thành 0/9 bài</span></div>
+  <div class="castling-practice-progress-track"><span id="castlingPracticeProgressFill" style="width:0%"></span></div>
+  <div class="castling-practice-steps" id="castlingPracticeSteps" aria-label="Tiến độ 9 bài"></div>
+  <div class="castling-practice-layout">
+   <div><div class="castling-practice-board-wrap"><div id="castlingPracticeBoard" class="castling-practice-board" aria-label="Bàn cờ thực hành nhập thành"></div></div><p class="castling-practice-caption">Chọn quân Trắng, sau đó chọn ô đích được đánh dấu. Trắng được đi liên tiếp trong bài này.</p></div>
+   <section class="castling-practice-side">
+    <p class="castling-practice-goal" id="castlingPracticeGoal">Di chuyển Vua Trắng để nhập thành.</p><p class="castling-practice-feedback" id="castlingPracticeFeedback" role="status" aria-live="polite">Hãy bắt đầu bài tập.</p>
+    <div class="castling-practice-moves" id="castlingPracticeMoveCount">Số nước Trắng đã đi: 0</div>
+    <div class="castling-practice-controls"><button type="button" id="castlingPracticePrev">← Bài trước</button><button type="button" id="castlingPracticeNext" disabled>Bài tiếp →</button><button type="button" id="castlingPracticeHint">💡 Gợi ý nước tiếp theo</button><button type="button" id="castlingPracticeUndo" disabled>↶ Lùi một nước</button><button type="button" id="castlingPracticeReset" disabled>↻ Làm lại bài</button></div>
+    <div class="castling-practice-notation" id="castlingPracticeNotation">Chọn một quân Trắng để xem các nước đi hợp lệ.</div>
+   </section>
+  </div>
+ </div>
+</div>
+<script src="./js/castling-practice.js?v=20261113-multimove-practice-v1"></script>
 </body>
 
 </html>
