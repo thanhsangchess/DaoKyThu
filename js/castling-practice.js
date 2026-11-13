@@ -9,7 +9,15 @@
  const inRoom=()=>typeof roomRef!=='undefined'&&!!roomRef;
  const student=()=>inRoom()&&(typeof role!=='undefined'?role:window.accountProfile?.role)==='student';
  function pieceName(p){const n={p:'Tốt',n:'Mã',b:'Tượng',r:'Xe',q:'Hậu',k:'Vua'};return (p.color==='w'?'Trắng ':'Đen ')+(n[p.type]||'quân');}
- function forceWhiteTurn(g){const p=g.fen().split(' ');if(p[1]==='b'){p[1]='w';if(!g.load(p.join(' ')))throw Error('Không thể chuyển lượt về Trắng.');}}
+ function forceWhiteTurn(g){
+  const p=g.fen().split(' ');
+  if(p[1]==='b'){
+   p[1]='w';
+   /* Trắng đi liên tiếp, nên bỏ quyền bắt tốt qua đường của lượt Đen chưa diễn ra. */
+   p[3]='-';
+   if(!g.load(p.join(' ')))throw Error('Không thể chuyển lượt về Trắng.');
+  }
+ }
  function rebuild(log){
   const g=new Chess(task().fen),clean=[];let complete=false;
   for(const item of log){
