@@ -25,7 +25,7 @@ function renderBoard(){
  const layer=board.querySelector(':scope > .vqc-annotation-overlay');
  board.querySelectorAll(':scope > .beginner-puzzle-cell').forEach(c=>c.remove());
  const legal=selected?game.moves({square:selected,verbose:true}).map(m=>m.to):[],answer=parseUci(task().answer);
- const whiteAtBottom=task().side==='w';
+ const whiteAtBottom=game.turn()==='w';
  const ranks=whiteAtBottom?[8,7,6,5,4,3,2,1]:[1,2,3,4,5,6,7,8];
  const files=whiteAtBottom?FILES:[...FILES].reverse();
  for(let row=0;row<8;row++)for(let col=0;col<8;col++){
@@ -53,7 +53,7 @@ function renderProgress(){
 function render(){
  if(!game)return;const t=task();
  $('beginnerPuzzleTitle').textContent='♟️ Đố cờ vua cơ bản — Bài '+(index+1)+'/10';
- $('beginnerPuzzleSubtitle').textContent=(t.side==='w'?'Trắng':'Đen')+' đi trước';
+ $('beginnerPuzzleSubtitle').textContent='Đến lượt '+(game.turn()==='w'?'Trắng':'Đen');
  $('beginnerPuzzleSectionNumber').textContent='Bài '+(index+1)+'/10';$('beginnerPuzzleNumber').textContent='Bài '+(index+1)+'/10';
  $('beginnerPuzzlePrompt').textContent=t.prompt;$('beginnerPuzzleFeedback').textContent=feedback;
  $('beginnerPuzzleFeedback').className='beginner-puzzle-feedback'+(solved?' success':'');
