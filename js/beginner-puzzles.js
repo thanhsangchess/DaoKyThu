@@ -25,8 +25,12 @@ function renderBoard(){
  const layer=board.querySelector(':scope > .vqc-annotation-overlay');
  board.querySelectorAll(':scope > .beginner-puzzle-cell').forEach(c=>c.remove());
  const legal=selected?game.moves({square:selected,verbose:true}).map(m=>m.to):[],answer=parseUci(task().answer);
- for(let rank=8;rank>=1;rank--)for(let f=0;f<8;f++){
-  const square=FILES[f]+rank,p=game.get(square),code=p?(p.color==='w'?p.type.toUpperCase():p.type):'';
+ const whiteAtBottom=task().side==='w';
+ const ranks=whiteAtBottom?[8,7,6,5,4,3,2,1]:[1,2,3,4,5,6,7,8];
+ const files=whiteAtBottom?FILES:[...FILES].reverse();
+ for(let row=0;row<8;row++)for(let col=0;col<8;col++){
+  const rank=ranks[row],file=files[col],f=FILES.indexOf(file);
+  const square=file+rank,p=game.get(square),code=p?(p.color==='w'?p.type.toUpperCase():p.type):'';
   const cell=document.createElement('button');cell.type='button';cell.className='beginner-puzzle-cell '+(((8-rank+f)%2===0)?'light':'dark');
   cell.dataset.square=square;cell.dataset.piece=code;
   cell.setAttribute('aria-label','Ô '+square+(p?' · '+(p.color==='w'?'Trắng ':'Đen ')+({p:'Tốt',n:'Mã',b:'Tượng',r:'Xe',q:'Hậu',k:'Vua'}[p.type]):''));
@@ -35,8 +39,8 @@ function renderBoard(){
   if(hintShown&&!solved&&!answerShown&&(square===answer.from||square===answer.to))cell.classList.add(square===answer.from?'hint-from':'hint-to');
   if(lastMove&&(lastMove.from===square||lastMove.to===square))cell.classList.add('last-move');
   if(p){const holder=document.createElement('span');holder.className='beginner-puzzle-piece';holder.innerHTML=typeof window.pieceSvgMarkup==='function'?window.pieceSvgMarkup(code):'';if(!holder.innerHTML)holder.textContent=code;cell.appendChild(holder);}
-  if(f===0){const q=document.createElement('span');q.className='beginner-puzzle-coordinate rank';q.textContent=String(rank);cell.appendChild(q);}
-  if(rank===1){const q=document.createElement('span');q.className='beginner-puzzle-coordinate file';q.textContent=FILES[f];cell.appendChild(q);}
+  if(col===0){const q=document.createElement('span');q.className='beginner-puzzle-coordinate rank';q.textContent=String(rank);cell.appendChild(q);}
+  if(row===7){const q=document.createElement('span');q.className='beginner-puzzle-coordinate file';q.textContent=file;cell.appendChild(q);}
   cell.addEventListener('click',()=>clickSquare(square));board.appendChild(cell);
  }
  if(layer&&layer.parentElement!==board)board.appendChild(layer);
