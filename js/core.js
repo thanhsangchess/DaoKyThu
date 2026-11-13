@@ -1344,6 +1344,7 @@ function vqcCloseOtherViews(target){
   if(target!=='castling')document.getElementById('castlingOverlay')?.classList.remove('open');
   if(target!=='castlingpractice')document.getElementById('castlingPracticeOverlay')?.classList.remove('open');
   if(target!=='doubleattack')document.getElementById('doubleAttackOverlay')?.classList.remove('open');
+  if(target!=='beginnerpuzzles')document.getElementById('beginnerPuzzleOverlay')?.classList.remove('open');
 }
 function vqcBroadcastView(view,index=0){
   if(vqcNavApplying)return;
@@ -1372,7 +1373,7 @@ function vqcSafeReceiveExercise(label,receiver,payload){
 }
 function vqcReceiveView(data){
   if(!data||!data.stamp)return;
-  const dialogIds={mate2:'mateOverlay',mate3:'mate3Overlay',pvp:'pvpOverlay',capture:'captureOverlay',freecapture:'freeCaptureOverlay',defense:'defenseOverlay',pawngame:'pawnGameOverlay',check1:'checkOneOverlay',escape:'escapeOverlay',lonemate:'vqcLoneMateOverlay',mate1:'vqcMateOneOverlay',mate1basic:'vqcMateOneBasicOverlay',castling:'castlingOverlay',doubleattack:'doubleAttackOverlay',castlingpractice:'castlingPracticeOverlay'};
+  const dialogIds={mate2:'mateOverlay',mate3:'mate3Overlay',pvp:'pvpOverlay',capture:'captureOverlay',freecapture:'freeCaptureOverlay',defense:'defenseOverlay',pawngame:'pawnGameOverlay',check1:'checkOneOverlay',escape:'escapeOverlay',lonemate:'vqcLoneMateOverlay',mate1:'vqcMateOneOverlay',mate1basic:'vqcMateOneBasicOverlay',castling:'castlingOverlay',doubleattack:'doubleAttackOverlay',castlingpractice:'castlingPracticeOverlay',beginnerpuzzles:'beginnerPuzzleOverlay'};
   const activeDialog=dialogIds[data.view]&&document.getElementById(dialogIds[data.view]);
   // Reopen a classroom dialog on the student machine if its DOM was hidden
   // after the snapshot had already been marked as received.
@@ -1388,7 +1389,7 @@ function vqcReceiveView(data){
       document.getElementById('vqcModeHome')?.setAttribute('aria-hidden','true');
       document.getElementById('vqcModeWorld')?.setAttribute('aria-hidden','true');
     }
-    const dialogs={mate2:'mateOverlay',mate3:'mate3Overlay',pvp:'pvpOverlay',capture:'captureOverlay',freecapture:'freeCaptureOverlay',defense:'defenseOverlay',pawngame:'pawnGameOverlay',check1:'checkOneOverlay',escape:'escapeOverlay',lonemate:'vqcLoneMateOverlay',mate1:'vqcMateOneOverlay',mate1basic:'vqcMateOneBasicOverlay',castling:'castlingOverlay',doubleattack:'doubleAttackOverlay',castlingpractice:'castlingPracticeOverlay'};
+    const dialogs={mate2:'mateOverlay',mate3:'mate3Overlay',pvp:'pvpOverlay',capture:'captureOverlay',freecapture:'freeCaptureOverlay',defense:'defenseOverlay',pawngame:'pawnGameOverlay',check1:'checkOneOverlay',escape:'escapeOverlay',lonemate:'vqcLoneMateOverlay',mate1:'vqcMateOneOverlay',mate1basic:'vqcMateOneBasicOverlay',castling:'castlingOverlay',doubleattack:'doubleAttackOverlay',castlingpractice:'castlingPracticeOverlay',beginnerpuzzles:'beginnerPuzzleOverlay'};
     const overlay=dialogs[view]&&document.getElementById(dialogs[view]);
     if(overlay&&overlay.parentElement!==document.body)document.body.appendChild(overlay);
     vqcCloseOtherViews(view);
@@ -1407,6 +1408,7 @@ function vqcReceiveView(data){
     else if(view==='castling')window.castlingOpen?.(index,true);
     else if(view==='castlingpractice')window.castlingPracticeOpen?.(index,true);
     else if(view==='doubleattack')window.doubleAttackOpen?.(index,true);
+    else if(view==='beginnerpuzzles')window.beginnerPuzzleOpen?.(index,true);
     else if(view==='piece'&&pieceGameNames[data.piece])startPieceGame(data.piece);
     else if(view==='board')exitPieceGame();
     if(overlay)overlay.classList.add('open');
@@ -1562,6 +1564,7 @@ function listenToRoom(){
     if(active.view==='mate1' && data.mateOneExercise && data.mateOneExercise.index===active.index)vqcSafeReceiveExercise('Chiếu hết 1 nước — 100 bài PDF',window.vqcMateOneReceive,data.mateOneExercise);
     if(active.view==='mate1basic' && data.mateOneBasicExercise && data.mateOneBasicExercise.index===active.index)vqcSafeReceiveExercise('Chiếu hết 1 nước — Cơ bản 10 bài',window.vqcMateOneBasicReceive,data.mateOneBasicExercise);
     if(active.view==='doubleattack' && data.doubleAttackExercise && data.doubleAttackExercise.index===active.index)vqcSafeReceiveExercise('Tấn công đôi — 24 bài PDF',window.vqcDoubleAttackReceive,data.doubleAttackExercise);
+    if(active.view==='beginnerpuzzles' && data.beginnerPuzzleExercise && data.beginnerPuzzleExercise.index===active.index)vqcSafeReceiveExercise('Đố cờ vua cơ bản — 10 bài Chessfox',window.vqcBeginnerPuzzleReceive,data.beginnerPuzzleExercise);
     if(active.view==='castlingpractice' && data.castlingPracticeExercise && data.castlingPracticeExercise.index===active.index)vqcSafeReceiveExercise('Thực hành Nhập thành — 9 bài',window.vqcCastlingPracticeReceive,data.castlingPracticeExercise);
     try{pvpReceive(data.pvp||null);}catch(e){console.error('Lỗi đồng bộ đối kháng',e);}
     // Chỉ nhận dữ liệu từ máy khác hoặc bản đã xác nhận, không xóa nước đi đang chọn.
