@@ -7,7 +7,7 @@
  const BOARD_IDS=[
   'board','mateBoard','mate3Board','pvpBoard','captureBoard',
   'freeCaptureBoard','defenseBoard','checkOneBoard','escapeBoard',
-  'pawnGameBoard','vqcMateOneBoard','vqcMateOneBasicBoard','vqcLoneMateBoard','vqcAdventureBoard','vqcReviewBoard','castlingBoard','doubleAttackBoard','castlingPracticeBoard'
+  'pawnGameBoard','vqcMateOneBoard','vqcMateOneBasicBoard','vqcLoneMateBoard','vqcAdventureBoard','vqcReviewBoard','castlingBoard','doubleAttackBoard','castlingPracticeBoard','beginnerPuzzleBoard'
  ];
  const SELECTOR=BOARD_IDS.map(id=>'#'+id).join(',');
  const SVG_NS='http://www.w3.org/2000/svg';
@@ -151,13 +151,11 @@
   return (fileDelta===1&&rankDelta===2)||(fileDelta===2&&rankDelta===1);
  }
  function boardPieceAt(board,displayIndex){
-  const square=board?.id==='castlingBoard'
-   ?board.querySelectorAll(':scope > .castling-square')[displayIndex]
-   :board?.id==='doubleAttackBoard'
-    ?board.querySelectorAll(':scope > .double-attack-cell')[displayIndex]
-    :board?.id==='castlingPracticeBoard'
-     ?board.querySelectorAll(':scope > .castling-practice-square')[displayIndex]
-     :board?.children?.[displayIndex];
+  const square=board?.id==='castlingBoard'?board.querySelectorAll(':scope > .castling-square')[displayIndex]
+   :board?.id==='doubleAttackBoard'?board.querySelectorAll(':scope > .double-attack-cell')[displayIndex]
+   :board?.id==='castlingPracticeBoard'?board.querySelectorAll(':scope > .castling-practice-square')[displayIndex]
+   :board?.id==='beginnerPuzzleBoard'?board.querySelectorAll(':scope > .beginner-puzzle-cell')[displayIndex]
+   :board?.children?.[displayIndex];
   return String(square?.dataset?.piece||square?.querySelector?.('.piece')?.dataset?.piece||'');
  }
  function drawKnightArrow(svg,a,b,color,opacity){
