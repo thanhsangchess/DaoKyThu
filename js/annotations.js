@@ -7,7 +7,7 @@
  const BOARD_IDS=[
   'board','mateBoard','mate3Board','pvpBoard','captureBoard',
   'freeCaptureBoard','defenseBoard','checkOneBoard','escapeBoard',
-  'pawnGameBoard','vqcMateOneBoard','vqcMateOneBasicBoard','vqcLoneMateBoard','vqcAdventureBoard','vqcReviewBoard','castlingBoard','doubleAttackBoard'
+  'pawnGameBoard','vqcMateOneBoard','vqcMateOneBasicBoard','vqcLoneMateBoard','vqcAdventureBoard','vqcReviewBoard','castlingBoard','doubleAttackBoard','castlingPracticeBoard'
  ];
  const SELECTOR=BOARD_IDS.map(id=>'#'+id).join(',');
  const SVG_NS='http://www.w3.org/2000/svg';
@@ -125,8 +125,8 @@
   scheduleToolbar();
  }
  function squareAt(board,clientX,clientY){
-  if(board?.id==='castlingBoard'||board?.id==='doubleAttackBoard'){
-   const selector=board.id==='castlingBoard'?'.castling-square':'.double-attack-cell';
+  if(board?.id==='castlingBoard'||board?.id==='doubleAttackBoard'||board?.id==='castlingPracticeBoard'){
+   const selector=board.id==='castlingBoard'?'.castling-square':board.id==='doubleAttackBoard'?'.double-attack-cell':'.castling-practice-square';
    const cells=board.querySelectorAll(':scope > '+selector);
    for(let index=0;index<cells.length;index++){
     const rect=cells[index].getBoundingClientRect();
@@ -155,7 +155,9 @@
    ?board.querySelectorAll(':scope > .castling-square')[displayIndex]
    :board?.id==='doubleAttackBoard'
     ?board.querySelectorAll(':scope > .double-attack-cell')[displayIndex]
-    :board?.children?.[displayIndex];
+    :board?.id==='castlingPracticeBoard'
+     ?board.querySelectorAll(':scope > .castling-practice-square')[displayIndex]
+     :board?.children?.[displayIndex];
   return String(square?.dataset?.piece||square?.querySelector?.('.piece')?.dataset?.piece||'');
  }
  function drawKnightArrow(svg,a,b,color,opacity){
