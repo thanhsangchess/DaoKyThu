@@ -182,17 +182,23 @@ async function makeOpponentReply(){
  const session=puzzleSession;
  thinking=true;engineFailed=false;feedback='Đối phương đang phân tích nước đáp trả...';render();publish();
  try{
-  // Các nước đáp trả được định trước theo đúng biến lời giải của từng bài.
+  // Chỉ phát nước đáp trả định trước khi người chơi đi đúng nước liền trước của biến lời giải.
   const scriptedReplies={
-   1:{1:'c1e3'},
-   2:{1:'e8d7'},
-   4:{1:'b2c3'},
-   5:{1:'b1a2'},
-   6:{1:'d6e5',3:'g8g7'},
-   7:{1:'f7f6'},
-   10:{1:'f8f7'}
+   1:{1:{after:'d8d4',move:'c1e3'}},
+   2:{1:{after:'h6h8',move:'e8d7'}},
+   4:{1:{after:'f6c3',move:'b2c3'}},
+   5:{1:{after:'e6a2',move:'b1a2'}},
+   6:{
+    1:{after:'e2e5',move:'d6e5'},
+    3:{after:'d5f6',previous:'d6e5',move:'g8g7'}
+   },
+   7:{1:{after:'d1d4',move:'f7f6'}},
+   10:{1:{after:'c4f7',move:'f8f7'}}
   };
-  const scriptedReply=scriptedReplies[task().id]?.[moveHistory.length]||null;
+  const replyRule=scriptedReplies[task().id]?.[moveHistory.length];
+  const scriptedReply=replyRule&&moveHistory[moveHistory.length-1]===replyRule.after&&
+   (!replyRule.previous||moveHistory[moveHistory.length-2]===replyRule.previous)
+   ?replyRule.move:null;
   const best=scriptedReply||await requestBestReply(game.fen());
   if(!isOpen||session!==puzzleSession||solved)return;
   if(!best||best==='(none)'||best==='0000')throw new Error('Vị trí hiện tại không có nước đáp trả hợp lệ.');
