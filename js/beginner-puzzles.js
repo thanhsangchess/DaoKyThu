@@ -182,10 +182,13 @@ async function makeOpponentReply(){
  const session=puzzleSession;
  thinking=true;engineFailed=false;feedback='Đối phương đang phân tích nước đáp trả...';render();publish();
  try{
-  const best=await requestBestReply(game.fen());
+  // Bài 1 có biến đáp trả được thiết kế sẵn: sau ...Qd4+, Trắng đi Qe3,
+  // để người học tiếp tục tìm ...Qxb4 hoàn thành mục tiêu.
+  const scriptedReply=task().id===1&&moveHistory.length===1&&moveHistory[0]===task().answer?'c1e3':null;
+  const best=scriptedReply||await requestBestReply(game.fen());
   if(!isOpen||session!==puzzleSession||solved)return;
   if(!best||best==='(none)'||best==='0000')throw new Error('Vị trí hiện tại không có nước đáp trả hợp lệ.');
-  const result=applyPuzzleMove(best);if(!result)throw new Error('Engine trả về nước đi không hợp lệ.');
+  const result=applyPuzzleMove(best);if(!result)throw new Error('Nước đáp trả '+best+' không hợp lệ trong thế cờ hiện tại.');
   thinking=false;
   if(result.goalReached){completePuzzle();return;}
   if(terminalFeedback())return;
