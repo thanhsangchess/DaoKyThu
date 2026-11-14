@@ -1,5 +1,5 @@
 @import url("ui-upgrade.css?v=20261114-1");
-@import url("ui-fit.css?v=20261114-1");
+@import url("ui-fit.css?v=20261114-2");
 .vqc-challenge-overlay[hidden]{display:none!important}
 .vqc-challenge-overlay{position:fixed;inset:0;z-index:29995;background:#132b43c4;display:flex;align-items:center;justify-content:center;padding:12px;overflow:auto}
 .vqc-challenge-dialog{background:#f6fbff;color:#285776;border:4px solid #c6e3f5;border-radius:20px;padding:18px;width:min(95vw,610px);max-height:94vh;overflow:auto}
