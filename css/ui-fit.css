@@ -1,0 +1,93 @@
+/* =====================================================================
+   ĐẢO KỲ THỦ – VỪA KHÍT MÀN HÌNH (ui-fit.css)
+   Mục tiêu: mở phòng học là thấy đủ bàn cờ ngay, không phải cuộn.
+   - Thu gọn header (tối đa 2 hàng, 1 hàng khi màn hình rộng).
+   - Thu gọn khoảng trống phía trên bàn cờ.
+   - Cỡ bàn cờ tự tính theo chiều cao màn hình (vh/dvh), chỉ trên máy tính.
+   Chỉ đổi CSS; không đổi logic, không đổi màu ô cờ.
+   Nạp qua @import trong css/friend-challenges.css (sau ui-upgrade.css).
+   ===================================================================== */
+
+/* Chiều cao header ước lượng (dùng cho cỡ bàn cờ và menu dính) */
+@media(min-width:951px){
+  :root{--vqc-hdr:112px;}   /* tối đa 2 hàng */
+  html{scroll-padding-top:calc(var(--vqc-hdr) + 8px);}
+}
+@media(min-width:1560px){
+  :root{--vqc-hdr:64px;}    /* đủ rộng để 1 hàng */
+}
+
+/* ---------- 1. Header gọn ---------- */
+@media(min-width:951px){
+  body > .header{
+    height:auto;
+    min-height:60px;
+    padding:8px 20px;
+    flex-wrap:wrap;
+    align-content:center;
+    gap:6px 10px;
+  }
+  body > .header .logo{gap:10px;}
+  body > .header .logo-icon{
+    width:42px;
+    height:42px;
+    font-size:26px;
+    border-radius:14px;
+    box-shadow:0 4px 10px rgba(43,111,201,.30),inset 0 1px 0 rgba(255,255,255,.35);
+  }
+  body > .header .logo-text strong{font-size:19px;line-height:1.2;}
+  body > .header .logo-text span{display:none;}
+
+  body > .header .room-box{padding:5px 6px;gap:6px;border-radius:14px;}
+  body > .header .room-box > span{display:none;}
+  body > .header .room-box input{width:84px;padding:7px 8px;font-size:15px;}
+
+  body > .header .btn{padding:7px 12px;font-size:13px;border-radius:10px;}
+
+  body > .header #accountBar{
+    max-width:none;
+    flex-wrap:nowrap;
+    gap:6px;
+    margin-left:auto;
+  }
+  body > .header #accountUserLabel{
+    max-width:130px;
+    font-size:12.5px!important;
+    padding:5px 11px;
+  }
+}
+@media(min-width:1560px){
+  body > .header .room-box > span{display:inline;}
+}
+
+/* ---------- 2. Thu gọn khoảng trống quanh bàn cờ ---------- */
+body .app{margin:12px auto 16px;}
+body .piece-game-bar{
+  margin:0 0 8px;
+  padding:8px 14px;
+  border-radius:14px;
+}
+body .piece-game-title{font-size:15px;}
+body .piece-game-help{font-size:12px;margin-top:1px;}
+body .piece-game-score{padding:6px 12px;}
+body .vqc-classroom-tabs{margin-bottom:8px;}
+
+/* ---------- 3. Bàn cờ vừa khít chiều cao màn hình (máy tính) ---------- */
+@media(min-width:951px){
+  /* phần chiều cao ngoài bàn cờ: lề + tab (+ thanh nhiệm vụ khi đang chơi nhặt sao) */
+  body .center{--vqc-board-offset:calc(var(--vqc-hdr) + 92px);}
+  body .center:has(.piece-game-bar.show){--vqc-board-offset:calc(var(--vqc-hdr) + 152px);}
+
+  body .center .board-shell{
+    width:min(100%,max(300px,calc(100vh - var(--vqc-board-offset))));
+    width:min(100%,max(300px,calc(100dvh - var(--vqc-board-offset))));
+    margin-inline:auto;
+  }
+
+  /* Menu bên trái dính ngay dưới header mới */
+  body .app > .sidebar{
+    top:calc(var(--vqc-hdr) + 12px);
+    max-height:calc(100vh - var(--vqc-hdr) - 24px);
+    max-height:calc(100dvh - var(--vqc-hdr) - 24px);
+  }
+}
