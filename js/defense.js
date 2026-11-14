@@ -70,8 +70,8 @@ function defenseOpenNew(i=0){defenseOpen(DEFENSE_TASKS.length+i);}
 
 let defenseIndex=0,defensePosition={},defenseSelected=null,defenseSolved=false,defenseThreats=false,defenseLastMove=null;
 const defenseDone=new Set();let vqcDefenseLastReceived='';
-function defenseOpen(i){defenseIndex=((i%DEFENSE_ALL_TASKS.length)+DEFENSE_ALL_TASKS.length)%DEFENSE_ALL_TASKS.length;vqcCloseOtherViews('defense');defenseReset();document.getElementById('defenseOverlay').classList.add('open');document.getElementById('vqcHomeHero')?.setAttribute('hidden','');vqcBroadcastView('defense',defenseIndex);vqcPublishDefense();}
-function defenseClose(){document.getElementById('defenseOverlay').classList.remove('open');vqcBroadcastView('board');}
+function defenseOpen(i){if(!vqcCanControlClassView('mở bài học'))return;defenseIndex=((i%DEFENSE_ALL_TASKS.length)+DEFENSE_ALL_TASKS.length)%DEFENSE_ALL_TASKS.length;vqcCloseOtherViews('defense');defenseReset();document.getElementById('defenseOverlay').classList.add('open');document.getElementById('vqcHomeHero')?.setAttribute('hidden','');vqcBroadcastView('defense',defenseIndex);vqcPublishDefense();}
+function defenseClose(){if(!vqcCanControlClassView('đóng bài học'))return;document.getElementById('defenseOverlay').classList.remove('open');vqcBroadcastView('board');}
 function defenseReset(){defenseLastMove=null;defensePosition={...defenseCurrentTask().pieces};defenseSelected=null;defenseSolved=false;defenseThreats=false;document.getElementById('defenseInstruction').textContent=defenseCurrentTask().tip;document.getElementById('defenseFeedback').hidden=true;defenseRender();vqcPublishDefense();}
 function defenseShowThreats(){defenseThreats=!defenseThreats;defenseRender();}
 function defenseRender(){
