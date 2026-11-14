@@ -31,9 +31,9 @@ function vqcReceiveCapture(d){
  }finally{vqcApplyingExercise=false;}
 }
 const vqcCaptureOpenOriginal=captureOpen;
-captureOpen=function(i){vqcCloseOtherViews('capture');vqcCaptureOpenOriginal(i);vqcBroadcastView('capture',captureIndex);vqcPublishCapture();};
+captureOpen=function(i){if(!vqcCanControlClassView('mở bài học'))return;vqcCloseOtherViews('capture');vqcCaptureOpenOriginal(i);vqcBroadcastView('capture',captureIndex);vqcPublishCapture();};
 const vqcCaptureCloseOriginal=captureClose;
-captureClose=function(){vqcCaptureCloseOriginal();if(!vqcApplyingExercise)vqcBroadcastView('board');};
+captureClose=function(){if(!vqcCanControlClassView('đóng bài học'))return;vqcCaptureCloseOriginal();if(!vqcApplyingExercise)vqcBroadcastView('board');};
 const vqcCaptureResetOriginal=captureReset;
 captureReset=function(){vqcCaptureResetOriginal();vqcPublishCapture();};
 const vqcCaptureRenderOriginal=captureRender;
