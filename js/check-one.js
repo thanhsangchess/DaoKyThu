@@ -11,8 +11,8 @@ const CHECK_ONE_TASKS=[
 ];
 let checkOneIndex=0,checkOnePosition={},checkOneSelected=null,checkOneSolved=false,checkOneFailed=false,checkOneLastMove=null;
 const checkOneDone=new Set();let vqcCheckOneLastReceived='';
-function checkOneOpen(i){checkOneIndex=(i+CHECK_ONE_TASKS.length)%CHECK_ONE_TASKS.length;vqcCloseOtherViews('check1');checkOneReset();document.getElementById('checkOneOverlay').classList.add('open');document.getElementById('vqcHomeHero')?.setAttribute('hidden','');vqcBroadcastView('check1',checkOneIndex);vqcPublishCheckOne();}
-function checkOneClose(){document.getElementById('checkOneOverlay').classList.remove('open');vqcBroadcastView('board');}
+function checkOneOpen(i){if(!vqcCanControlClassView('mở bài học'))return;checkOneIndex=(i+CHECK_ONE_TASKS.length)%CHECK_ONE_TASKS.length;vqcCloseOtherViews('check1');checkOneReset();document.getElementById('checkOneOverlay').classList.add('open');document.getElementById('vqcHomeHero')?.setAttribute('hidden','');vqcBroadcastView('check1',checkOneIndex);vqcPublishCheckOne();}
+function checkOneClose(){if(!vqcCanControlClassView('đóng bài học'))return;document.getElementById('checkOneOverlay').classList.remove('open');vqcBroadcastView('board');}
 function checkOneReset(){checkOneLastMove=null;checkOnePosition={...CHECK_ONE_TASKS[checkOneIndex].pieces};checkOneSelected=null;checkOneSolved=false;checkOneFailed=false;document.getElementById('checkOneInstruction').textContent='Đe dọa Vua đen bằng một nước đi hợp lệ!';document.getElementById('checkOneFeedback').hidden=true;checkOneRender();vqcPublishCheckOne();}
 function checkOneLegal(piece,from,to,pos){return !!piece&&piece===piece.toUpperCase()&&vqcExerciseLegalMove(piece,from,to,pos);}
 function checkOneIsCheck(pos){const king=Object.keys(pos).find(k=>pos[k]==='k');if(!king)return false;return Object.keys(pos).some(k=>{const p=pos[k];return p&&p===p.toUpperCase()&&captureCanAttack(p,k,king,pos);});}
