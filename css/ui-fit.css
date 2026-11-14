@@ -4,6 +4,7 @@
    - Thu gọn header (tối đa 2 hàng, 1 hàng khi màn hình rộng).
    - Thu gọn khoảng trống phía trên bàn cờ.
    - Cỡ bàn cờ tự tính theo chiều cao màn hình (vh/dvh), chỉ trên máy tính.
+   - Khi đang luyện tập: dời thanh nhiệm vụ + tab bàn cờ sang cột phải.
    Chỉ đổi CSS; không đổi logic, không đổi màu ô cờ.
    Nạp qua @import trong css/friend-challenges.css (sau ui-upgrade.css).
    ===================================================================== */
@@ -89,5 +90,59 @@ body .vqc-classroom-tabs{margin-bottom:8px;}
     top:calc(var(--vqc-hdr) + 12px);
     max-height:calc(100vh - var(--vqc-hdr) - 24px);
     max-height:calc(100dvh - var(--vqc-hdr) - 24px);
+  }
+}
+
+/* ---------- 4. Dời thanh nhiệm vụ + tab sang cột phải khi đang luyện tập ----------
+   .center được "mở" (display:contents) để các phần tử con của nó nằm trực tiếp
+   trong lưới .app: bàn cờ chiếm toàn bộ chiều cao cột giữa, còn thanh nhiệm vụ và
+   tab nằm phía trên bảng "Phòng học trực tiếp" ở cột phải.
+   Không áp dụng khi đang xem lại ván đấu (PGN) hoặc ở trang chờ chưa có bàn cờ.
+   Trình duyệt cũ chưa hỗ trợ :has() sẽ giữ nguyên bố cục cũ. */
+@media(min-width:951px){
+  body .app:has(> .center.vqc-practice-active):not(:has(#vqcReviewWorkspace:not([hidden]))){
+    grid-template-rows:auto auto 1fr;
+    row-gap:12px;
+  }
+  body .app:has(> .center.vqc-practice-active):not(:has(#vqcReviewWorkspace:not([hidden]))) > .center{
+    display:contents;
+  }
+  body .app:has(> .center.vqc-practice-active):not(:has(#vqcReviewWorkspace:not([hidden]))) > .sidebar{
+    grid-column:1;
+    grid-row:1 / 4;
+  }
+  body .app:has(> .center.vqc-practice-active):not(:has(#vqcReviewWorkspace:not([hidden]))) > .center > .board-shell{
+    grid-column:2;
+    grid-row:1 / 4;
+    width:min(100%,max(300px,calc(100vh - var(--vqc-hdr) - 40px)));
+    width:min(100%,max(300px,calc(100dvh - var(--vqc-hdr) - 40px)));
+    margin-inline:auto;
+  }
+  body .app:has(> .center.vqc-practice-active):not(:has(#vqcReviewWorkspace:not([hidden]))) > .center > .piece-game-bar{
+    grid-column:3;
+    grid-row:1;
+    margin:0;
+    gap:8px;
+  }
+  body .app:has(> .center.vqc-practice-active):not(:has(#vqcReviewWorkspace:not([hidden]))) > .center > .vqc-classroom-tabs{
+    grid-column:3;
+    grid-row:2;
+    margin:0;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:6px;
+  }
+  body .app:has(> .center.vqc-practice-active):not(:has(#vqcReviewWorkspace:not([hidden]))) > .center > .vqc-classroom-tabs button{
+    min-width:0;
+    padding:9px 6px;
+    font-size:13px;
+  }
+  body .app:has(> .center.vqc-practice-active):not(:has(#vqcReviewWorkspace:not([hidden]))) > aside.card:not(.sidebar){
+    grid-column:3;
+    grid-row:3;
+  }
+  /* mọi phần tử khác trong .center (nếu có) nằm hàng riêng bên dưới */
+  body .app:has(> .center.vqc-practice-active):not(:has(#vqcReviewWorkspace:not([hidden]))) > .center > :not(.board-shell):not(.piece-game-bar):not(.vqc-classroom-tabs){
+    grid-column:1 / -1;
   }
 }
