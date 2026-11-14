@@ -182,9 +182,12 @@ async function makeOpponentReply(){
  const session=puzzleSession;
  thinking=true;engineFailed=false;feedback='Đối phương đang phân tích nước đáp trả...';render();publish();
  try{
-  // Bài 1 có biến đáp trả được thiết kế sẵn: sau ...Qd4+, Trắng đi Qe3,
-  // để người học tiếp tục tìm ...Qxb4 hoàn thành mục tiêu.
-  const scriptedReply=task().id===1&&moveHistory.length===1&&moveHistory[0]===task().answer?'c1e3':null;
+  // Các bài có biến đáp trả được thiết kế sẵn để bảo đảm đúng trình tự lời giải.
+  // Bài 1: ...Qd4+ Qe3, sau đó người học tìm ...Qxb4.
+  // Bài 2: Qh8+ Kd7, sau đó người học tìm Qxa8.
+  const scriptedReply=moveHistory.length===1&&moveHistory[0]===task().answer
+   ?(task().id===1?'c1e3':task().id===2?'e8d7':null)
+   :null;
   const best=scriptedReply||await requestBestReply(game.fen());
   if(!isOpen||session!==puzzleSession||solved)return;
   if(!best||best==='(none)'||best==='0000')throw new Error('Vị trí hiện tại không có nước đáp trả hợp lệ.');
