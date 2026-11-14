@@ -2429,3 +2429,24 @@ body.vqc-mode-home > .header #accountBar,body.vqc-mode-world > .header #accountB
   .chess-reward-card, .chess-reward-card__image img { transition: none; }
   .chess-reward-card:hover, .chess-reward-card:hover .chess-reward-card__image img { transform: none; }
 }
+
+
+/* Classroom board: use more of the center column while keeping the whole
+   square visible beneath the challenge bar and classroom tabs. */
+@media (min-width: 1151px) {
+  .app {
+    grid-template-columns: 270px minmax(500px, 700px) 330px;
+  }
+
+  .center.vqc-practice-active > .board-shell {
+    box-sizing: border-box;
+    width: min(100%, 700px, calc(100dvh - 260px));
+    max-width: 700px;
+    margin-inline: auto;
+  }
+
+  .center.vqc-practice-active > .board-shell > #board {
+    width: 100%;
+    max-width: none;
+  }
+}
