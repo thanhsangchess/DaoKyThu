@@ -1301,6 +1301,13 @@ let vqcNavSeen=null;
 let vqcNavSerial=0;
 let vqcStudentViewAckSeen=null;
 let vqcTeacherViewAckSeen=null;
+function vqcCanControlClassView(action='đổi mục học'){
+  if(roomRef&&role==='student'&&!vqcNavApplying){
+    vqcNotify('Giáo viên điều khiển việc '+action+' trong lớp học chung.','warning');
+    return false;
+  }
+  return true;
+}
 function vqcAcknowledgeStudentView(data){
   if(role!=='student'||!roomRef||!data?.stamp||vqcStudentViewAckSeen===data.stamp)return;
   vqcStudentViewAckSeen=data.stamp;
@@ -1424,17 +1431,17 @@ function vqcReceiveView(data){
 // Đồng bộ nút Đóng của ba cửa sổ: GV đóng thì HS nhận activeView='board'.
 // Không phát lại sự kiện khi đang áp dụng trạng thái nhận từ Firebase.
 const vqcOldCloseMate2=closeMateExercises;
-closeMateExercises=function(){vqcOldCloseMate2();vqcBroadcastView('board');};
+closeMateExercises=function(){if(!vqcCanControlClassView('đóng bài học'))return;vqcOldCloseMate2();vqcBroadcastView('board');};
 const vqcOldCloseMate3=closeMate3;
-closeMate3=function(){vqcOldCloseMate3();vqcBroadcastView('board');};
+closeMate3=function(){if(!vqcCanControlClassView('đóng bài học'))return;vqcOldCloseMate3();vqcBroadcastView('board');};
 const vqcOldClosePvp=closePvp;
-closePvp=function(){vqcOldClosePvp();vqcBroadcastView('board');};
+closePvp=function(){if(!vqcCanControlClassView('đóng bài học'))return;vqcOldClosePvp();vqcBroadcastView('board');};
 const vqcOldMate2=openMateExercises;
-openMateExercises=function(i){vqcCloseOtherViews('mate2');vqcOldMate2(i);vqcBroadcastView('mate2',(i+MATE_EXERCISES.length)%MATE_EXERCISES.length);};
+openMateExercises=function(i){if(!vqcCanControlClassView('mở bài học'))return;vqcCloseOtherViews('mate2');vqcOldMate2(i);vqcBroadcastView('mate2',(i+MATE_EXERCISES.length)%MATE_EXERCISES.length);};
 const vqcOldMate3=openMate3;
-openMate3=function(i){vqcCloseOtherViews('mate3');vqcOldMate3(i);vqcBroadcastView('mate3',(i+6)%6);};
+openMate3=function(i){if(!vqcCanControlClassView('mở bài học'))return;vqcCloseOtherViews('mate3');vqcOldMate3(i);vqcBroadcastView('mate3',(i+6)%6);};
 const vqcOldPvp=openPvp;
-openPvp=function(){vqcCloseOtherViews('pvp');vqcOldPvp();vqcBroadcastView('pvp',0);};
+openPvp=function(){if(!vqcCanControlClassView('mở bài học'))return;vqcCloseOtherViews('pvp');vqcOldPvp();vqcBroadcastView('pvp',0);};
 const vqcOldPiece=startPieceGame;
 startPieceGame=function(piece){vqcCloseOtherViews('piece');vqcOldPiece(piece);};
 const vqcOldExit=exitPieceGame;
