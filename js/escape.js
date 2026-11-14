@@ -33,8 +33,8 @@ function escapeLegal(piece,from,to,pos){
  return captureCanAttack(piece,from,to,pos);
 }
 function escapeSafeMove(from,to){const piece=escapePosition[from];if(!escapeLegal(piece,from,to,escapePosition))return false;const next={...escapePosition};delete next[from];next[to]=piece;return !escapeInCheck(next);}
-function escapeOpen(i){escapeIndex=(i+ESCAPE_TASKS.length)%ESCAPE_TASKS.length;vqcCloseOtherViews('escape');escapeReset();document.getElementById('escapeOverlay').classList.add('open');document.getElementById('vqcHomeHero')?.setAttribute('hidden','');vqcBroadcastView('escape',escapeIndex);vqcPublishEscape();}
-function escapeClose(){document.getElementById('escapeOverlay').classList.remove('open');vqcBroadcastView('board');}
+function escapeOpen(i){if(!vqcCanControlClassView('mở bài học'))return;escapeIndex=(i+ESCAPE_TASKS.length)%ESCAPE_TASKS.length;vqcCloseOtherViews('escape');escapeReset();document.getElementById('escapeOverlay').classList.add('open');document.getElementById('vqcHomeHero')?.setAttribute('hidden','');vqcBroadcastView('escape',escapeIndex);vqcPublishEscape();}
+function escapeClose(){if(!vqcCanControlClassView('đóng bài học'))return;document.getElementById('escapeOverlay').classList.remove('open');vqcBroadcastView('board');}
 function escapeReset(){escapeLastMove=null;escapePosition={...ESCAPE_TASKS[escapeIndex].pieces};escapeSelected=null;escapeSolved=false;escapeFailed=false;document.getElementById('escapeInstruction').textContent=ESCAPE_TASKS[escapeIndex].tip;const fb=document.getElementById('escapeFeedback');fb.hidden=true;fb.textContent='';delete fb.dataset.message;escapeRender();vqcPublishEscape();}
 // Vẽ mũi tên từ quân đang chiếu tới phần đầu (vương miện) của Vua.
 // SVG phủ lên bàn cờ nhưng không chặn nhấp chuột hay kéo thả.
