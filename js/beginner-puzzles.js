@@ -145,7 +145,7 @@ function ensurePuzzleEngine(){
      if(line==='uciok'){engineWorker.postMessage('isready');return;}
      if(line==='readyok'){ready();return;}
      if(line.startsWith('bestmove ')&&engineBestResolve){
-      const best=line.split(/\\s+/)[1]||'';
+      const best=line.split(/\s+/)[1]||'';
       const finish=engineBestResolve;engineBestResolve=null;engineBestReject=null;
       finish(best);
      }
