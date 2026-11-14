@@ -25,7 +25,8 @@ function renderBoard(){
  const layer=board.querySelector(':scope > .vqc-annotation-overlay');
  board.querySelectorAll(':scope > .beginner-puzzle-cell').forEach(c=>c.remove());
  const legal=selected?game.moves({square:selected,verbose:true}).map(m=>m.to):[],answer=parseUci(task().answer);
- const whiteAtBottom=game.turn()==='w';
+ // Giữ góc nhìn cố định theo bên được giao giải bài; không đổi sau mỗi nước đi.
+ const whiteAtBottom=task().side==='w';
  const ranks=whiteAtBottom?[8,7,6,5,4,3,2,1]:[1,2,3,4,5,6,7,8];
  const files=whiteAtBottom?FILES:[...FILES].reverse();
  for(let row=0;row<8;row++)for(let col=0;col<8;col++){
@@ -104,34 +105,59 @@ function stopEngineSearch(){
 }
 
 function ensurePuzzleEngine(){
- if(engineReady)return Promise.resolve();
+ if(engineReady&&engineWorker)return Promise.resolve();
  if(engineInitPromise)return engineInitPromise;
- engineInitPromise=new Promise((resolve,reject)=>{
-  const bootstrap='self.Module=self.Module||{};self.Module.locateFile=function(path){return '+JSON.stringify(STOCKFISH_BASE)+'+path;};importScripts('+JSON.stringify(STOCKFISH_BASE+'stockfish-19-lite-single.js')+');';
-  try{
-   const blob=new Blob([bootstrap],{type:'text/javascript'});engineBlobUrl=URL.createObjectURL(blob);engineWorker=new Worker(engineBlobUrl);
-  }catch(error){reject(error);return;}
-  engineReadyTimer=setTimeout(()=>{engineReadyReject?.(new Error('Hết thời gian tải engine.'));},25000);
-  engineWorker.onmessage=event=>{
-   const line=String(event.data||'').trim();
-   if(line==='uciok'){engineWorker.postMessage('isready');return;}
-   if(line==='readyok'){clearTimeout(engineReadyTimer);engineReady=true;engineReadyReject=null;resolve();return;}
-   if(line.startsWith('bestmove ')){
-    const best=line.split(/\s+/)[1]||'';
-    if(engineBestResolve){const finish=engineBestResolve;engineBestResolve=null;engineBestReject=null;finish(best);}
-   }
-  };
-  engineWorker.onerror=event=>{
-   const error=new Error(event.message||'Không thể khởi động Stockfish.');
-   engineReady=false;engineInitPromise=null;
-   if(engineReadyReject){const fail=engineReadyReject;engineReadyReject=null;fail(error);}
-   if(engineBestReject){const fail=engineBestReject;engineBestReject=null;engineBestResolve=null;fail(error);}
-   if(engineWorker){engineWorker.terminate();engineWorker=null;}
-   if(engineBlobUrl){URL.revokeObjectURL(engineBlobUrl);engineBlobUrl='';}
-  };
-  engineReadyReject=error=>{clearTimeout(engineReadyTimer);reject(error);};
-  engineWorker.postMessage('uci');
- }).catch(error=>{
+ const bases=[
+  STOCKFISH_BASE,
+  'https://unpkg.com/stockfish@19.0.1/bin/'
+ ];
+ engineInitPromise=(async()=>{
+  let lastError=null;
+  for(const base of bases){
+   await new Promise((resolve,reject)=>{
+    let settled=false;
+    const cleanup=()=>{
+     clearTimeout(engineReadyTimer);
+     engineReadyReject=null;
+    };
+    const fail=error=>{
+     if(settled)return;
+     settled=true;cleanup();
+     try{engineWorker?.terminate();}catch(e){}
+     engineWorker=null;engineReady=false;
+     if(engineBlobUrl){URL.revokeObjectURL(engineBlobUrl);engineBlobUrl='';}
+     reject(error instanceof Error?error:new Error(String(error||'Không thể tải Stockfish.')));
+    };
+    const ready=()=>{
+     if(settled)return;
+     settled=true;cleanup();engineReady=true;resolve();
+    };
+    try{
+     const bootstrap='self.Module=self.Module||{};self.Module.locateFile=function(path){return '+JSON.stringify(base)+'+path;};importScripts('+JSON.stringify(base+'stockfish-19-lite-single.js')+');';
+     const blob=new Blob([bootstrap],{type:'text/javascript'});
+     engineBlobUrl=URL.createObjectURL(blob);
+     engineWorker=new Worker(engineBlobUrl);
+    }catch(error){fail(error);return;}
+    engineReadyReject=fail;
+    engineReadyTimer=setTimeout(()=>fail(new Error('Hết thời gian tải engine từ '+base)),20000);
+    engineWorker.onmessage=event=>{
+     const line=String(event.data||'').trim();
+     if(line==='uciok'){engineWorker.postMessage('isready');return;}
+     if(line==='readyok'){ready();return;}
+     if(line.startsWith('bestmove ')&&engineBestResolve){
+      const best=line.split(/\\s+/)[1]||'';
+      const finish=engineBestResolve;engineBestResolve=null;engineBestReject=null;
+      finish(best);
+     }
+    };
+    engineWorker.onerror=event=>fail(new Error(event.message||'Worker Stockfish không khởi động được.'));
+    engineWorker.onmessageerror=()=>fail(new Error('Không đọc được dữ liệu phản hồi từ Stockfish.'));
+    engineWorker.postMessage('uci');
+   }).catch(error=>{lastError=error;});
+   if(engineReady)return;
+  }
+  throw lastError||new Error('Không thể tải Stockfish từ các máy chủ dự phòng.');
+ })().catch(error=>{
   engineInitPromise=null;engineReady=false;
   if(engineWorker){engineWorker.terminate();engineWorker=null;}
   if(engineBlobUrl){URL.revokeObjectURL(engineBlobUrl);engineBlobUrl='';}
@@ -158,6 +184,7 @@ async function makeOpponentReply(){
  try{
   const best=await requestBestReply(game.fen());
   if(!isOpen||session!==puzzleSession||solved)return;
+  if(!best||best==='(none)'||best==='0000')throw new Error('Vị trí hiện tại không có nước đáp trả hợp lệ.');
   const result=applyPuzzleMove(best);if(!result)throw new Error('Engine trả về nước đi không hợp lệ.');
   thinking=false;
   if(result.goalReached){completePuzzle();return;}
