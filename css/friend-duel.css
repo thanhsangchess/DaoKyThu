@@ -1,4 +1,4 @@
-@import url("ui-home.css?v=20261115-1");
+@import url("ui-home.css?v=20261115-2");
 /* Friend duel: local to a confirmed pair. */
 .vqc-duel-overlay[hidden]{display:none!important}
 .vqc-duel-overlay{position:fixed;inset:0;z-index:30000;background:#14273bbd;display:flex;justify-content:center;align-items:center;padding:12px;overflow:auto}
