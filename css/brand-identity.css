@@ -72,3 +72,80 @@ body .header .logo-icon img{
     margin-bottom:5px;
   }
 }
+
+
+/* Brand mark sizing refinement — improve legibility without overwhelming the UI. */
+
+/* Top navigation: use a taller, unboxed mark so the portrait logo is not
+   squeezed into a small square tile. */
+body > .header .logo-icon{
+  width:60px!important;
+  height:62px!important;
+  flex:0 0 60px!important;
+  box-sizing:border-box;
+  padding:0!important;
+  overflow:visible!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+body > .header .logo-icon img{
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+  object-position:center;
+  filter:drop-shadow(0 3px 5px rgba(17,55,100,.18));
+}
+
+/* Main landing brand: give the crest enough height to be recognized,
+   while keeping the wordmark as the primary text. */
+.vqc-entry .vqc-entry-symbol{
+  width:100px!important;
+  height:112px!important;
+  flex:0 0 100px!important;
+  padding:4px!important;
+  border-radius:22px!important;
+  border:2px solid rgba(255,255,255,.96)!important;
+  background:linear-gradient(150deg,#f8fcff,#e8f4ff)!important;
+  box-shadow:0 6px 0 #c6def1,0 12px 24px rgba(31,91,145,.18)!important;
+  overflow:hidden;
+}
+.vqc-entry .vqc-entry-symbol img{
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+  object-position:center;
+}
+
+/* Login form: preserve the portrait ratio rather than fitting a vertical
+   logo into a nearly-square box. */
+#accountOverlay .vqc-login-form-logo{
+  width:76px!important;
+  height:102px!important;
+  margin:0 auto 10px!important;
+  object-fit:contain!important;
+}
+#accountOverlay .vqc-login-brand-logo{
+  width:76px!important;
+  height:102px!important;
+  object-fit:contain!important;
+}
+
+/* Smaller screens: keep the mark visible without making the header too tall. */
+@media(max-width:850px){
+  body > .header .logo-icon{
+    width:46px!important;
+    height:52px!important;
+    flex-basis:46px!important;
+  }
+  .vqc-entry .vqc-entry-symbol{
+    width:78px!important;
+    height:90px!important;
+    flex-basis:78px!important;
+  }
+  #accountOverlay .vqc-login-form-logo{
+    width:64px!important;
+    height:86px!important;
+  }
+}
