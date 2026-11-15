@@ -1,0 +1,341 @@
+/* =====================================================================
+   ĐẢO KỲ THỦ – TRANG CHỦ VUI NHỘN CHO TRẺ EM (ui-home.css)
+   Chỉ áp dụng cho trang chọn chế độ (body.vqc-mode-home): Vào lớp / Khám phá các đảo.
+   - Nền bầu trời: mây, mặt trời, biển sóng, hạt kim tuyết nhiều màu.
+   - Tiêu đề cầu vồng, huy hiệu quân Mã nhún nhảy.
+   - Hai thẻ màu đặc (xanh dương / xanh lá) có dải băng góc, nút bấm to.
+   Chỉ đổi CSS; không đổi HTML, JS, Firebase. Hiệu ứng chuyển động tự tắt
+   khi hệ điều hành bật "giảm chuyển động".
+   Nạp qua @import trong css/friend-duel.css.
+   ===================================================================== */
+@import url("https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&display=swap");
+
+:root{
+  --vqc-kid-font:"Baloo 2","Be Vietnam Pro","Segoe UI",system-ui,sans-serif;
+}
+
+/* ---------- 1. Nền bầu trời + hạt kim tuyết ---------- */
+body.vqc-mode-home{
+  background:
+    radial-gradient(ellipse 170px 52px at 12% 16%,rgba(255,255,255,.95),rgba(255,255,255,0) 72%),
+    radial-gradient(ellipse 210px 60px at 78% 26%,rgba(255,255,255,.90),rgba(255,255,255,0) 72%),
+    radial-gradient(ellipse 150px 46px at 36% 48%,rgba(255,255,255,.85),rgba(255,255,255,0) 72%),
+    radial-gradient(ellipse 190px 56px at 90% 64%,rgba(255,255,255,.80),rgba(255,255,255,0) 72%),
+    radial-gradient(circle,#FF9EC0 0 5px,transparent 6px) 24px 36px/230px 230px,
+    radial-gradient(circle,#FFE27A 0 4px,transparent 5px) 140px 110px/270px 270px,
+    radial-gradient(circle,#8FE0A8 0 5px,transparent 6px) 80px 190px/310px 310px,
+    radial-gradient(circle,#B9A7FF 0 4px,transparent 5px) 200px 40px/250px 250px,
+    linear-gradient(180deg,#6CC3FF 0%,#A8E0FF 38%,#D9F4FF 66%,#FFF4D6 100%);
+}
+
+/* Mặt trời */
+body.vqc-mode-home::before{
+  content:"";
+  position:fixed;
+  top:-90px;
+  right:-70px;
+  width:300px;
+  height:300px;
+  border-radius:50%;
+  background:radial-gradient(circle,#FFF6B8 0 34%,#FFE36E 35% 60%,rgba(255,227,110,.35) 61% 72%,rgba(255,227,110,0) 73%);
+  z-index:-1;
+  pointer-events:none;
+}
+
+/* Biển sóng ở mép dưới màn hình */
+body.vqc-mode-home::after{
+  content:"";
+  position:fixed;
+  left:-60px;
+  right:0;
+  bottom:0;
+  height:62px;
+  z-index:-1;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 30px 30px,#7FD0FF 0 29px,transparent 30px) 0 0/60px 60px repeat-x,
+    radial-gradient(circle at 30px 30px,#52B8F4 0 29px,transparent 30px) 30px 18px/60px 60px repeat-x,
+    linear-gradient(#52B8F4,#52B8F4) 0 100%/100% 22px no-repeat;
+}
+
+/* ---------- 2. Header trang chủ: dải cầu vồng ---------- */
+body.vqc-mode-home > .header{
+  background:rgba(255,255,255,.94);
+  border-bottom:0;
+  box-shadow:0 6px 18px rgba(40,110,190,.14);
+}
+body.vqc-mode-home > .header::after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:-5px;
+  height:5px;
+  background:linear-gradient(90deg,#FF7A7A,#FFB347,#FFE066,#7BD88F,#5BC0FF,#9B8CFF,#FF7AD9);
+}
+body.vqc-mode-home > .header .logo-text strong{
+  font-family:var(--vqc-kid-font);
+  font-weight:800;
+  color:#2B6FD1;
+}
+
+/* ---------- 3. Khung trang chủ ---------- */
+body.vqc-mode-home #vqcModeHome{
+  width:min(1040px,calc(100% - 36px));
+  margin:28px auto 96px;
+  padding:10px 0 20px;
+  background:none;
+  border:0;
+  box-shadow:none;
+  overflow:visible;
+}
+body.vqc-mode-home #vqcModeHome::before{content:none;}
+
+/* Tiêu đề */
+body.vqc-mode-home #vqcModeHome .vqc-entry-head{margin:0 auto 36px;}
+body.vqc-mode-home #vqcModeHome .vqc-entry-symbol{
+  width:104px;
+  height:104px;
+  border-radius:32px;
+  font-size:70px;
+  border:5px solid #fff;
+  background:linear-gradient(145deg,#FFB347,#FF7A59 55%,#FF5F8A);
+  box-shadow:0 8px 0 #D94F6B,0 18px 30px rgba(217,79,107,.35);
+  transform-origin:50% 100%;
+}
+body.vqc-mode-home #vqcModeHome .vqc-entry-head h1{
+  font-family:var(--vqc-kid-font);
+  font-size:clamp(42px,6.2vw,76px);
+  font-weight:800;
+  letter-spacing:-.5px;
+  line-height:1.1;
+  margin:14px 0 10px;
+  background:linear-gradient(90deg,#FF5F8A,#FF9F43 24%,#F2C200 44%,#2FBF86 64%,#3B9CFF 84%,#8F7BFF);
+  -webkit-background-clip:text;
+  background-clip:text;
+  -webkit-text-fill-color:transparent;
+  color:transparent;
+  text-shadow:none;
+  filter:drop-shadow(0 4px 0 #fff) drop-shadow(0 9px 12px rgba(40,80,160,.25));
+}
+body.vqc-mode-home #vqcModeHome .vqc-entry-head p{
+  display:inline-block;
+  margin:6px auto 0;
+  padding:10px 24px;
+  background:#fff;
+  border:3px dashed #FFB347;
+  border-radius:999px;
+  color:#C2570F;
+  font-family:var(--vqc-kid-font);
+  font-size:clamp(16px,1.7vw,21px);
+  font-weight:700;
+  box-shadow:0 5px 0 #FFD9A1;
+}
+
+/* ---------- 4. Hai thẻ chọn chế độ ---------- */
+body.vqc-mode-home #vqcModeHome .vqc-entry-grid{
+  gap:32px;
+  max-width:980px;
+  margin:0 auto;
+}
+body.vqc-mode-home #vqcModeHome .vqc-entry-card{
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  padding:30px 28px 26px;
+  border:5px solid #fff;
+  border-radius:34px;
+  color:#fff;
+  background:
+    radial-gradient(circle at 1px 1px,rgba(255,255,255,.22) 2px,transparent 2.5px) 0 0/22px 22px,
+    linear-gradient(160deg,#3F8CF6 0%,#2563D6 100%);
+  box-shadow:0 10px 0 #1B47A8,0 26px 36px rgba(27,71,168,.35);
+  transition:transform .2s ease,box-shadow .2s ease,filter .2s ease;
+}
+body.vqc-mode-home #vqcModeHome .vqc-entry-card:nth-child(2){
+  background:
+    radial-gradient(circle at 1px 1px,rgba(255,255,255,.22) 2px,transparent 2.5px) 0 0/22px 22px,
+    linear-gradient(160deg,#14A072 0%,#0A7A56 100%);
+  box-shadow:0 10px 0 #075C40,0 26px 36px rgba(7,92,64,.32);
+}
+body.vqc-mode-home #vqcModeHome .vqc-entry-card:hover{
+  transform:translateY(-6px) rotate(-.8deg);
+  filter:brightness(1.04);
+}
+body.vqc-mode-home #vqcModeHome .vqc-entry-card:nth-child(2):hover{
+  transform:translateY(-6px) rotate(.8deg);
+}
+body.vqc-mode-home #vqcModeHome .vqc-entry-card:focus-within{
+  outline:4px solid #FFD54A;
+  outline-offset:3px;
+}
+
+/* Dải băng góc (ribbon) */
+body.vqc-mode-home #vqcModeHome .vqc-entry-card::before{
+  content:"🏫 CÙNG THẦY CÔ";
+  position:absolute;
+  top:24px;
+  right:-50px;
+  width:200px;
+  padding:7px 0;
+  transform:rotate(40deg);
+  text-align:center;
+  background:#FFD54A;
+  color:#7A4B00;
+  font:800 12px/1 var(--vqc-kid-font);
+  letter-spacing:.8px;
+  box-shadow:0 3px 0 rgba(0,0,0,.15);
+  z-index:3;
+}
+body.vqc-mode-home #vqcModeHome .vqc-entry-card:nth-child(2)::before{
+  content:"🧭 TỰ KHÁM PHÁ";
+  background:#FF7AA8;
+  color:#fff;
+}
+/* Hình mờ lớn trang trí góc dưới */
+body.vqc-mode-home #vqcModeHome .vqc-entry-card::after{
+  content:"♞";
+  position:absolute;
+  right:-14px;
+  bottom:-46px;
+  font-size:200px;
+  line-height:1;
+  color:#fff;
+  opacity:.14;
+  z-index:-1;
+  pointer-events:none;
+}
+body.vqc-mode-home #vqcModeHome .vqc-entry-card:nth-child(2)::after{
+  content:"🏝️";
+  bottom:-40px;
+  opacity:.20;
+}
+
+/* Chữ trong thẻ */
+body.vqc-mode-home #vqcModeHome .vqc-entry-card h2{
+  color:#fff;
+  font-family:var(--vqc-kid-font);
+  font-size:clamp(28px,3vw,36px);
+  font-weight:800;
+  text-shadow:0 3px 0 rgba(0,0,0,.18);
+}
+body.vqc-mode-home #vqcModeHome .vqc-entry-card p{
+  color:#fff;
+  font-size:16px;
+  font-weight:600;
+  text-shadow:0 1px 2px rgba(0,0,0,.25);
+}
+body.vqc-mode-home #vqcModeHome .vqc-entry-caption{
+  align-self:flex-start;
+  min-height:0;
+  padding:7px 14px;
+  border-radius:999px;
+  background:rgba(255,255,255,.22);
+  color:#fff;
+  font-weight:700;
+  line-height:1.4;
+}
+
+/* Nút bấm to, tròn, chữ màu theo thẻ */
+body.vqc-mode-home #vqcModeHome .vqc-entry-card .btn{
+  min-height:60px;
+  border-radius:999px;
+  background:#fff;
+  color:#1F5FD0;
+  font-family:var(--vqc-kid-font);
+  font-size:20px;
+  font-weight:800;
+  letter-spacing:.3px;
+  box-shadow:0 6px 0 #BCD8FF;
+}
+body.vqc-mode-home #vqcModeHome .vqc-entry-card:nth-child(2) .btn{
+  color:#0A7A56;
+  box-shadow:0 6px 0 #BDEBD6;
+}
+body.vqc-mode-home #vqcModeHome .vqc-entry-card .btn:hover{filter:brightness(1.02);transform:translateY(-2px);}
+body.vqc-mode-home #vqcModeHome .vqc-entry-card .btn:active{transform:translateY(3px);box-shadow:0 2px 0 #BCD8FF;}
+
+/* Ô nhập mã phòng (hiện khi bấm Vào lớp học) */
+body.vqc-mode-home #vqcModeHome .vqc-entry-join{
+  background:#fff;
+  color:#2B4F7A;
+  border-radius:20px;
+  box-shadow:inset 0 0 0 3px #D3E8FF;
+}
+body.vqc-mode-home #vqcModeHome .vqc-entry-join label{color:#2B4F7A;}
+body.vqc-mode-home #vqcModeHome .vqc-entry-join .btn{
+  background:#34C38F;
+  color:#fff;
+  min-height:52px;
+  font-size:18px;
+  box-shadow:0 5px 0 #1F9A6B;
+}
+body.vqc-mode-home #vqcModeHome .vqc-entry-join .btn:active{box-shadow:0 2px 0 #1F9A6B;}
+
+/* Ghi chú cuối trang dạng bóng nói */
+body.vqc-mode-home #vqcModeHome .vqc-entry-note{
+  display:block;
+  max-width:760px;
+  margin:36px auto 0;
+  padding:12px 20px;
+  background:rgba(255,255,255,.93);
+  border:3px dashed #8FD0FF;
+  border-radius:22px;
+  color:#3D6A98;
+  font-weight:700;
+}
+body.vqc-mode-home #vqcModeHome .vqc-entry-note::before{content:"💡 ";}
+
+/* Biểu tượng tấm sticker trên máy tính */
+@media(min-width:761px){
+  body.vqc-mode-home #vqcModeHome .vqc-entry-emoji{
+    display:grid;
+    place-items:center;
+    width:92px;
+    height:92px;
+    margin-bottom:4px;
+    border-radius:28px;
+    background:#fff;
+    font-size:54px;
+    line-height:1;
+    box-shadow:0 6px 0 rgba(0,0,0,.16);
+    transform:rotate(-5deg);
+    transition:transform .25s ease;
+  }
+  body.vqc-mode-home #vqcModeHome .vqc-entry-card:nth-child(2) .vqc-entry-emoji{transform:rotate(5deg);}
+  body.vqc-mode-home #vqcModeHome .vqc-entry-card:hover .vqc-entry-emoji{transform:rotate(0) scale(1.08);}
+}
+
+/* ---------- 5. Chuyển động (tự tắt nếu người dùng giảm chuyển động) ---------- */
+@media(prefers-reduced-motion:no-preference){
+  @keyframes vqcHomeBounce{
+    0%,100%{transform:translateY(0) rotate(-3deg);}
+    50%{transform:translateY(-10px) rotate(3deg);}
+  }
+  @keyframes vqcHomePop{
+    from{opacity:0;transform:translateY(26px) scale(.94);}
+    to{opacity:1;transform:none;}
+  }
+  @keyframes vqcHomeWave{
+    from{transform:translateX(0);}
+    to{transform:translateX(60px);}
+  }
+  body.vqc-mode-home #vqcModeHome .vqc-entry-symbol{animation:vqcHomeBounce 3.2s ease-in-out infinite;}
+  body.vqc-mode-home #vqcModeHome .vqc-entry-card{animation:vqcHomePop .6s cubic-bezier(.2,1.2,.3,1) backwards;}
+  body.vqc-mode-home #vqcModeHome .vqc-entry-card:nth-child(1){animation-delay:.10s;}
+  body.vqc-mode-home #vqcModeHome .vqc-entry-card:nth-child(2){animation-delay:.25s;}
+  body.vqc-mode-home::after{animation:vqcHomeWave 6s linear infinite;}
+}
+@media(prefers-reduced-motion:reduce){
+  body.vqc-mode-home #vqcModeHome .vqc-entry-card:hover,
+  body.vqc-mode-home #vqcModeHome .vqc-entry-card:nth-child(2):hover{transform:none;}
+}
+
+/* ---------- 6. Điện thoại ---------- */
+@media(max-width:760px){
+  body.vqc-mode-home::before{width:200px;height:200px;top:-70px;right:-60px;}
+  body.vqc-mode-home #vqcModeHome .vqc-entry-card{padding:20px 18px 18px;}
+  body.vqc-mode-home #vqcModeHome .vqc-entry-card::after{font-size:130px;bottom:-30px;}
+  body.vqc-mode-home #vqcModeHome .vqc-entry-card h2{font-size:25px!important;}
+  body.vqc-mode-home #vqcModeHome .vqc-entry-card .btn{font-size:17px!important;}
+}
