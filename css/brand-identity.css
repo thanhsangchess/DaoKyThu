@@ -149,3 +149,44 @@ body > .header .logo-icon img{
     height:86px!important;
   }
 }
+
+
+/* Rounded logo treatment — use a soft, consistent rounded-square silhouette. */
+body > .header .logo-icon{
+  padding:4px!important;
+  overflow:hidden!important;
+  border:1px solid #d9e8f5!important;
+  border-radius:17px!important;
+  background:linear-gradient(145deg,#ffffff,#edf6ff)!important;
+  box-shadow:0 4px 12px rgba(24,78,128,.16),inset 0 1px 0 #fff!important;
+}
+body > .header .logo-icon img{
+  border-radius:12px!important;
+}
+
+.vqc-entry .vqc-entry-symbol{
+  border-radius:27px!important;
+  overflow:hidden!important;
+}
+.vqc-entry .vqc-entry-symbol img{
+  border-radius:20px!important;
+}
+
+#accountOverlay .vqc-login-form-logo,
+#accountOverlay .vqc-login-brand-logo{
+  box-sizing:border-box;
+  padding:5px;
+  border:1px solid #d9e8f5;
+  border-radius:19px;
+  background:linear-gradient(145deg,#ffffff,#edf6ff);
+  box-shadow:0 5px 13px rgba(24,78,128,.14),inset 0 1px 0 #fff;
+}
+
+@media(max-width:850px){
+  body > .header .logo-icon{border-radius:14px!important}
+  body > .header .logo-icon img{border-radius:10px!important}
+  .vqc-entry .vqc-entry-symbol{border-radius:22px!important}
+  .vqc-entry .vqc-entry-symbol img{border-radius:16px!important}
+  #accountOverlay .vqc-login-form-logo,
+  #accountOverlay .vqc-login-brand-logo{border-radius:16px}
+}
