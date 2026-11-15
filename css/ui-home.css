@@ -1,10 +1,10 @@
 /* =====================================================================
-   ĐẢO KỲ THỦ – TRANG CHỦ VUI NHỘN CHO TRẺ EM (ui-home.css)
-   Chỉ áp dụng cho trang chọn chế độ (body.vqc-mode-home): Vào lớp / Khám phá các đảo.
-   - Nền bầu trời: mây, mặt trời, biển sóng, hạt kim tuyết nhiều màu.
-   - Tiêu đề cầu vồng, huy hiệu quân Mã nhún nhảy.
-   - Hai thẻ màu đặc (xanh dương / xanh lá) có dải băng góc, nút bấm to.
-   - Trên máy tính: toàn bộ trang vừa khít một màn hình, không phải cuộn.
+   ĐẢO KỲ THỦ – NHẬN DIỆN THƯƠNG HIỆU + TRANG CHỦ VUI NHỘN (ui-home.css)
+   Đồng bộ với logo mới (assets/logo.png: quân Vua xanh navy/xanh điện, bộ não, mũi tên, quân Mã).
+   - Logo thay biểu tượng ♞ ở header (mọi trang), trang chủ và đăng nhập.
+   - Bảng màu trang chủ chuyển sang xanh navy / xanh điện / xanh cyan, điểm vàng.
+   - Trang chủ (body.vqc-mode-home): nền bầu trời, biển sóng, hai thẻ màu đặc,
+     vừa khít một màn hình trên máy tính.
    Chỉ đổi CSS; không đổi HTML, JS, Firebase. Hiệu ứng chuyển động tự tắt
    khi hệ điều hành bật "giảm chuyển động".
    Nạp qua @import trong css/friend-duel.css.
@@ -22,18 +22,38 @@ html:root{
   --vqc-font:"Be Vietnam Pro","Segoe UI",system-ui,-apple-system,Arial,sans-serif;
 }
 
-/* ---------- 1. Nền bầu trời + hạt kim tuyết ---------- */
+/* ---------- 0. Logo thương hiệu (mọi trang) ---------- */
+/* Header: thay ô vuông ♞ bằng logo. Trên điện thoại, mobile-home.css vẫn đặt ô 43x43
+   (logo co lại vừa ô, chữ ♞ được làm trong suốt). */
+body > .header .logo .logo-icon{
+  width:34px;
+  height:48px;
+  border-radius:0;
+  background:url("../assets/logo.png") center/contain no-repeat;
+  box-shadow:none;
+  color:transparent;
+  font-size:0;
+  filter:drop-shadow(0 3px 5px rgba(20,80,200,.35));
+}
+body > .header .logo-text strong{
+  font-family:var(--vqc-kid-font);
+  font-weight:800;
+  letter-spacing:0;
+  color:#0F3FB5;
+}
+
+/* ---------- 1. Nền bầu trời + hạt kim tuyết (tông xanh theo logo) ---------- */
 body.vqc-mode-home{
   background:
     radial-gradient(ellipse 170px 52px at 12% 16%,rgba(255,255,255,.95),rgba(255,255,255,0) 72%),
     radial-gradient(ellipse 210px 60px at 78% 26%,rgba(255,255,255,.90),rgba(255,255,255,0) 72%),
     radial-gradient(ellipse 150px 46px at 36% 48%,rgba(255,255,255,.85),rgba(255,255,255,0) 72%),
     radial-gradient(ellipse 190px 56px at 90% 64%,rgba(255,255,255,.80),rgba(255,255,255,0) 72%),
-    radial-gradient(circle,#FF9EC0 0 5px,transparent 6px) 24px 36px/230px 230px,
-    radial-gradient(circle,#FFE27A 0 4px,transparent 5px) 140px 110px/270px 270px,
-    radial-gradient(circle,#8FE0A8 0 5px,transparent 6px) 80px 190px/310px 310px,
-    radial-gradient(circle,#B9A7FF 0 4px,transparent 5px) 200px 40px/250px 250px,
-    linear-gradient(180deg,#6CC3FF 0%,#A8E0FF 38%,#D9F4FF 66%,#FFF4D6 100%);
+    radial-gradient(circle,#FFFFFF 0 5px,transparent 6px) 24px 36px/230px 230px,
+    radial-gradient(circle,#FFD866 0 4px,transparent 5px) 140px 110px/270px 270px,
+    radial-gradient(circle,#8FE3FF 0 5px,transparent 6px) 80px 190px/310px 310px,
+    radial-gradient(circle,#B8D4FF 0 4px,transparent 5px) 200px 40px/250px 250px,
+    linear-gradient(180deg,#4DA6FF 0%,#8FD0FF 40%,#CDEEFF 70%,#EEF9FF 100%);
 }
 
 /* Mặt trời */
@@ -61,16 +81,16 @@ body.vqc-mode-home::after{
   z-index:-1;
   pointer-events:none;
   background:
-    radial-gradient(circle at 30px 30px,#7FD0FF 0 29px,transparent 30px) 0 0/60px 60px repeat-x,
-    radial-gradient(circle at 30px 30px,#52B8F4 0 29px,transparent 30px) 30px 18px/60px 60px repeat-x,
-    linear-gradient(#52B8F4,#52B8F4) 0 100%/100% 22px no-repeat;
+    radial-gradient(circle at 30px 30px,#6FC4FF 0 29px,transparent 30px) 0 0/60px 60px repeat-x,
+    radial-gradient(circle at 30px 30px,#2F8CFF 0 29px,transparent 30px) 30px 18px/60px 60px repeat-x,
+    linear-gradient(#2F8CFF,#2F8CFF) 0 100%/100% 22px no-repeat;
 }
 
-/* ---------- 2. Header trang chủ: dải cầu vồng ---------- */
+/* ---------- 2. Header trang chủ: dải màu xanh theo logo ---------- */
 body.vqc-mode-home > .header{
   background:rgba(255,255,255,.94);
   border-bottom:0;
-  box-shadow:0 6px 18px rgba(40,110,190,.14);
+  box-shadow:0 6px 18px rgba(20,70,160,.16);
 }
 body.vqc-mode-home > .header::after{
   content:"";
@@ -79,12 +99,7 @@ body.vqc-mode-home > .header::after{
   right:0;
   bottom:-5px;
   height:5px;
-  background:linear-gradient(90deg,#FF7A7A,#FFB347,#FFE066,#7BD88F,#5BC0FF,#9B8CFF,#FF7AD9);
-}
-body.vqc-mode-home > .header .logo-text strong{
-  font-family:var(--vqc-kid-font);
-  font-weight:800;
-  color:#2B6FD1;
+  background:linear-gradient(90deg,#0B2A7A,#1F6FE8 30%,#2F9DFF 60%,#35C8FF 85%,#FFD866);
 }
 
 /* ---------- 3. Khung trang chủ ---------- */
@@ -99,17 +114,19 @@ body.vqc-mode-home #vqcModeHome{
 }
 body.vqc-mode-home #vqcModeHome::before{content:none;}
 
-/* Tiêu đề */
+/* Tiêu đề: logo làm biểu tượng chính */
 body.vqc-mode-home #vqcModeHome .vqc-entry-head{margin:0 auto 36px;}
 body.vqc-mode-home #vqcModeHome .vqc-entry-symbol{
-  width:104px;
-  height:104px;
-  border-radius:32px;
-  font-size:70px;
-  border:5px solid #fff;
-  background:linear-gradient(145deg,#FFB347,#FF7A59 55%,#FF5F8A);
-  box-shadow:0 8px 0 #D94F6B,0 18px 30px rgba(217,79,107,.35);
+  width:90px;
+  height:126px;
+  border:0;
+  border-radius:0;
+  background:url("../assets/logo.png") center/contain no-repeat;
+  box-shadow:none;
+  color:transparent;
+  font-size:0;
   transform-origin:50% 100%;
+  filter:drop-shadow(0 0 14px rgba(150,215,255,.95)) drop-shadow(0 8px 10px rgba(10,40,120,.35));
 }
 body.vqc-mode-home #vqcModeHome .vqc-entry-head h1{
   font-family:var(--vqc-kid-font);
@@ -118,26 +135,26 @@ body.vqc-mode-home #vqcModeHome .vqc-entry-head h1{
   letter-spacing:-.5px;
   line-height:1.1;
   margin:14px 0 10px;
-  background:linear-gradient(90deg,#FF5F8A,#FF9F43 24%,#F2C200 44%,#2FBF86 64%,#3B9CFF 84%,#8F7BFF);
+  background:linear-gradient(90deg,#0B2A7A,#1246B8 28%,#1F6FE8 55%,#2F9DFF 80%,#1BB6E8);
   -webkit-background-clip:text;
   background-clip:text;
   -webkit-text-fill-color:transparent;
   color:transparent;
   text-shadow:none;
-  filter:drop-shadow(0 4px 0 #fff) drop-shadow(0 9px 12px rgba(40,80,160,.25));
+  filter:drop-shadow(0 3px 0 #fff) drop-shadow(0 0 10px rgba(255,255,255,.85)) drop-shadow(0 9px 12px rgba(10,40,120,.28));
 }
 body.vqc-mode-home #vqcModeHome .vqc-entry-head p{
   display:inline-block;
   margin:6px auto 0;
   padding:10px 24px;
   background:#fff;
-  border:3px dashed #FFB347;
+  border:3px dashed #35A7FF;
   border-radius:999px;
-  color:#C2570F;
+  color:#12439A;
   font-family:var(--vqc-kid-font);
   font-size:clamp(16px,1.7vw,21px);
   font-weight:700;
-  box-shadow:0 5px 0 #FFD9A1;
+  box-shadow:0 5px 0 #BFE3FF;
 }
 
 /* ---------- 4. Hai thẻ chọn chế độ ---------- */
@@ -155,20 +172,20 @@ body.vqc-mode-home #vqcModeHome .vqc-entry-card{
   border-radius:34px;
   color:#fff;
   background:
-    radial-gradient(circle at 1px 1px,rgba(255,255,255,.22) 2px,transparent 2.5px) 0 0/22px 22px,
-    linear-gradient(160deg,#3F8CF6 0%,#2563D6 100%);
-  box-shadow:0 10px 0 #1B47A8,0 26px 36px rgba(27,71,168,.35);
+    radial-gradient(circle at 1px 1px,rgba(255,255,255,.20) 2px,transparent 2.5px) 0 0/22px 22px,
+    linear-gradient(160deg,#1F6FE8 0%,#0B2A7A 100%);
+  box-shadow:0 10px 0 #071B52,0 26px 36px rgba(7,27,82,.40);
   transition:transform .2s ease,box-shadow .2s ease,filter .2s ease;
 }
 body.vqc-mode-home #vqcModeHome .vqc-entry-card:nth-child(2){
   background:
-    radial-gradient(circle at 1px 1px,rgba(255,255,255,.22) 2px,transparent 2.5px) 0 0/22px 22px,
-    linear-gradient(160deg,#14A072 0%,#0A7A56 100%);
-  box-shadow:0 10px 0 #075C40,0 26px 36px rgba(7,92,64,.32);
+    radial-gradient(circle at 1px 1px,rgba(255,255,255,.20) 2px,transparent 2.5px) 0 0/22px 22px,
+    linear-gradient(160deg,#0C86A8 0%,#08506F 100%);
+  box-shadow:0 10px 0 #053A52,0 26px 36px rgba(5,58,82,.36);
 }
 body.vqc-mode-home #vqcModeHome .vqc-entry-card:hover{
   transform:translateY(-6px) rotate(-.8deg);
-  filter:brightness(1.04);
+  filter:brightness(1.05);
 }
 body.vqc-mode-home #vqcModeHome .vqc-entry-card:nth-child(2):hover{
   transform:translateY(-6px) rotate(.8deg);
@@ -188,34 +205,42 @@ body.vqc-mode-home #vqcModeHome .vqc-entry-card::before{
   padding:7px 0;
   transform:rotate(40deg);
   text-align:center;
-  background:#FFD54A;
-  color:#7A4B00;
+  background:#FFC83D;
+  color:#4A3200;
   font:800 12px/1 var(--vqc-kid-font);
   letter-spacing:.8px;
-  box-shadow:0 3px 0 rgba(0,0,0,.15);
+  box-shadow:0 3px 0 rgba(0,0,0,.18);
   z-index:3;
 }
 body.vqc-mode-home #vqcModeHome .vqc-entry-card:nth-child(2)::before{
   content:"🧭 TỰ KHÁM PHÁ";
-  background:#FF7AA8;
-  color:#fff;
+  background:#8FE3FF;
+  color:#06415C;
 }
-/* Hình mờ lớn trang trí góc dưới */
+/* Hình mờ lớn trang trí góc dưới: thẻ 1 dùng bóng logo trắng mờ */
 body.vqc-mode-home #vqcModeHome .vqc-entry-card::after{
-  content:"♞";
+  content:"";
   position:absolute;
-  right:-14px;
+  right:-26px;
   bottom:-46px;
-  font-size:200px;
-  line-height:1;
-  color:#fff;
-  opacity:.14;
+  width:210px;
+  height:290px;
+  background:url("../assets/logo.png") center/contain no-repeat;
+  filter:brightness(0) invert(1);
+  opacity:.12;
   z-index:-1;
   pointer-events:none;
 }
 body.vqc-mode-home #vqcModeHome .vqc-entry-card:nth-child(2)::after{
   content:"🏝️";
+  width:auto;
+  height:auto;
+  right:-14px;
   bottom:-40px;
+  font-size:200px;
+  line-height:1;
+  background:none;
+  filter:none;
   opacity:.20;
 }
 
@@ -249,7 +274,7 @@ body.vqc-mode-home #vqcModeHome .vqc-entry-card .btn{
   min-height:60px;
   border-radius:999px;
   background:#fff;
-  color:#1F5FD0;
+  color:#0B3FA8;
   font-family:var(--vqc-kid-font);
   font-size:20px;
   font-weight:800;
@@ -257,8 +282,8 @@ body.vqc-mode-home #vqcModeHome .vqc-entry-card .btn{
   box-shadow:0 6px 0 #BCD8FF;
 }
 body.vqc-mode-home #vqcModeHome .vqc-entry-card:nth-child(2) .btn{
-  color:#0A7A56;
-  box-shadow:0 6px 0 #BDEBD6;
+  color:#08607F;
+  box-shadow:0 6px 0 #BFE8F5;
 }
 body.vqc-mode-home #vqcModeHome .vqc-entry-card .btn:hover{filter:brightness(1.02);transform:translateY(-2px);}
 body.vqc-mode-home #vqcModeHome .vqc-entry-card .btn:active{transform:translateY(3px);box-shadow:0 2px 0 #BCD8FF;}
@@ -266,19 +291,19 @@ body.vqc-mode-home #vqcModeHome .vqc-entry-card .btn:active{transform:translateY
 /* Ô nhập mã phòng (hiện khi bấm Vào lớp học) */
 body.vqc-mode-home #vqcModeHome .vqc-entry-join{
   background:#fff;
-  color:#2B4F7A;
+  color:#12439A;
   border-radius:20px;
   box-shadow:inset 0 0 0 3px #D3E8FF;
 }
-body.vqc-mode-home #vqcModeHome .vqc-entry-join label{color:#2B4F7A;}
+body.vqc-mode-home #vqcModeHome .vqc-entry-join label{color:#12439A;}
 body.vqc-mode-home #vqcModeHome .vqc-entry-join .btn{
-  background:#34C38F;
+  background:#1F6FE8;
   color:#fff;
   min-height:52px;
   font-size:18px;
-  box-shadow:0 5px 0 #1F9A6B;
+  box-shadow:0 5px 0 #0B3FA8;
 }
-body.vqc-mode-home #vqcModeHome .vqc-entry-join .btn:active{box-shadow:0 2px 0 #1F9A6B;}
+body.vqc-mode-home #vqcModeHome .vqc-entry-join .btn:active{box-shadow:0 2px 0 #0B3FA8;}
 
 /* Ghi chú cuối trang dạng bóng nói */
 body.vqc-mode-home #vqcModeHome .vqc-entry-note{
@@ -287,15 +312,15 @@ body.vqc-mode-home #vqcModeHome .vqc-entry-note{
   margin:36px auto 0;
   padding:12px 20px;
   background:rgba(255,255,255,.93);
-  border:3px dashed #8FD0FF;
+  border:3px dashed #6FB8FF;
   border-radius:22px;
-  color:#3D6A98;
+  color:#1A4C8F;
   font-weight:700;
 }
 body.vqc-mode-home #vqcModeHome .vqc-entry-note::before{content:"💡 ";}
 
 /* ---------- 4b. Máy tính: vừa khít một màn hình, không phải cuộn ----------
-   - Huy hiệu + tên trên cùng một hàng, câu mô tả ngay bên dưới.
+   - Logo + tên trên cùng một hàng, câu mô tả ngay bên dưới.
    - Mỗi thẻ: biểu tượng + tên trên một hàng, rồi mô tả, nút bấm.
    - Kích thước co theo chiều cao màn hình (vh). Màn hình thấp hơn sẽ ẩn bớt
      chú thích phụ để vẫn không phải cuộn. */
@@ -321,13 +346,9 @@ body.vqc-mode-home #vqcModeHome .vqc-entry-note::before{content:"💡 ";}
   }
   body.vqc-mode-home #vqcModeHome .vqc-entry-symbol{
     order:0;
-    width:clamp(56px,9vh,82px);
-    height:clamp(56px,9vh,82px);
+    width:clamp(52px,8.4vh,78px);
+    height:clamp(72px,12vh,110px);
     margin:0;
-    border-width:4px;
-    border-radius:24px;
-    font-size:clamp(36px,6vh,54px);
-    box-shadow:0 6px 0 #D94F6B,0 12px 22px rgba(217,79,107,.30);
   }
   body.vqc-mode-home #vqcModeHome .vqc-entry-head h1{
     order:1;
@@ -364,7 +385,7 @@ body.vqc-mode-home #vqcModeHome .vqc-entry-note::before{content:"💡 ";}
     margin:0;
     border-radius:20px;
     background:#fff;
-    color:#2B4F7A;
+    color:#12439A;
     font-family:"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif;
     font-size:38px;
     line-height:1;
@@ -413,8 +434,8 @@ body.vqc-mode-home #vqcModeHome .vqc-entry-note::before{content:"💡 ";}
 /* ---------- 5. Chuyển động (tự tắt nếu người dùng giảm chuyển động) ---------- */
 @media(prefers-reduced-motion:no-preference){
   @keyframes vqcHomeBounce{
-    0%,100%{transform:translateY(0) rotate(-3deg);}
-    50%{transform:translateY(-10px) rotate(3deg);}
+    0%,100%{transform:translateY(0) rotate(-2deg);}
+    50%{transform:translateY(-8px) rotate(2deg);}
   }
   @keyframes vqcHomePop{
     from{opacity:0;transform:translateY(26px) scale(.94);}
@@ -435,11 +456,24 @@ body.vqc-mode-home #vqcModeHome .vqc-entry-note::before{content:"💡 ";}
   body.vqc-mode-home #vqcModeHome .vqc-entry-card:nth-child(2):hover{transform:none;}
 }
 
-/* ---------- 6. Điện thoại ---------- */
+/* ---------- 6. Trang đăng nhập: logo thay vương miện 👑 ---------- */
+#accountOverlay .vqc-login-mini-crown{
+  display:block;
+  width:76px;
+  height:98px;
+  margin:0 auto 6px;
+  font-size:0;
+  color:transparent;
+  background:url("../assets/logo.png") center/contain no-repeat;
+  filter:drop-shadow(0 6px 10px rgba(20,80,200,.30));
+}
+
+/* ---------- 7. Điện thoại ---------- */
 @media(max-width:760px){
   body.vqc-mode-home::before{width:200px;height:200px;top:-70px;right:-60px;}
   body.vqc-mode-home #vqcModeHome .vqc-entry-card{padding:20px 18px 18px;}
-  body.vqc-mode-home #vqcModeHome .vqc-entry-card::after{font-size:130px;bottom:-30px;}
+  body.vqc-mode-home #vqcModeHome .vqc-entry-card:nth-child(1)::after{width:150px;height:205px;right:-18px;bottom:-30px;}
+  body.vqc-mode-home #vqcModeHome .vqc-entry-card:nth-child(2)::after{font-size:130px;bottom:-30px;}
   body.vqc-mode-home #vqcModeHome .vqc-entry-card h2{font-size:25px!important;}
   body.vqc-mode-home #vqcModeHome .vqc-entry-card .btn{font-size:17px!important;}
 }
