@@ -16,7 +16,25 @@
  const $=id=>document.getElementById(id);
  let current=0;
  const answers=Array(TASKS.length).fill(null);
+ let castlingSession='castling-'+Date.now()+'-'+Math.random().toString(36).slice(2,8),castlingLastReceived='';
  const overlay=()=>$('castlingOverlay');
+ function castlingPublish(){
+  if(!roomRef||typeof vqcExerciseWrite!=='function'||vqcApplyingExercise||vqcNavApplying||!overlay()?.classList.contains('open'))return;
+  vqcExerciseWrite('castlingExercise',{session:castlingSession,index:current,answers:[...answers]});
+ }
+ function castlingReceive(data){
+  if(!data||data.clientId===vqcExerciseClientId||data.index!==current||!Array.isArray(data.answers))return;
+  const key=JSON.stringify(data);if(key===castlingLastReceived)return;castlingLastReceived=key;
+  const normalized=Array.from({length:TASKS.length},(_,i)=>data.answers[i]===true?true:data.answers[i]===false?false:null);
+  const previous=typeof vqcApplyingExercise!=='undefined'&&vqcApplyingExercise;
+  if(typeof vqcApplyingExercise!=='undefined')vqcApplyingExercise=true;
+  try{
+   castlingSession=String(data.session||castlingSession);
+   answers.splice(0,answers.length,...normalized);
+   render();
+  }finally{if(typeof vqcApplyingExercise!=='undefined')vqcApplyingExercise=previous;}
+ }
+ window.vqcCastlingReceive=castlingReceive;
  function placementToBoard(fen){
   const rows=fen.split(/\s+/)[0].split('/'),out=[];
   rows.forEach((row,r)=>{
@@ -104,16 +122,22 @@
    :'Chọn Có hoặc Không. Sau khi trả lời, em sẽ thấy lý do đúng/sai.';
   updateSummary();
  }
- function answer(choice){answers[current]=choice;render();}
+ function answer(choice){answers[current]=choice;render();castlingPublish();}
  window.castlingOpen=function(index=0,fromSync=false){
   if(typeof roomRef!=='undefined'&&roomRef&&typeof role!=='undefined'&&role==='student'&&!fromSync){
    if(typeof vqcNotify==='function')vqcNotify('Giáo viên chọn bài nhập thành chung cho lớp.','warning');
    return;
   }
+  const wasOpen=!!overlay()?.classList.contains('open');
+  if(!fromSync&&!wasOpen&&typeof roomRef!=='undefined'&&roomRef&&role==='teacher'){
+   castlingSession='castling-'+Date.now()+'-'+Math.random().toString(36).slice(2,8);
+   answers.fill(null);
+  }
   current=Math.max(0,Math.min(TASKS.length-1,Number(index)||0));
   if(typeof vqcCloseOtherViews==='function')vqcCloseOtherViews('castling');
   render();if(overlay())overlay().hidden=false;overlay()?.classList.add('open');
   if(!fromSync&&typeof vqcBroadcastView==='function')vqcBroadcastView('castling',current);
+  if(!fromSync)castlingPublish();
  };
  window.castlingClose=function(){
   if(overlay()){overlay().classList.remove('open');overlay().hidden=true;}
@@ -121,8 +145,8 @@
  };
  window.castlingPrev=function(){if(current>0)window.castlingOpen(current-1);};
  window.castlingNext=function(){if(current<TASKS.length-1)window.castlingOpen(current+1);};
- window.castlingReset=function(){answers.fill(null);render();};
- window.castlingRetryCurrent=function(){answers[current]=null;render();};
+ window.castlingReset=function(){answers.fill(null);render();castlingPublish();};
+ window.castlingRetryCurrent=function(){answers[current]=null;render();castlingPublish();};
  document.addEventListener('DOMContentLoaded',()=>{
   $('castlingYes')?.addEventListener('click',()=>answer(true));
   $('castlingNo')?.addEventListener('click',()=>answer(false));

@@ -11,6 +11,8 @@
  let variationGame=null,variationActive=false,variationMoves=[],selectedSquare=null,promotionChoices=[];
  let variationBaseIndex=null,variationActorRole=null,variationSharedStamp=null,variationRevision=0,applyingRemoteVariation=false;
  const variationClientId='review-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,10);
+ const reviewOrientationClientId='review-orientation-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,10);
+ let orientationRevision=0,orientationLastReceived='';
  let boardFlipped=false;
  function installMoveDrawer(){
   const workspaceEl=workspace();
@@ -173,10 +175,35 @@
   button.setAttribute('aria-pressed',String(boardFlipped));
   button.title='Góc nhìn hiện tại: '+(boardFlipped?'Đen':'Trắng')+' ở phía dưới. Nhấn để đổi góc nhìn.';
  }
+ function orientationPayload(){
+  return {flipped:!!boardFlipped,stamp:Date.now()+'-'+(++orientationRevision),clientId:reviewOrientationClientId};
+ }
+ function publishOrientation(){
+  if(!connected()||workspace()?.hidden)return;
+  const payload=orientationPayload();
+  roomRef.update({gameReviewOrientation:payload,updatedAt:firebase.firestore.FieldValue.serverTimestamp()})
+   .catch(error=>{
+    console.error('Đồng bộ góc nhìn bàn cờ xem lại thất bại:',error);
+    const status=$('vqcReviewVariationStatus');
+    if(status)status.textContent='Chưa đồng bộ được góc nhìn bàn cờ. Hãy kiểm tra kết nối lớp.';
+   });
+ }
+ function receiveOrientation(data){
+  if(!data||typeof data!=='object'||typeof data.flipped!=='boolean')return;
+  const key=JSON.stringify([data.clientId||'',data.stamp||'',data.flipped]);
+  const next=!!data.flipped;
+  if(key===orientationLastReceived&&boardFlipped===next)return;
+  orientationLastReceived=key;
+  if(boardFlipped===next)return;
+  boardFlipped=next;
+  updateFlipButton();
+  renderBoard();
+ }
  function toggleBoardOrientation(){
   boardFlipped=!boardFlipped;
   updateFlipButton();
   renderBoard();
+  publishOrientation();
  }
  function renderBoard(){
   const board=$('vqcReviewBoard');if(!board)return;
@@ -322,7 +349,7 @@
  function publish(){
   if(!connected()||!isTeacher()||applyingRemote)return;
   const payload={open:true,pgn:loadedText,index:current,stamp:Date.now()+'-'+Math.random().toString(36).slice(2,8)};
-  roomRef.update({gameReview:payload,gameReviewVariation:null,updatedAt:firebase.firestore.FieldValue.serverTimestamp()})
+  roomRef.update({gameReview:payload,gameReviewVariation:null,gameReviewOrientation:orientationPayload(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()})
    .catch(e=>{console.error('PGN classroom sync',e);$('vqcReviewError').textContent='Chưa đồng bộ được với học sinh. Kiểm tra kết nối phòng.';});
  }
  function publishVariation(){
@@ -463,6 +490,7 @@
  });
  window.vqcGameReviewGo=go;
  window.vqcGameReviewVariationReceive=receiveVariation;
+ window.vqcGameReviewOrientationReceive=receiveOrientation;
  document.addEventListener('DOMContentLoaded',()=>{
   installMoveDrawer();
   $('vqcReviewLoad')?.addEventListener('click',window.vqcGameReviewLoad);
