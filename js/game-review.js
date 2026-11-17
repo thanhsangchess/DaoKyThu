@@ -191,10 +191,9 @@
  function receiveOrientation(data){
   if(!data||typeof data!=='object'||typeof data.flipped!=='boolean')return;
   const key=JSON.stringify([data.clientId||'',data.stamp||'',data.flipped]);
-  if(key===orientationLastReceived)return;
-  orientationLastReceived=key;
-  if(data.clientId===reviewOrientationClientId)return;
   const next=!!data.flipped;
+  if(key===orientationLastReceived&&boardFlipped===next)return;
+  orientationLastReceived=key;
   if(boardFlipped===next)return;
   boardFlipped=next;
   updateFlipButton();
