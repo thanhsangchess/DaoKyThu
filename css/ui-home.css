@@ -4,6 +4,7 @@
    #0033F4, họa tiết quân Vua + cờ ca-rô + chữ ĐẢO KỲ THỦ màu trắng.
    - Logo hiển thị đúng tỉ lệ 3:2 dạng huy hiệu bo góc, không còn khung trắng
      bao quanh (ghi đè css/brand-identity.css bằng !important + độ ưu tiên cao hơn).
+   - Hiển thị đầy đủ họ và tên người dùng trên thanh đầu trang (tự xuống dòng, không cắt "...").
    - Bảng màu trang chủ theo xanh hoàng gia của logo, điểm vàng.
    - Trang chủ (body.vqc-mode-home): nền bầu trời, biển sóng, hai thẻ màu đặc,
      vừa khít một màn hình trên máy tính.
@@ -66,6 +67,20 @@ body > .header .logo-text strong{
     flex:0 0 54px!important;
     border-radius:10px!important;
   }
+}
+
+/* Họ và tên người dùng trên header: hiện đầy đủ, tự xuống tối đa 2 dòng thay vì bị cắt "..."
+   (ghi đè max-width/ellipsis trước đó). Chiều cao 2 dòng vẫn nhỏ hơn chiều cao header. */
+html body > .header #accountUserLabel{
+  max-width:180px!important;
+  white-space:normal!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+  overflow-wrap:anywhere;
+  line-height:1.2!important;
+  text-align:center;
+  padding:5px 12px!important;
+  border-radius:14px!important;
 }
 
 /* ---------- 1. Nền bầu trời + hạt kim tuyết (tông xanh theo logo) ---------- */
