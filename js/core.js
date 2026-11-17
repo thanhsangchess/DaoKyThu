@@ -1565,6 +1565,7 @@ function listenToRoom(){
     if(active.view==='mate1basic' && data.mateOneBasicExercise && data.mateOneBasicExercise.index===active.index)vqcSafeReceiveExercise('Chiếu hết 1 nước — Cơ bản 10 bài',window.vqcMateOneBasicReceive,data.mateOneBasicExercise);
     if(active.view==='doubleattack' && data.doubleAttackExercise && data.doubleAttackExercise.index===active.index)vqcSafeReceiveExercise('Tấn công đôi — 24 bài PDF',window.vqcDoubleAttackReceive,data.doubleAttackExercise);
     if(active.view==='beginnerpuzzles' && data.beginnerPuzzleExercise && data.beginnerPuzzleExercise.index===active.index)vqcSafeReceiveExercise('Đố cờ vua cơ bản — 10 bài Chessfox',window.vqcBeginnerPuzzleReceive,data.beginnerPuzzleExercise);
+    if(active.view==='castling' && data.castlingExercise && data.castlingExercise.index===active.index)vqcSafeReceiveExercise('Điều kiện nhập thành — 10 hình',window.vqcCastlingReceive,data.castlingExercise);
     if(active.view==='castlingpractice' && data.castlingPracticeExercise && data.castlingPracticeExercise.index===active.index)vqcSafeReceiveExercise('Thực hành Nhập thành — 9 bài',window.vqcCastlingPracticeReceive,data.castlingPracticeExercise);
     try{pvpReceive(data.pvp||null);}catch(e){console.error('Lỗi đồng bộ đối kháng',e);}
     // Chỉ nhận dữ liệu từ máy khác hoặc bản đã xác nhận, không xóa nước đi đang chọn.
@@ -1591,6 +1592,7 @@ function listenToRoom(){
     // Student sees the teacher's arrows/circles without touching chess pieces.
     if(typeof window.vqcAnnotationsReceive==='function')window.vqcAnnotationsReceive(data.boardAnnotations||null);
     if(typeof window.vqcGameReviewReceive==='function')window.vqcGameReviewReceive(data.gameReview||null);
+    if(typeof window.vqcGameReviewOrientationReceive==='function')window.vqcGameReviewOrientationReceive(data.gameReviewOrientation??null);
     if(typeof window.vqcGameReviewVariationReceive==='function')window.vqcGameReviewVariationReceive(data.gameReviewVariation??null);
 
   },err=>{
