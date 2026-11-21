@@ -7,7 +7,7 @@
  const BOARD_IDS=[
   'board','mateBoard','mate3Board','pvpBoard','captureBoard',
   'freeCaptureBoard','defenseBoard','checkOneBoard','escapeBoard',
-  'pawnGameBoard','vqcMateOneBoard','vqcMateOneBasicBoard','vqcLoneMateBoard','vqcAdventureBoard','vqcReviewBoard','castlingBoard','doubleAttackBoard','castlingPracticeBoard','beginnerPuzzleBoard'
+  'pawnGameBoard','vqcMateOneBoard','vqcMateOneBasicBoard','vqcMateThreeBoard','vqcLoneMateBoard','vqcAdventureBoard','vqcReviewBoard','castlingBoard','doubleAttackBoard','castlingPracticeBoard','beginnerPuzzleBoard'
  ];
  const SELECTOR=BOARD_IDS.map(id=>'#'+id).join(',');
  const SVG_NS='http://www.w3.org/2000/svg';
@@ -384,6 +384,8 @@
    subtree:true,attributes:true,attributeFilter:['class','hidden']
   });
  }
+ // Cho phép các bài tập nạp sau (ví dụ Mate in 3) gắn bàn cờ của mình vào lớp vẽ.
+ window.vqcAnnotationsMount=initBoards;
  function init(){
   if(!document.body)return;
   createToolbar();
