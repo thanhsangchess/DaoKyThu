@@ -93,7 +93,7 @@ window.VQC_PDF_MATE3=(window.VQC_PDF_MATE3||[]).concat([
 "r2q1k1r/ppp1b1p1/2n2nQ1/3p2p1/3P2P1/2P2N1P/PP1N1P2/R3K2R w f3g5 d8e8 g5e6 f8g8 g6g7",
 "2r2k2/p4ppp/8/3p1q2/1p1B4/2P1R3/PP4PP/2K1R3 w d4c5 f8g8 e3e8 c8e8 e1e8",
 "2k1r3/ppp4p/4qp2/3p4/3Q2pN/8/PPP2PPP/R4K2 b e6e2 f1g1 e2e1 a1e1 e8e1",
-"4q1k1/5p2/3p3Q/1p1b1P1P/1P4pN/6P1/5R2/6K1 b e8e1 f2f1 e1g3 h4g2 g3g2",
+"4q1k1/5p2/3p3Q/1p1b3P/1P4pN/6P1/5R2/6K1 b e8e1 f2f1 e1g3 h4g2 g3g2",
 "b5r1/7k/4Q2p/N1p1P3/1P6/P1Ppq3/3R1RP1/6K1 b g8g2 g1f1 g2f2 d2f2 e3c1",
 "6k1/p2r1ppp/4p3/2r5/p7/6P1/1RP2P1P/5K2 w b2b8 c5c8 b8c8 d7d8 c8d8",
 "4r1k1/ppp2ppp/8/3p2q1/1Q4b1/2NB3P/PPP2PP1/4RK2 b e8e1 f1e1 g5c1 c3d1 c1d1",
