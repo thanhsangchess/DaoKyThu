@@ -1,7 +1,7 @@
 /* Dao Ky Thu — "Mate in 3": 500 bài chiếu hết trong 3 nước.
    Thế cờ và lời giải lấy từ sách "Cờ Vua Học Đường — Chiếu bí 3 nước" (Kỳ Đồng), dữ liệu nằm ở
-   js/mate-three-pdf-500-data*.js (5 phần). Cách chơi giống bài chiếu hết 1 nước: bàn cờ luôn để Trắng ở dưới,
-   học sinh đi 3 nước, máy tự đáp bằng nước đi của sách sau nước 1 và nước 2.
+   js/mate-three-pdf-500-data*.js (5 phần). Cách chơi giống bài chiếu hết 1 nước: bàn cờ tự xoay để bên đi trước
+   luôn ở phía dưới, học sinh đi 3 nước, máy tự đáp bằng nước đi của sách sau nước 1 và nước 2.
    Toàn bộ 500 bài được chess.js kiểm tra khi mở lần đầu (đúng luật, kết thúc bằng chiếu hết). */
 (function(){
 'use strict';
@@ -45,14 +45,14 @@ function solutionText(){return puzzle().line.map(m=>m.san).join(' ');}
 function newPosition(){
  clearTimeout(timer);timer=null;busy=false;
  game=new Chess(puzzle().fen);selected=null;hint=false;solved=false;failed=false;lastMove=null;step=0;played=[];
- feedback=(puzzle().color==='w'?'Trắng':'Đen')+' đi trước. Hãy chiếu hết Vua đối phương trong 3 nước! Sau mỗi nước đi, đối phương sẽ đáp lại.';
+ feedback=(puzzle().color==='w'?'Trắng':'Đen')+' đi trước. Hãy chiếu hết Vua đối phương trong 3 nước! Sau mỗi nước đi, đối phương sẽ đáp lại.'+(puzzle().color==='b'?' (Bàn cờ đã xoay: Đen ở dưới.)':'');
 }
 function message(text){feedback=text;render();}
 function paint(){
  const board=$('vqcMateThreeBoard');if(!board||!game)return;
  board.replaceChildren();
- // Giống sách PDF: hàng 1 của Trắng luôn nằm dưới, kể cả khi Đen đi trước.
- const ranks=[8,7,6,5,4,3,2,1],files=[...FILES];
+ // Tự xoay bàn cờ: bên đi trước (Trắng hoặc Đen) luôn nằm ở phía dưới để học sinh dễ nhìn và thao tác.
+ const flip=puzzle().color==='b',ranks=flip?[1,2,3,4,5,6,7,8]:[8,7,6,5,4,3,2,1],files=flip?[...FILES].reverse():[...FILES];
  const legal=selected&&!busy?game.moves({square:selected,verbose:true}).map(m=>m.to):[];
  const next=hint&&!busy&&!solved&&!failed?puzzle().line[step]:null;
  for(let ri=0;ri<8;ri++)for(let fi=0;fi<8;fi++){
