@@ -1,0 +1,145 @@
+/* Đảo Kỳ Thủ · Mate in 3 (500 bài). Cùng giao diện với bài Chiếu hết 1 nước (mate-one-pdf-100.css). */
+#vqcMateThreeOverlay{
+  position:fixed;inset:0;z-index:42000;display:none;align-items:center;justify-content:center;
+  box-sizing:border-box;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;
+  padding:10px;background:rgba(21,46,68,.64);backdrop-filter:blur(4px);
+}
+#vqcMateThreeOverlay.open{display:flex}
+#vqcMateThreeOverlay .vqc-mateone-dialog{
+  box-sizing:border-box;min-width:0;width:min(1230px,calc(100vw - 20px));max-width:calc(100vw - 20px);
+  max-height:calc(100dvh - 20px);overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;
+  scrollbar-gutter:stable;background:#fff;border:1px solid #dbe7f4;border-radius:20px;
+  padding:14px 17px 18px;color:#27465e;box-shadow:0 24px 70px rgba(24,55,89,.3);
+}
+#vqcMateThreeOverlay .vqc-mateone-top{
+  box-sizing:border-box;display:flex;justify-content:space-between;align-items:center;
+  flex-wrap:wrap;gap:8px 16px;margin:0 0 12px;padding:11px 14px;
+  background:#f0f8ff;border:1px solid #dbeaf4;border-radius:13px;
+}
+#vqcMateThreeOverlay .vqc-mateone-top h2{font-size:clamp(18px,2vw,24px);font-weight:800;line-height:1.3;margin:0 0 3px;color:#265d8b}
+#vqcMateThreeOverlay .vqc-mateone-top p{margin:0;color:#64809b;font-size:13px;line-height:1.35}
+#vqcMateThreeOverlay .vqc-mateone-top button{
+  min-height:42px;border:1px solid #c6dfef;border-radius:12px;background:#eef7ff;color:#426b8c;
+  padding:9px 16px;font:inherit;font-weight:750;white-space:nowrap;cursor:pointer;box-shadow:0 4px 0 #d4e5f0;
+}
+#vqcMateThreeOverlay .vqc-mateone-layout{
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(255px,350px);
+  align-items:start;justify-items:stretch;gap:clamp(12px,1.4vw,22px);min-width:0;
+}
+#vqcMateThreeOverlay .vqc-mateone-board{
+  position:relative;isolation:isolate;box-sizing:border-box;display:grid;
+  grid-template-columns:repeat(8,minmax(0,1fr));grid-template-rows:repeat(8,minmax(0,1fr));
+  width:min(100%,calc(100dvh - 140px),790px);max-width:100%;height:auto;aspect-ratio:1/1;min-width:0;min-height:0;
+  justify-self:center;align-self:start;margin:0 auto;border:5px solid #e2edf7;border-radius:13px;
+  overflow:hidden;background:#fff0c7;box-shadow:0 6px 20px #1c4b7420;
+}
+#vqcMateThreeOverlay .vqc-mateone-cell{
+  position:relative;display:flex;align-items:center;justify-content:center;
+  box-sizing:border-box;width:100%;height:100%;min-width:0;min-height:0;
+  border:0;border-radius:0;padding:0;overflow:hidden;
+  cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+}
+#vqcMateThreeOverlay .vqc-mateone-cell.light{background:#fff0c7}
+#vqcMateThreeOverlay .vqc-mateone-cell.dark{background:#79b7e8}
+#vqcMateThreeOverlay .vqc-mateone-cell.vqc-mate3-last-from::before,
+#vqcMateThreeOverlay .vqc-mateone-cell.vqc-mate3-last-to::before{
+  content:"";position:absolute;inset:0;z-index:1;background:rgba(255,214,64,.5);pointer-events:none;
+}
+#vqcMateThreeOverlay .vqc-mateone-cell.selected{box-shadow:inset 0 0 0 4px #ffc933}
+#vqcMateThreeOverlay .vqc-mateone-cell.legal::after{
+  content:"";position:absolute;inset:auto;z-index:4;width:22%;height:22%;border-radius:50%;
+  background:#3e794e80;pointer-events:none;
+}
+#vqcMateThreeOverlay .vqc-mateone-cell.legal:has(.vqc-mateone-piece)::after{
+  width:82%;height:82%;box-sizing:border-box;border:4px solid #c75a55ad;background:transparent;
+}
+#vqcMateThreeOverlay .vqc-mateone-cell.hint-from{outline:4px solid #f6c245;outline-offset:-4px}
+#vqcMateThreeOverlay .vqc-mateone-cell.hint-to{box-shadow:inset 0 0 0 4px #169b60}
+#vqcMateThreeOverlay .vqc-mateone-piece{
+  width:90%;height:90%;display:flex;align-items:center;justify-content:center;
+  pointer-events:none;position:relative;z-index:3;font-size:clamp(24px,4.6vw,68px);line-height:1;
+}
+#vqcMateThreeOverlay .vqc-mateone-piece svg,
+#vqcMateThreeOverlay .vqc-mateone-piece img,
+#vqcMateThreeOverlay .vqc-mateone-piece .chess-piece-img{
+  display:block;max-width:100%;max-height:100%;width:100%;height:100%;
+  object-fit:contain;pointer-events:none;user-select:none;
+}
+#vqcMateThreeOverlay .vqc-mateone-rank,
+#vqcMateThreeOverlay .vqc-mateone-file{
+  position:absolute;z-index:5;font-size:clamp(10px,1vw,14px);font-weight:850;
+  color:#285a83;line-height:1;text-shadow:0 1px 1px #fff8;pointer-events:none;
+}
+#vqcMateThreeOverlay .vqc-mateone-rank{top:3px;left:4px}
+#vqcMateThreeOverlay .vqc-mateone-file{bottom:3px;right:4px}
+#vqcMateThreeOverlay .vqc-mateone-side{
+  display:flex;flex-direction:column;gap:11px;box-sizing:border-box;min-width:0;width:100%;
+  max-height:min(calc(100dvh - 140px),790px);overflow-y:auto;overflow-x:hidden;
+  scrollbar-width:thin;align-self:start;padding:0 2px 4px;
+}
+#vqcMateThreeOverlay .vqc-mateone-feedback{
+  box-sizing:border-box;min-height:94px;margin:0;border:1px solid #f1dfac;border-radius:16px;
+  background:#fff5d9;padding:16px 18px;color:#33475d;font-size:16px;line-height:1.65;overflow-wrap:anywhere;
+}
+#vqcMateThreeOverlay .vqc-mateone-feedback.success{background:#e2f8ed;border-color:#a2dfbf;color:#147344}
+#vqcMateThreeOverlay .vqc-mateone-feedback.error{background:#fff0e8;border-color:#efc1a4;color:#9b4a2e}
+#vqcMateThreeOverlay .vqc-mateone-progress{
+  order:2;font-weight:750;font-size:13px;color:#3c7196;background:#edf7ff;border-radius:11px;padding:10px 12px;
+}
+#vqcMateThreeOverlay .vqc-mateone-controls{display:flex;flex-direction:column;gap:12px;order:1}
+#vqcMateThreeOverlay .vqc-mateone-controls button,
+#vqcMateThreeOverlay .vqc-mateone-jump button{
+  box-sizing:border-box;min-height:58px;cursor:pointer;background:#eef7ff;border:1px solid #bfdcf3;
+  border-radius:14px;color:#264c70;font:inherit;font-size:16px;font-weight:750;padding:12px 14px;
+  transition:background .16s,transform .16s,box-shadow .16s;
+}
+#vqcMateThreeOverlay .vqc-mateone-controls button:hover:not(:disabled),
+#vqcMateThreeOverlay .vqc-mateone-jump button:hover:not(:disabled){
+  background:#dceeff;transform:translateY(-1px);box-shadow:0 4px 12px #24557b18;
+}
+#vqcMateThreeOverlay button:disabled,
+#vqcMateThreeOverlay input:disabled{opacity:.5;cursor:not-allowed}
+#vqcMateThreeOverlay button:focus-visible,
+#vqcMateThreeOverlay input:focus-visible{outline:3px solid #f3b744;outline-offset:2px}
+#vqcMateThreeOverlay .vqc-mateone-jump{
+  order:3;display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:13px;color:#58728c;
+}
+#vqcMateThreeOverlay .vqc-mateone-jump input{
+  box-sizing:border-box;width:74px;min-height:42px;padding:8px;border-radius:10px;
+  border:1px solid #a7cee9;background:#fff;color:#264c70;font-size:14px;
+}
+#vqcMateThreeOverlay .vqc-mateone-jump button{min-height:42px;padding:7px 14px;font-size:13px}
+#vqcMateThreeOverlay .vqc-mateone-rules{
+  order:4;margin:0;padding:11px 2px 4px;border-top:1px dashed #bbd6e9;color:#627e96;line-height:1.55;font-size:12px;
+}
+/* Thanh công cụ vẽ nằm trên cửa sổ bài tập. */
+body:has(#vqcMateThreeOverlay.open) .vqc-annotation-toolbar{display:flex;z-index:50000}
+@media(max-width:900px){
+ #vqcMateThreeOverlay{align-items:flex-start}
+ #vqcMateThreeOverlay .vqc-mateone-layout{grid-template-columns:minmax(0,1fr);gap:14px}
+ #vqcMateThreeOverlay .vqc-mateone-board{width:min(100%,calc(100dvh - 205px),610px)}
+ #vqcMateThreeOverlay .vqc-mateone-side{max-height:none;overflow:visible}
+ #vqcMateThreeOverlay .vqc-mateone-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ #vqcMateThreeOverlay .vqc-mateone-controls button{min-height:47px;font-size:14px}
+}
+@media(max-width:600px){
+ #vqcMateThreeOverlay{padding:4px}
+ #vqcMateThreeOverlay .vqc-mateone-dialog{
+  padding:9px;width:calc(100vw - 8px);max-width:calc(100vw - 8px);
+  max-height:calc(100dvh - 8px);border-radius:14px;scrollbar-gutter:auto;
+ }
+ #vqcMateThreeOverlay .vqc-mateone-top{padding:9px 11px;margin-bottom:8px;gap:7px}
+ #vqcMateThreeOverlay .vqc-mateone-top h2{font-size:17px}
+ #vqcMateThreeOverlay .vqc-mateone-top p{font-size:12px}
+ #vqcMateThreeOverlay .vqc-mateone-top button{padding:7px 10px;min-height:38px}
+ #vqcMateThreeOverlay .vqc-mateone-board{width:min(100%,calc(100dvh - 205px),480px);border-width:3px}
+ #vqcMateThreeOverlay .vqc-mateone-side{gap:9px}
+ #vqcMateThreeOverlay .vqc-mateone-feedback{min-height:0;padding:11px;font-size:14px}
+ #vqcMateThreeOverlay .vqc-mateone-piece{font-size:clamp(24px,6vw,46px)}
+ #vqcMateThreeOverlay .vqc-mateone-rank,
+ #vqcMateThreeOverlay .vqc-mateone-file{font-size:10px}
+ body:has(#vqcMateThreeOverlay.open) .vqc-annotation-toolbar{right:8px;bottom:max(8px,env(safe-area-inset-bottom));z-index:50000}
+}
+@media(prefers-reduced-motion:reduce){
+ #vqcMateThreeOverlay .vqc-mateone-controls button{transition:none}
+}
