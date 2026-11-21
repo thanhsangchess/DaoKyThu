@@ -10,7 +10,7 @@
   document.getElementById('vqcModeHome')?.setAttribute('aria-hidden',String(next!=='home'));
   document.getElementById('vqcModeWorld')?.setAttribute('aria-hidden',String(next!=='world'));
   if(next!=='class'){
-   ['mateOverlay','mate3Overlay','pvpOverlay','captureOverlay','freeCaptureOverlay','defenseOverlay','pawnGameOverlay','checkOneOverlay','escapeOverlay','vqcMateOneOverlay','vqcMateOneBasicOverlay','starRewardOverlay'].forEach(id=>document.getElementById(id)?.classList.remove('open'));
+   ['mateOverlay','mate3Overlay','pvpOverlay','captureOverlay','freeCaptureOverlay','defenseOverlay','pawnGameOverlay','checkOneOverlay','escapeOverlay','vqcMateOneOverlay','vqcMateOneBasicOverlay','vqcMateThreeOverlay','starRewardOverlay'].forEach(id=>document.getElementById(id)?.classList.remove('open'));
   }
   window.scrollTo?.(0,0);
  }
@@ -62,5 +62,28 @@
    l.rel='icon';l.type='image/png';l.href=href;
    document.head.appendChild(l);
   }
+ }catch(e){}
+})();
+
+/* Mate in 3 (500 bài): nạp dữ liệu 5 phần rồi tới module, đúng thứ tự.
+   Menu "Mate in 3" tự gắn vào danh sách bài học trong lớp (xem js/mate-three-pdf-500.js). */
+(function(){
+ try{
+  const v='?v=20261121-m3-v1';
+  const mountDrawing=function(){try{if(typeof window.vqcAnnotationsMount==='function')window.vqcAnnotationsMount();}catch(e){}};
+  const names=['mate-three-pdf-500-data.js','mate-three-pdf-500-data-2.js','mate-three-pdf-500-data-3.js','mate-three-pdf-500-data-4.js','mate-three-pdf-500-data-5.js','mate-three-pdf-500.js'];
+  names.forEach(function(name,i){
+   const s=document.createElement('script');
+   s.src='./js/'+name+v;s.async=false;
+   if(i===names.length-1){
+    // Bàn cờ Mate in 3 được tạo sau khi trang nạp xong: gắn lớp vẽ mũi tên cho bàn này.
+    s.onload=function(){
+     mountDrawing();
+     if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(mountDrawing,0);});
+     window.addEventListener('load',function(){setTimeout(mountDrawing,0);});
+    };
+   }
+   document.head.appendChild(s);
+  });
  }catch(e){}
 })();
