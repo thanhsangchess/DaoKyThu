@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);
-const VERSION='20261123-vsm-v2';
+const VERSION='20261124-vsm-v3';
 const FILES='abcdefgh';
 const START_FEN='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 const LEVELS=[
@@ -259,6 +259,7 @@ function endGame(result,reason,text){
  cancelAll();selected=null;promotion=null;hint=null;notice='';error=null;confirmResign=false;
  disposeEngine();
  if(result==='win')recordWin();
+ emitResult();
  render();
 }
 function randomSide(){
@@ -606,6 +607,7 @@ function rebuildDisplay(){
 }
 function onDoc(d){
  D=d||null;gotFirst=true;lErr='';
+ if(window.vqcVsmReview&&typeof window.vqcVsmReview.onDoc==='function'){try{window.vqcVsmReview.onDoc(D);}catch(e){}}
  let nv=null;
  try{nv=D&&D.vsm?normV(D.vsm):null;}catch(e){nv=null;}
  applyV(nv);
@@ -667,6 +669,7 @@ function applyV(nv){
 }
 function onOver(){
  overHandled=V.id;
+ if(isHost())emitResult();
  cancelAll();selected=null;promotion=null;confirmResign=false;
  if(isHost())disposeEngine();
  if(over.result==='win'){recordWin();if(isHost())pushSetup();}
@@ -715,6 +718,20 @@ function detachListener(){
 }
 
 function annApi(name){return typeof window[name]==='function'?window[name]:null;}
+function rv(){const r=window.vqcVsmReview;return r&&r.active&&r.active()?r:null;}
+function snapResult(){
+ if(!game||!over)return null;
+ const mv=game.history({verbose:true}).map(uciOf);
+ if(!mv.length)return null;
+ const list=chernev(),item=preset.kind==='chernev'?list[preset.index]:null;
+ return {id:sharedActive&&V?V.id:'vs'+Date.now().toString(36)+Math.random().toString(36).slice(2,7),kind:item?'chernev':(preset.kind==='custom'?'custom':'standard'),
+  num:item?item.num:0,fen0:startFen,human,levelId:level.id,result:over.result,reason:String(over.reason||'').slice(0,200),moves:mv,shared:sharedActive};
+}
+function emitResult(){
+ const r=window.vqcVsmReview;
+ if(!r||typeof r.save!=='function'||isStudent())return;
+ try{const s=snapResult();if(s)r.save(s);}catch(e){console.warn('Đấu với máy: không lưu được kết quả ván',e);}
+}
 function annClear(){const f=annApi('vqcAnnotationsClearBoard');if(f)f(BOARD_ID);}
 function flipped(){return human==='b';}
 function sqToIdx(sq){const f=FILES.indexOf(sq[0]),r=Number(sq[1]);return flipped()?(r-1)*8+(7-f):(8-r)*8+f;}
@@ -744,7 +761,7 @@ function unregisterAdapter(){
  adapterOn=false;
 }
 function refreshMarks(){
- if(!sharedActive||!isOpen)return;
+ if(!sharedActive||!isOpen||rv())return;
  registerAdapter();
  const setRemote=annApi('vqcAnnotationsRemote');
  if(!setRemote||!V)return;
@@ -955,6 +972,7 @@ function paintLockNote(){
 }
 function render(){
  if(!$('vqcVsMachineOverlay'))return;
+ {const r=rv();if(r){r.paint();return;}}
  if(!game){renderEmpty();return;}
  const sh=sharedActive,lock=locked();
  const list=chernev(),chern=preset.kind==='chernev'?list[preset.index]:null;
@@ -1209,6 +1227,8 @@ function init(){
  hookClassroom();
 }
 window.vqcVsMachineOpen=function(kind,index){open({kind:kind==='standard'?'standard':'chernev',index:Number.isInteger(index)?index:undefined});};
-window.vqcVsMachine={open,close,hide,newGame,undo,resign,offerDraw,analyze,retry,state,levels:LEVELS.map(l=>({...l})),version:VERSION};
+window.vqcVsMachine={open,close,hide,newGame,undo,resign,offerDraw,analyze,retry,state,levels:LEVELS.map(l=>({...l})),version:VERSION,
+ ext:{ref:vsmRef,uid:myUid,name:myName,room:()=>sCode||roomCode(),open:()=>isOpen,student:isStudent,shared:()=>sharedActive,render,refreshMarks,
+  unregisterAdapter:()=>{if(sharedActive)unregisterAdapter();},registerAdapter:()=>{if(sharedActive)registerAdapter();}}};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();

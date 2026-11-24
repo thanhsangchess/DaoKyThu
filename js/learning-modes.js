@@ -102,13 +102,13 @@
 
 (function(){
  try{
-  const v='?v=20261123-vsm-v2';
+  const v='?v=20261124-vsm-v3';
   if(!document.getElementById('vqcVsmCss')){
    const l=document.createElement('link');
-   l.id='vqcVsmCss';l.rel='stylesheet';l.href='./css/vs-machine.css?v=20261123-vsm-v2';
+   l.id='vqcVsmCss';l.rel='stylesheet';l.href='./css/vs-machine.css?v=20261124-vsm-v3';
    document.head.appendChild(l);
   }
-  ['chernev-endgames-data.js','vs-machine-engine.js','vs-machine.js'].forEach(function(name){
+  ['chernev-endgames-data.js','vs-machine-engine.js','vs-machine.js','vsm-review.js'].forEach(function(name){
    const s=document.createElement('script');
    s.src='./js/'+name+v;s.async=false;
    document.head.appendChild(s);

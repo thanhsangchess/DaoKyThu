@@ -486,6 +486,22 @@ service cloud.firestore {
      && request.resource.data.createdAt==request.time;
    allow update,delete: if false;
   }
+  match /vsmResults/{id} {
+   allow get: if active() && (resource == null || resource.data.teacherId==request.auth.uid);
+   allow list: if active() && resource.data.teacherId==request.auth.uid;
+   allow create: if teacher()
+     && request.resource.data.keys().hasOnly(['id','room','teacherId','teacherName','kind','num','fen0','human','levelId','result','reason','shared','plies','moves','endedAtMs','createdAt'])
+     && request.resource.data.keys().hasAll(['id','teacherId','kind','fen0','human','result','moves','createdAt'])
+     && request.resource.data.id==id
+     && request.resource.data.teacherId==request.auth.uid
+     && request.resource.data.kind in ['standard','chernev','custom']
+     && request.resource.data.fen0 is string && request.resource.data.fen0.size()<=110
+     && request.resource.data.human in ['w','b']
+     && request.resource.data.result in ['win','loss','draw']
+     && request.resource.data.moves is list && request.resource.data.moves.size()<=1000
+     && request.resource.data.createdAt==request.time;
+   allow update,delete: if false;
+  }
   match /{document=**} {allow read,write: if false;}
  }
 }
