@@ -1,7 +1,7 @@
 (function(){
  'use strict';
  if(window.vqcDuelReview)return;
- const VERSION='20261124-review-v2';
+ const VERSION='20261124-review-v3';
  const POLL_MS=Number(window.vqcReviewPollMs)||700;
  const BOX_ID='vqcChdReviewTools';
  let shownKey='',ctx=null,runId=0,engine=null,busy=false,lastRowId='',markPly=-1;
@@ -51,6 +51,22 @@
  }
  function problemFen(num){
   try{const p=(D().problems()||[]).find(function(x){return x.num===num;});return p?p.fen:'';}catch(e){return '';}
+ }
+ function vsmContext(){
+  const vr=window.vqcVsmReview;
+  if(!vr||typeof vr.active!=='function'||!vr.active()||typeof vr.info!=='function')return null;
+  const inf=vr.info();if(!inf||!inf.rec)return null;
+  const r=inf.rec,lv=(window.vqcVsMachine&&window.vqcVsMachine.levels||[]).find(function(l){return l.id===r.levelId;});
+  const humanName=r.shared?'Cả lớp (giáo viên & học sinh)':(r.teacherName||'Người chơi'),aiName='Máy Stockfish'+(lv?' ('+lv.label+')':'');
+  const winner=r.result==='win'?r.human:(r.result==='loss'?(r.human==='w'?'b':'w'):null);
+  const rec={id:r.id,num:r.num,fen0:r.fen0,moves:r.moves,kind:r.result==='draw'?'stalemate':'manual',winner:winner,reason:r.reason,endedAtMs:r.endedAtMs};
+  const c={num:r.num,live:false,rec:rec,reviewPly:inf.ply,inReview:!!inf.teacher,vsm:true};
+  c.fen0=r.fen0;c.uci=r.moves.slice();c.sans=null;
+  c.white=r.human==='w'?humanName:aiName;c.black=r.human==='w'?aiName:humanName;c.studentSide=null;
+  c.event=r.kind==='chernev'?'Cờ tàn Chernev đấu với máy – bài '+r.num:'Đấu với máy';
+  c.fileTag=r.kind==='chernev'?'dau-voi-may-chernev-'+r.num:'dau-voi-may';
+  c.key='vsm:'+r.id;
+  return c;
  }
  function context(){
   const d=D();if(!d||typeof d.state!=='function')return null;
@@ -132,11 +148,11 @@
   words.forEach(function(w){if(cur&&(cur+' '+w).length>80){lines.push(cur);cur=w;}else cur=cur?cur+' '+w:w;});
   if(cur)lines.push(cur);
   const head=[
-   ['Event','Đấu cờ tàn Chernev – bài '+c.num],['Site','Đảo Kỳ Thủ'],['Date',date],['Round','-'],
+   ['Event',c.event||'Đấu cờ tàn Chernev – bài '+c.num],['Site','Đảo Kỳ Thủ'],['Date',date],['Round','-'],
    ['White',c.white],['Black',c.black],['Result',res],['SetUp','1'],['FEN',c.fen0]
   ].map(function(h){return '['+h[0]+' "'+esc(h[1])+'"]';});
   const text=head.join('\n')+'\n\n'+lines.join('\n')+'\n';
-  const fname='chernev-bai-'+c.num+'-'+when.getFullYear()+pad(when.getMonth()+1)+pad(when.getDate())+'-'+pad(when.getHours())+pad(when.getMinutes())+'.pgn';
+  const fname=(c.fileTag||'chernev-bai-'+c.num)+'-'+when.getFullYear()+pad(when.getMonth()+1)+pad(when.getDate())+'-'+pad(when.getHours())+pad(when.getMinutes())+'.pgn';
   return {ok:true,text:text,file:fname,result:res};
  }
  function download(text,file){
@@ -227,16 +243,21 @@
    '#'+BOX_ID+' .vqc-rev-sum{margin:8px 0 0;font-size:13px}';
   document.head.appendChild(st);
  }
- function makeBox(){
-  let box=$(BOX_ID);if(box)return box;
-  const panel=$('vqcChdPanelGame');if(!panel)return null;
+ function makeBox(vsm){
+  let box=$(BOX_ID),panel,wrap;
+  if(vsm){panel=document.querySelector('#vqcVsMachineOverlay .vqc-vsm-side');wrap=panel&&panel.querySelector('.vqc-vsm-histwrap');}
+  else{panel=$('vqcChdPanelGame');wrap=panel&&panel.querySelector('.vqc-chd-histwrap');}
+  if(!panel)return box||null;
+  if(box){
+   if(box.parentNode!==panel){if(wrap&&wrap.parentNode===panel&&wrap.nextSibling)panel.insertBefore(box,wrap.nextSibling);else panel.appendChild(box);}
+   return box;
+  }
   css();
   box=document.createElement('div');box.id=BOX_ID;box.hidden=true;
   box.innerHTML='<h3>📁 Lưu & xem lại ván</h3>'+
    '<div class="vqc-rev-btns"><button type="button" data-act="pgn">📥 Tải PGN</button><button type="button" data-act="copy">📋 Sao chép PGN</button>'+
    '<button type="button" data-act="analyse">🤖 Phân tích ván</button><button type="button" data-act="stop" hidden>⏹ Dừng</button></div>'+
    '<p class="vqc-rev-msg" role="status" aria-live="polite"></p><div class="vqc-rev-out"></div>';
-  const wrap=panel.querySelector('.vqc-chd-histwrap');
   if(wrap&&wrap.parentNode===panel&&wrap.nextSibling)panel.insertBefore(box,wrap.nextSibling);else panel.appendChild(box);
   box.addEventListener('click',onClick);
   return box;
@@ -311,6 +332,7 @@
   line.setAttribute('x1',x);line.setAttribute('x2',x);
  }
  function jump(ply){
+  if(ctx&&ctx.vsm){if(window.vqcVsmReview&&window.vqcVsmReview.jump)window.vqcVsmReview.jump(ply);return;}
   const bar=$('vqcChdReplayBar');if(!bar||bar.hidden)return;
   const first=bar.querySelector('[data-step="-Infinity"]'),next=bar.querySelector('[data-step="1"]');
   if(!first||!next)return;
@@ -353,8 +375,9 @@
  }
 
  function tick(){
-  const box=makeBox();if(!box)return;
-  const c=context();
+  const vc=vsmContext();
+  const box=makeBox(!!vc);if(!box)return;
+  const c=vc||context();
   const show=!!(c&&c.fen0&&((c.uci&&c.uci.length)||(c.sans&&c.sans.length)));
   if(!show){
    if(!box.hidden)box.hidden=true;

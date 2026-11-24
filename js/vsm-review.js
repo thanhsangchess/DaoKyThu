@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 if(window.vqcVsmReview)return;
-const VERSION='20261124-vsr-v1';
+const VERSION='20261124-vsr-v2';
 const FILES='abcdefgh',UCI_RE=/^[a-h][1-8][a-h][1-8][qrbn]?$/,BOARD_ID='vqcVsmBoard';
 const HIST_CAP=200,VW_TTL=75000,VW_REFRESH=20000,VW_DEBOUNCE=250,MAX_VM=60,MAX_MARKS=40;
 const SIDE={w:'Trắng',b:'Đen'},PIECE={k:'Vua',q:'Hậu',r:'Xe',b:'Tượng',n:'Mã',p:'Tốt'};
@@ -641,7 +641,13 @@ function init(){
  setInterval(()=>{mount();tick();},500);
  window.addEventListener('pagehide',disposeAnaEngine);
 }
-window.vqcVsmReview={version:VERSION,active:()=>!!review&&isOpen(),paint,onDoc,save,
+function jump(ply){
+ if(!review||!isTeacher())return;
+ review.ply=Math.max(0,Math.min(review.rec.moves.length,ply|0));review.vm=[];review.local=false;review.ana=null;
+ selected=null;promotion=null;touchReview();annReset();paint();
+}
+window.vqcVsmReview={version:VERSION,active:()=>!!review&&isOpen(),paint,onDoc,save,jump,
+ info:()=>review?{rec:review.rec,ply:review.ply,teacher:isTeacher()}:null,
  state:()=>({tab,review:review?{id:review.rec.id,ply:review.ply,vm:(review.vm||[]).slice(),bottom:review.bottom,marks:(review.marks||[]).slice(),by:review.by,local:review.local,n:review.rec.moves.length}:null}),
  _open:openReview,_end:endReview};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
