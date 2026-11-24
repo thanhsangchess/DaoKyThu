@@ -1,7 +1,7 @@
 (function(){
  'use strict';
  if(window.vqcDuelReview)return;
- const VERSION='20261124-review-v4';
+ const VERSION='20261124-review-v5';
  const POLL_MS=Number(window.vqcReviewPollMs)||700;
  const BOX_ID='vqcChdReviewTools';
  let shownKey='',ctx=null,runId=0,engine=null,busy=false,lastRowId='',markPly=-1;
@@ -51,6 +51,9 @@
  }
  function problemFen(num){
   try{const p=(D().problems()||[]).find(function(x){return x.num===num;});return p?p.fen:'';}catch(e){return '';}
+ }
+ function isStudentNow(){
+  try{return typeof roomRef!=='undefined'&&!!roomRef&&typeof role!=='undefined'&&role==='student';}catch(e){return false;}
  }
  function vsmContext(){
   const vr=window.vqcVsmReview;
@@ -391,7 +394,7 @@
  function tick(){
   const vc=vsmContext()||pvpContext();
   const box=makeBox(vc?vc.host:'');if(!box)return;
-  const c=vc||context();
+  const c=isStudentNow()?null:(vc||context());
   const show=!!(c&&c.fen0&&((c.uci&&c.uci.length)||(c.sans&&c.sans.length)));
   if(!show){
    if(!box.hidden)box.hidden=true;

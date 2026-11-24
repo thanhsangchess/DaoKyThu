@@ -1,7 +1,7 @@
 (function(){
  'use strict';
  if(window.vqcPieceDrag)return;
- const VERSION='20261124-drag-v2';
+ const VERSION='20261124-drag-v3';
  const BOARD_SEL='[class*="board"],[id$="Board"],[id*="Board"]';
  const SKIP='.board-star,.move-hint,.capture-hint,[class*="coordinate"]';
  const GLYPH=/[♔-♟]/;
@@ -11,6 +11,14 @@
  let enabled=true;
  try{if(localStorage.getItem('vqc-piece-drag')==='off')enabled=false;}catch(e){}
  let st=null,suppressUntil=0;
+ const NOSEL='vqc-drag-noselect';
+ function lockSelect(on){try{document.documentElement.classList.toggle(NOSEL,!!on);if(on){const sel=window.getSelection&&window.getSelection();if(sel&&sel.removeAllRanges)sel.removeAllRanges();}}catch(e){}}
+ (function(){
+  const style=document.createElement('style');
+  style.textContent='html.'+NOSEL+',html.'+NOSEL+' *{-webkit-user-select:none!important;user-select:none!important}#pvpBoard,#pvpBoard *{-webkit-user-select:none;user-select:none}';
+  (document.head||document.documentElement).appendChild(style);
+  document.addEventListener('selectstart',function(e){if(st)e.preventDefault();},true);
+ })();
 
  function classOf(el){const c=el.className;return c&&c.baseVal!==undefined?c.baseVal:String(c||'');}
  function squaresOf(board,depth){
@@ -92,6 +100,7 @@
   const sqs=squaresOf(board),idx=indexOfSquare(sqs,e.target);
   if(idx<0)return;
   if(!visualOf(sqs[idx]))return;
+  lockSelect(true);
   st={board:board,idx:idx,x0:e.clientX,y0:e.clientY,x:e.clientX,y:e.clientY,active:false,dead:false,weSelected:false,selBySig:false,ghost:null,hover:null,obs:null,prevCursor:''};
  },true);
  window.addEventListener('dragstart',function(e){
@@ -125,6 +134,7 @@
   if(v)v.style.opacity='';
  }
  function activate(){
+  lockSelect(true);
   const board=st.board;
   let sqs=squaresOf(board),o=sqs[st.idx];
   if(!o||!document.contains(board)){st.dead=true;return false;}
@@ -187,6 +197,7 @@
   if(o&&(isSel(o)||s.selBySig))tap(visualOf(o)||o,s.x,s.y);
  }
  function cancel(doDeselect){
+  lockSelect(false);
   if(!st)return;
   const s=st;cleanup();st=null;
   if(s.active){
@@ -197,6 +208,7 @@
  window.addEventListener('pointerup',function(e){
   if(!e.isTrusted)return;
   if(!st||!e.isPrimary)return;
+  lockSelect(false);
   const s=st;
   if(!s.active){st=null;return;}
   s.x=e.clientX;s.y=e.clientY;
