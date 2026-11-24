@@ -1,0 +1,12 @@
+#vqcChdChooser .vqc-chd-chooser-card button small{display:none}
+#vqcChdOverlay p.vqc-chd-small:not([id]){display:none}
+#vqcVsMachineOverlay .vqc-vsm-license{display:none}
+aside.sidebar > .profile .avatar{
+  width:132px !important;height:132px !important;min-width:132px;margin:0 auto 6px !important;
+  border:0 !important;box-shadow:none !important;border-radius:0 !important;
+  background:transparent url("../assets/logo.png") center / contain no-repeat !important;
+  font-size:0 !important;line-height:0 !important;color:transparent !important;overflow:hidden;
+}
+aside.sidebar > .profile .avatar > *{display:none !important}
+aside.sidebar > .profile > h3,
+aside.sidebar > .profile > p{display:none !important}

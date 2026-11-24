@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+
+<html lang="vi">
+
+<head>
+<link rel="icon" type="image/png" href="./assets/favicon-rounded.png?v=20261116-verified-logo-v3">
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Đảo Kỳ Thủ – Học cờ vua qua trò chơi và khám phá các đảo</title>
+<meta name="description" content="Đảo Kỳ Thủ là website học cờ vua qua trò chơi dành cho học sinh, với hành trình khám phá các đảo, thử thách cờ vua và lớp học trực tuyến cùng giáo viên.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://thanhsangchess.github.io/DaoKyThu/">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="vi_VN">
+<meta property="og:site_name" content="Đảo Kỳ Thủ">
+<meta property="og:title" content="Đảo Kỳ Thủ – Học cờ vua qua trò chơi">
+<meta property="og:description" content="Khám phá các đảo, luyện tập cờ vua và tham gia lớp học trực tuyến trên Đảo Kỳ Thủ.">
+<meta property="og:url" content="https://thanhsangchess.github.io/DaoKyThu/">
+<meta property="og:image" content="https://thanhsangchess.github.io/DaoKyThu/assets/logo.png">
+<meta property="og:image:alt" content="Logo Đảo Kỳ Thủ">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://thanhsangchess.github.io/DaoKyThu/assets/logo.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebSite","name":"Đảo Kỳ Thủ","alternateName":"Dao Ky Thu","url":"https://thanhsangchess.github.io/DaoKyThu/","inLanguage":"vi","description":"Website học cờ vua qua trò chơi và khám phá các đảo dành cho học sinh."}
+</script>
+
+<link rel="stylesheet" href="./css/styles.css?v=header-at-top-20261017">
+<link rel="stylesheet" href="./css/adventure.css?v=volcano-region5-20261019">
+<link rel="stylesheet" href="./css/adventure-ux.css?v=forest-repeat-20261025-2">
+<link rel="stylesheet" href="./css/annotations.css?v=20261111-castling-drawing-precision-v1">
+<link rel="stylesheet" href="./css/friends.css?v=header-friends-20261020">
+
+<link rel="stylesheet" href="./css/board-appearance.css?v=20261020-2">
+<link rel="stylesheet" href="./css/last-move.css?v=20261023-unified6">
+<link rel="stylesheet" href="./css/friend-duel.css?v=friend-duel-retry-20261020-2">
+<link rel="stylesheet" href="./css/friend-chat.css?v=friend-chat-audit-20261020-3">
+<link rel="stylesheet" href="./css/arcade-games.css?v=arcade-20261020-2">
+<link rel="stylesheet" href="./css/friend-challenges.css?v=challenges-20261020-2">
+<link rel="stylesheet" href="./css/arcade-online.css?v=arcade-recheck-20261020-4">
+<link rel="stylesheet" href="./css/mobile-home.css?v=20261023-mobile7">
+<link rel="stylesheet" href="./css/lone-king-mate.css?v=lonemate-draw-20261026-2">
+<link rel="stylesheet" href="./css/chess-exercise-layout.css?v=20261025-fit-board-v1">
+<link rel="stylesheet" href="./css/mate-one-pdf-100.css?v=20261025-basic-v1">
+<link rel="stylesheet" href="./css/classroom-warmups.css?v=20261031-v1">
+<link rel="stylesheet" href="./css/game-review.css?v=20261110-deeper-yellow-v1">
+<link rel="stylesheet" href="./css/game-review-drawer.css?v=20261106-move-hints-v1">
+
+<link rel="stylesheet" href="./css/castling.css?v=20261111-no-scroll-standard-form-v1">
+<link rel="stylesheet" href="./css/double-attack.css?v=20261112-pdf24-v1">
+<link rel="stylesheet" href="./css/beginner-puzzles.css?v=20261113-puzzle-ui-v3">
+<link rel="stylesheet" href="./css/brand-identity.css?v=20261115-brand-v3">
+</head>
+
+<body class="vqc-mode-home">
+
+<header class="header">
+
+    <div class="logo">
+
+        <div class="logo-icon"><img src="./assets/logo.png" alt="" aria-hidden="true"></div>
+
+        <div class="logo-text">
+
+            <strong>
+
+                Đảo Kỳ Thủ
+
+            </strong>
+
+            <span>
+
+                Học cờ thật vui mỗi ngày
+
+            </span>
+
+        </div>
+
+    </div>
+
+    <div class="room-box">
+
+        <span>
+
+            Phòng:
+
+        </span>
+
+        <input
+
+            id="roomCode"
+
+            value="CO123"
+
+            maxlength="8"
+
+        >
+
+        <button class="btn btn-green" onclick="createRoom()">Tạo phòng</button>
+
+        <button
+
+            class="btn btn-blue"
+
+            onclick="joinRoom()"
+
+        >
+
+            Vào lớp
+
+        </button>
+        <button class="btn btn-soft" id="leaveRoomBtn" onclick="leaveClassroom()" style="display:none">🚪 Rời phòng</button>
+
+    </div>
+
+<button id="vqcBackHome" class="btn btn-soft" onclick="vqcGoHome()">⌂ Trang chủ</button><div id="accountBar" aria-label="Tài khoản người dùng"><span id="accountUserLabel" style="font-size:13px;font-weight:700">Chưa đăng nhập</span><button id="vqcFriendsOpen" class="btn btn-soft vqc-friends-trigger" type="button" aria-haspopup="dialog" aria-controls="vqcFriendsModal" title="Bạn bè Kỳ Thủ">👥 Bạn bè <span id="vqcFriendsUnread" class="vqc-friends-trigger__badge" aria-label="Lời mời mới" hidden></span></button><button class="btn btn-soft" onclick="showAccountPanel()">👤 Tài khoản</button><button class="btn btn-soft" type="button" id="vqcMembershipLaunch" onclick="window.vqcOpenMembershipSafe()">👑 Gói thành viên</button><button class="btn btn-soft" onclick="accountSignOut()">Thoát</button></div></header>
+
+<section id="vqcModeHome" class="vqc-entry" aria-label="Chọn chế độ học">
+ <div class="vqc-entry-head"><div class="vqc-entry-symbol"><img src="./assets/logo.png" alt="" aria-hidden="true"></div><h1>Đảo Kỳ Thủ</h1><p>Mỗi nước cờ – Một hành trình khám phá!</p></div>
+ <div class="vqc-entry-grid">
+  <article class="vqc-entry-card"><span class="vqc-entry-emoji">🏫</span><h2>Vào lớp</h2><p>Giáo viên và học sinh cùng học, xem và thao tác trên bàn cờ theo thời gian thực.</p><span class="vqc-entry-caption">Toàn bộ các bài tập, đối kháng và công cụ giảng dạy hiện tại</span><button class="btn btn-blue" onclick="vqcEnterClass()">Vào lớp học →</button>
+   <div id="vqcJoinArea" class="vqc-entry-join" hidden><label for="vqcJoinCode">Mã phòng giáo viên cung cấp</label><input id="vqcJoinCode" maxlength="8" placeholder="Nhập mã phòng"><button class="btn btn-green" onclick="vqcJoinFromLanding()">Kết nối với lớp</button></div>
+  </article>
+  <article class="vqc-entry-card"><span class="vqc-entry-emoji">🏰</span><h2>Khám phá các đảo</h2><p>Khám phá những hòn đảo kỳ thú, chinh phục thử thách và phát triển kỹ năng cờ vua theo hành trình riêng.</p><span class="vqc-entry-caption">Hành trình riêng • Những hòn đảo đang được phát triển</span><button class="btn btn-green" onclick="vqcOpenWorld()">Khám phá các đảo →</button></article>
+ </div>
+</section>
+<section id="vqcModeWorld" class="vqc-entry vqc-world vqc-adventure" aria-hidden="true" aria-label="Hành trình khám phá Đảo Kỳ Thủ">
+ <button class="vqc-avatar-change" id="vqcChangeAvatarBtn" type="button" aria-haspopup="dialog" aria-controls="vqcAvatarModal" aria-label="Đổi nhân vật" title="Đổi nhân vật">
+  <img id="vqcAvatarButtonPreview" src="./assets/nhanvat%20(6).png" alt="" width="56" height="56">
+  <span class="vqc-avatar-change__gear" aria-hidden="true">⚙️</span>
+ </button>
+ <div class="vqc-entry-head"><span class="vqc-entry-emoji">🏝️</span><h1>Khám phá Đảo Kỳ Thủ</h1><p>Chinh phục từng vùng đất, học cờ qua mỗi thử thách!</p></div>
+ <div class="vqc-adventure-toolbar" aria-label="Tiến độ phiêu lưu"><span class="vqc-adventure-stat">⭐ <span id="vqcAdventureStars">0</span> sao</span><span class="vqc-adventure-stat vqc-coin-top-balance">🪙 <strong id="vqcCoinsBalance">0</strong> xu</span><div class="vqc-adventure-meter" aria-label="Tiến độ Bến Cảng"><span id="vqcAdventureProgress"></span></div><span class="vqc-adventure-stat">⚓ <span id="vqcAdventureCount">0/10</span> màn</span></div>
+<section class="vqc-world-extras" aria-label="Chơi cùng bạn bè và giải trí">
+ <h2>🎮 Góc giải trí và thách đấu</h2>
+ <p>Chơi với máy hoặc bạn bên cạnh theo luật như trong lớp; thách đấu cờ vua trực tuyến với bạn bè đã kết bạn. Không tính sao hay xu.</p>
+ <div class="vqc-world-extras__actions">
+  <button type="button" onclick="vqcArcadeOpen(0)">♟️ Trò chơi Tốt</button>
+  <button type="button" onclick="vqcArcadeOpen(1)">♞ Mã chống Tốt</button>
+  <button type="button" onclick="vqcFriendChallengesOpen()">⚔️ Thách đấu bạn bè</button>
+ </div>
+</section>
+ <div id="vqcAdventureMap">
+  <div class="vqc-level-scroll" id="vqcLevelScroll" tabindex="0" aria-label="Bản đồ 7 vùng đất. Trên điện thoại, vuốt ngang để khám phá">
+   <div class="vqc-adventure-map vqc-level-map" id="vqcLevelMap">
+    <div class="vqc-map-hud vqc-map-hud--left" aria-label="Thành tích hiện tại">
+      <div class="vqc-map-hud__star">⭐ <strong id="vqcMapHudStars">0</strong> sao</div><div class="vqc-map-hud__coin" aria-label="Số Xu Kỳ Thủ">🪙 <strong id="vqcMapHudCoins">0</strong> xu</div>
+      <div class="vqc-map-hud__progress" role="presentation"><span id="vqcMapHudProgress"></span></div>
+    </div>
+    <div class="vqc-map-hud vqc-map-hud--right" aria-label="Số màn đã hoàn thành">
+      🏆 <strong id="vqcMapHudLessons">0/10 màn</strong>
+    </div>
+    <div class="vqc-level-map__island vqc-level-map__island--a" aria-hidden="true"></div>
+    <div class="vqc-level-map__island vqc-level-map__island--b" aria-hidden="true"></div>
+    <div class="vqc-level-map__island vqc-level-map__island--c" aria-hidden="true"></div>
+    <svg class="vqc-level-path" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+     <path class="vqc-level-path__shadow" d="M23 89 C24 80 51 82 69 76 C87 69 50 62 36 64 C19 64 49 52 75 51 C97 50 54 34 26 39 C7 43 28 24 68 26 C90 27 59 10 41 12"/>
+     <path class="vqc-level-path__trail" d="M23 89 C24 80 51 82 69 76 C87 69 50 62 36 64 C19 64 49 52 75 51 C97 50 54 34 26 39 C7 43 28 24 68 26 C90 27 59 10 41 12"/>
+    </svg>
+    <div class="vqc-adventure-regions vqc-level-map__nodes" id="vqcAdventureRegions" aria-label="Các trạm phiêu lưu"></div>
+    <div class="vqc-level-avatar" id="vqcLevelAvatar" aria-hidden="true">
+     <img id="playerAvatar" src="./assets/nhanvat%20(6).png" alt="Nhân vật nhà thám hiểm" width="56" height="56" draggable="false">
+    </div>
+    <div class="vqc-level-popup" id="vqcLevelPopup" role="dialog" aria-labelledby="vqcLevelPopupTitle" hidden>
+     <button class="vqc-level-popup__close" id="vqcLevelPopupClose" type="button" aria-label="Đóng thông tin vùng đất">×</button>
+     <span class="vqc-level-popup__eyebrow" id="vqcLevelPopupStage"></span>
+     <h3 id="vqcLevelPopupTitle"></h3>
+     <p id="vqcLevelPopupDescription"></p>
+     <p class="vqc-level-popup__progress" id="vqcLevelPopupProgress"></p>
+     <button class="btn btn-green vqc-level-popup__play" id="vqcLevelPopupPlay" type="button">Vào thử thách →</button>
+    </div>
+   </div>
+  </div>
+  <p class="vqc-level-hint">🧭 Chọn trạm đã mở để xem thông tin và di chuyển nhân vật. <span>Vuốt ngang trên điện thoại để xem hết bản đồ.</span></p>
+  <p class="vqc-adventure-legend">⚓ Bến Cảng, 🌳 Rừng Sao, ⛰️ Hẻm Núi, 💎 Hang Pha Lê và 🌋 Núi Lửa Vua Đen đã mở • Chinh phục các vùng đất để nhận Xu Kỳ Thủ.</p>
+
+  <section class="chess-rewards" id="chessRewards" aria-labelledby="chessRewardsTitle">
+    <div class="chess-rewards__container">
+      <div class="chess-rewards__heading">
+        <span class="chess-rewards__label">🎮 KHÁM PHÁ PHẦN THƯỞNG</span>
+        <h2 id="chessRewardsTitle">🏆 Hệ thống phần thưởng và nhân vật</h2>
+        <p>Hoàn thành thử thách, tích lũy thành tích và khám phá những phần thưởng thú vị!</p>
+      </div>
+      <div class="chess-rewards__grid">
+        <article class="chess-reward-card chess-reward-card--coins" aria-label="Xu Kỳ Thủ đã mở khóa">
+          <div class="chess-reward-card__image vqc-coin-art">
+            <div class="vqc-coin-art__glow" aria-hidden="true">🪙</div>
+            <span class="vqc-coin-art__caption">KHO BÁU CỦA EM</span>
+            <strong class="vqc-coin-art__balance"><span id="vqcCoinCardBalance">0</span> xu</strong>
+          </div>
+          <div class="chess-reward-card__content">
+            <h3>🪙 Xu Kỳ Thủ</h3>
+            <p>Chinh phục vùng đất để nhận xu: Vùng 1 được 1.000 xu, mỗi vùng tiếp theo tăng thêm 1.000 xu. Chỉ nhận một lần cho mỗi vùng.</p>
+            <button id="vqcCoinWalletOpen" class="vqc-coin-wallet-button" type="button" aria-haspopup="dialog" aria-controls="vqcCoinModal">🪙 Mở ví Xu Kỳ Thủ <span aria-hidden="true">→</span></button>
+          </div>
+        </article>
+        <article class="chess-reward-card chess-reward-card--characters" aria-label="Cửa hàng nhân vật đã mở khóa">
+          <div class="chess-reward-card__image vqc-character-art">
+            <div class="vqc-character-art__images" aria-hidden="true">
+              <img src="./assets/nhanvat%20(5).png" alt="" width="150" height="150" loading="lazy">
+              <img src="./assets/nhanvat%20(6).png" alt="" width="185" height="185" loading="lazy">
+              <img src="./assets/nhanvat%20(4).png" alt="" width="150" height="150" loading="lazy">
+            </div>
+            <span class="vqc-character-art__eyebrow">NHỮNG NGƯỜI BẠN ĐỒNG HÀNH</span>
+            <strong class="vqc-character-art__headline"><span id="vqcOwnedAvatarCount">2</span>/5 nhân vật</strong>
+          </div>
+          <div class="chess-reward-card__content">
+            <h3>🧙 Nhân vật thám hiểm</h3>
+            <p>Học giả và Nhà thám hiểm miễn phí. Dùng Xu Kỳ Thủ mở khóa Hiệp sĩ, Nữ hoàng và Nhà vua để trang bị trên bản đồ!</p>
+            <button id="vqcCharacterShopOpen" class="vqc-character-shop-button" type="button" aria-haspopup="dialog" aria-controls="vqcAvatarModal">🛍️ Mở cửa hàng nhân vật <span aria-hidden="true">→</span></button>
+          </div>
+        </article>
+        <article class="chess-reward-card chess-reward-card--badges" aria-label="Bộ sưu tập huy hiệu thành tích">
+          <div class="chess-reward-card__image vqc-badge-art">
+            <div class="vqc-badge-art__icons" aria-hidden="true">
+              <span>⚓</span><span>⭐</span><span>⚔️</span><span>🛡️</span><span>👑</span>
+            </div>
+            <span class="vqc-badge-art__eyebrow">BỘ SƯU TẬP THÀNH TÍCH</span>
+            <strong class="vqc-badge-art__headline"><span id="vqcBadgeOwnedCount">0</span>/5 huy hiệu</strong>
+          </div>
+          <div class="chess-reward-card__content">
+            <h3>🏅 Huy hiệu thành tích</h3>
+            <p>Chinh phục các vùng đất để mở khóa 5 huy hiệu thành tích, trong đó có huy hiệu Trung quân ái quốc ở Vùng 5.</p>
+            <button id="vqcBadgeCollectionOpen" class="vqc-badge-button" type="button" aria-haspopup="dialog" aria-controls="vqcBadgeModal">🏅 Xem bộ sưu tập <span aria-hidden="true">→</span></button>
+          </div>
+        </article>
+        <article class="chess-reward-card chess-reward-card--treasure" aria-label="Rương kho báu chinh phục vùng đất">
+          <div class="chess-reward-card__image vqc-treasure-art">
+            <div class="vqc-treasure-art__chest" aria-hidden="true">🧰</div>
+            <span class="vqc-treasure-art__eyebrow">KHO BÁU ĐẢO KỲ THỦ</span>
+            <strong class="vqc-treasure-art__headline"><span id="vqcTreasureOwnedCount">0</span>/5 rương hiện có</strong>
+          </div>
+          <div class="chess-reward-card__content">
+            <h3>🎁 Rương kho báu</h3>
+            <p>Khám phá các rương theo cột mốc chinh phục vùng đất. Phần thưởng được xác định trước và không quay ngẫu nhiên.</p>
+            <button id="vqcTreasureOpen" class="vqc-treasure-button" type="button" aria-haspopup="dialog" aria-controls="vqcTreasureModal">🎁 Xem kho báu <span aria-hidden="true">→</span></button>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+ </div>
+ <div id="vqcAdventurePlay" class="vqc-adventure-play" hidden>
+  <div class="vqc-adventure-actions"><button class="btn btn-soft" onclick="vqcAdventureBack()">← Bản đồ</button></div>
+  <div class="vqc-adventure-stages" id="vqcAdventureStages" aria-label="Chọn màn chơi"></div>
+  <div class="vqc-adventure-lesson"><div id="vqcAdventureBoard" class="vqc-adventure-board" aria-label="Bàn cờ minh họa"></div>
+   <div class="vqc-adventure-task"><h2 id="vqcAdventureStageTitle"></h2><p id="vqcAdventureQuestion"></p><div id="vqcAdventureAnswers" class="vqc-adventure-answers"></div><div id="vqcAdventureFeedback" class="vqc-adventure-feedback" role="status" hidden></div><button id="vqcAdventureNext" class="btn btn-green" onclick="vqcAdventureNext()" hidden>Tiếp tục khám phá →</button></div>
+  </div>
+ </div>
+ <div id="vqcForestScreen" class="vqc-forest-screen" hidden>
+  <div id="vqcForestSelect">
+   <div class="vqc-forest-header"><span>🌳</span><h2>Vùng 2 · Rừng Sao Bí Ẩn</h2><p>Ôn luyện 6 bài nhặt sao của em. Di chuyển đúng luật để thu thập đủ 6 ngôi sao ở mỗi bài!</p><strong id="vqcForestProgress">0/6 bài hoàn thành</strong></div>
+   <div id="vqcForestCards" class="vqc-forest-cards"></div>
+   <div class="vqc-adventure-actions"><button type="button" class="btn btn-soft" onclick="vqcAdventureForestBack()">← Trở về bản đồ</button></div>
+  </div>
+  <div id="vqcForestGame" hidden>
+   <div class="vqc-adventure-actions"><button type="button" class="btn btn-soft" onclick="vqcAdventureForestExit()">← Chọn quân cờ khác</button><strong id="vqcForestGameTitle">Rừng Sao</strong></div>
+   <div id="vqcForestBoardMount" class="vqc-forest-board-mount"></div>
+  </div>
+ </div>
+ <section id="vqcCanyonScreen" class="vqc-canyon-screen" aria-label="Ải 3 Hẻm Núi Chiến Thuật" hidden>
+  <header class="vqc-canyon-heading">
+   <span class="vqc-canyon-heading__icon" aria-hidden="true">⛰️</span>
+   <span class="vqc-canyon-heading__chapter">ẢI 3 · HÀNH TRÌNH CHIẾN THUẬT</span>
+   <h2>Hẻm Núi Chiến Thuật</h2>
+   <p>Luyện tập ăn quân trên bàn cờ. Hãy chọn một trong những bài tập đã có trong lớp học để chinh phục hẻm núi!</p>
+   <div class="vqc-canyon-summary" aria-label="Tiến độ ải 3">
+    <span>🏆 <strong id="vqcCanyonDoneCount">0/13</strong> bài đã hoàn thành</span>
+    <span>⭐ <strong id="vqcCanyonStarCount">0</strong>/39 sao</span>
+   </div>
+   <div class="vqc-canyon-meter" aria-hidden="true"><span id="vqcCanyonMeterFill"></span></div>
+  </header>
+  <div class="vqc-canyon-categories">
+   <article class="vqc-canyon-category">
+    <div class="vqc-canyon-category__header">
+     <span class="vqc-canyon-category__symbol" aria-hidden="true">🏹</span>
+     <div><h3>Ăn quân</h3><p>5 bài tập gốc: ăn hết các quân đen, quan sát nguy cơ bị ăn lại.</p></div>
+     <span class="vqc-canyon-category__counter" id="vqcCanyonCaptureCount">0/5</span>
+    </div>
+    <div class="vqc-canyon-tasks" id="vqcCanyonCaptureTasks" aria-label="5 bài tập Ăn quân"></div>
+   </article>
+   <article class="vqc-canyon-category">
+    <div class="vqc-canyon-category__header">
+     <span class="vqc-canyon-category__symbol" aria-hidden="true">🎯</span>
+     <div><h3>Ăn quân không được bảo vệ</h3><p>8 bài tập gốc (Hình 43–50): chọn nước ăn an toàn, tránh bị ăn lại.</p></div>
+     <span class="vqc-canyon-category__counter" id="vqcCanyonFreeCount">0/8</span>
+    </div>
+    <div class="vqc-canyon-tasks" id="vqcCanyonFreeCaptureTasks" aria-label="8 bài tập Ăn quân không được bảo vệ"></div>
+   </article>
+  </div>
+  <p class="vqc-canyon-feedback" id="vqcCanyonMessage" role="status">Mỗi bài giải đúng lần đầu sẽ được nhận 3 sao. Em có thể luyện lại bao nhiêu lần tùy thích!</p>
+  <div class="vqc-adventure-actions"><button class="btn btn-soft" type="button" onclick="vqcAdventureCanyonBack()">← Quay lại bản đồ</button></div>
+ </section>
+
+ <section id="vqcCrystalScreen" class="vqc-crystal-screen" aria-label="Vùng 4 Hang Động Pha Lê" hidden>
+  <header class="vqc-canyon-heading vqc-crystal-heading">
+   <span class="vqc-canyon-heading__icon" aria-hidden="true">💎</span>
+   <span class="vqc-canyon-heading__chapter">VÙNG 4 · BÍ MẬT PHA LÊ</span>
+   <h2>Hang Động Pha Lê</h2>
+   <p>Học cách bảo vệ quân cờ! Chọn các bài tập phòng thủ đã học trong lớp và tìm nước đi giúp quân an toàn.</p>
+   <div class="vqc-canyon-summary" aria-label="Tiến độ Vùng 4">
+    <span>🛡️ <strong id="vqcCrystalDoneCount">0/14</strong> bài hoàn thành</span>
+    <span>⭐ <strong id="vqcCrystalStarCount">0</strong>/42 sao</span>
+    <span>🪙 Phần thưởng: <strong>4.000 xu</strong></span>
+   </div>
+   <div class="vqc-canyon-meter" aria-hidden="true"><span id="vqcCrystalMeterFill"></span></div>
+  </header>
+  <div class="vqc-canyon-categories">
+   <article class="vqc-canyon-category">
+    <div class="vqc-canyon-category__header">
+     <span class="vqc-canyon-category__symbol" aria-hidden="true">🛡️</span>
+     <div><h3>Phòng thủ</h3><p>8 bài gốc: thoát đòn, chặn đòn và hỗ trợ bảo vệ quân.</p></div>
+     <span class="vqc-canyon-category__counter" id="vqcCrystalDefenseCount">0/8</span>
+    </div>
+    <div class="vqc-canyon-tasks" id="vqcCrystalDefenseTasks" aria-label="8 bài tập Phòng thủ"></div>
+   </article>
+   <article class="vqc-canyon-category">
+    <div class="vqc-canyon-category__header">
+     <span class="vqc-canyon-category__symbol" aria-hidden="true">🔮</span>
+     <div><h3>Phòng thủ quân bị tấn công</h3><p>6 bài gốc (Hình 51–56): tìm biện pháp hóa giải đòn tấn công.</p></div>
+     <span class="vqc-canyon-category__counter" id="vqcCrystalAttackCount">0/6</span>
+    </div>
+    <div class="vqc-canyon-tasks" id="vqcCrystalAttackTasks" aria-label="6 bài Phòng thủ quân bị tấn công"></div>
+   </article>
+  </div>
+  <p class="vqc-canyon-feedback" id="vqcCrystalMessage" role="status">Mỗi bài hoàn thành lần đầu được nhận 3 sao. Chinh phục đủ 14 bài để mở kho báu Vùng 4 và huy hiệu phòng thủ.</p>
+  <div class="vqc-adventure-actions"><button class="btn btn-soft" type="button" onclick="vqcAdventureCrystalBack()">← Quay lại bản đồ</button></div>
+ </section>
+
+ <section id="vqcVolcanoScreen" class="vqc-volcano-screen" aria-label="Vùng 5 Núi Lửa Vua Đen" hidden>
+  <header class="vqc-canyon-heading vqc-volcano-heading">
+   <span class="vqc-canyon-heading__icon" aria-hidden="true">🌋</span>
+   <span class="vqc-canyon-heading__chapter">VÙNG 5 · BẢO VỆ VỊ VUA</span>
+   <h2>Núi Lửa Vua Đen</h2>
+   <p>Vị Vua đang bị chiếu! Hãy tìm nước đi hợp lệ để thoát chiếu trong những bài tập đã học ở lớp.</p>
+   <div class="vqc-canyon-summary" aria-label="Tiến độ Vùng 5">
+    <span>♔ <strong id="vqcVolcanoDoneCount">0/13</strong> bài đã hoàn thành</span>
+    <span>⭐ <strong id="vqcVolcanoStarCount">0</strong>/39 sao</span>
+    <span>🪙 Thưởng chinh phục: <strong>5.000 xu</strong></span>
+   </div>
+   <div class="vqc-canyon-meter" aria-hidden="true"><span id="vqcVolcanoMeterFill"></span></div>
+  </header>
+  <div class="vqc-canyon-categories">
+   <article class="vqc-canyon-category">
+    <div class="vqc-canyon-category__header">
+     <span class="vqc-canyon-category__symbol" aria-hidden="true">👑</span>
+     <div><h3>Thoát chiếu</h3><p>7 thế cờ gốc: di chuyển Vua, che chắn hoặc loại bỏ quân đang chiếu.</p></div>
+     <span class="vqc-canyon-category__counter" id="vqcVolcanoEscapeCount">0/7</span>
+    </div>
+    <div class="vqc-canyon-tasks" id="vqcVolcanoEscapeTasks" aria-label="7 bài Thoát chiếu"></div>
+   </article>
+   <article class="vqc-canyon-category">
+    <div class="vqc-canyon-category__header">
+     <span class="vqc-canyon-category__symbol" aria-hidden="true">🔥</span>
+     <div><h3>Thử thách thoát chiếu nâng cao</h3><p>6 thế cờ gốc (Hình 63–68), gồm cả lượt Trắng và Đen.</p></div>
+     <span class="vqc-canyon-category__counter" id="vqcVolcanoAdvancedCount">0/6</span>
+    </div>
+    <div class="vqc-canyon-tasks" id="vqcVolcanoAdvancedTasks" aria-label="6 bài Thoát chiếu Hình 63 đến 68"></div>
+   </article>
+  </div>
+  <p id="vqcVolcanoMessage" class="vqc-canyon-feedback" role="status">Mỗi bài hoàn thành lần đầu nhận 3 sao. Hoàn thành 13 bài để nhận 5.000 xu và huy hiệu Trung quân ái quốc!</p>
+  <div class="vqc-adventure-actions"><button class="btn btn-soft" type="button" onclick="vqcAdventureVolcanoBack()">← Quay lại bản đồ</button></div>
+ </section>
+ <p id="vqcAdventureSave" role="status"></p>
+ <div class="vqc-adventure-actions"><button class="btn btn-soft" onclick="vqcGoHome()">← Trang chủ</button></div>
+</section>
+
+<div id="vqcCoinModal" class="vqc-coin-modal" role="dialog" aria-modal="true" aria-labelledby="vqcCoinModalTitle" aria-describedby="vqcCoinModalDescription" hidden>
+ <div class="vqc-coin-modal__dialog">
+  <button class="vqc-coin-modal__close" id="vqcCoinModalClose" type="button" aria-label="Đóng ví Xu Kỳ Thủ">×</button>
+  <div class="vqc-coin-modal__heading">
+   <span class="vqc-coin-modal__symbol" aria-hidden="true">🪙</span>
+   <div>
+    <span class="vqc-coin-modal__eyebrow">PHẦN THƯỞNG CHINH PHỤC</span>
+    <h2 id="vqcCoinModalTitle">Ví Xu Kỳ Thủ</h2>
+   </div>
+  </div>
+  <p id="vqcCoinModalDescription">Mỗi vùng đất hoàn thành toàn bộ thử thách sẽ nhận phần thưởng một lần. Làm lại bài không được cộng xu lần nữa.</p>
+  <div class="vqc-coin-modal__balance" aria-label="Tổng Xu Kỳ Thủ hiện có">
+   <span>Xu hiện có</span><strong>🪙 <span id="vqcCoinWalletBalance">0</span> xu</strong>
+   <small>Đã chinh phục: <span id="vqcCoinEarnedRegions">0/7 vùng</span></small>
+  </div>
+  <div class="vqc-coin-modal__regions" id="vqcCoinRewardList" aria-label="Phần thưởng 7 vùng đất"></div>
+  <p class="vqc-coin-modal__note">Tổng cộng tối đa 28.000 xu khi hoàn thành cả 7 vùng đất. Các vùng chưa mở sẽ được nhận xu khi có thử thách và hoàn thành.</p>
+  <button class="vqc-coin-modal__done" id="vqcCoinModalDone" type="button">Tiếp tục khám phá</button>
+ </div>
+</div>
+<div id="vqcCoinsToast" class="vqc-coin-toast" role="status" aria-live="polite" hidden></div>
+
+<div id="vqcBadgeModal" class="vqc-reward-modal vqc-reward-modal--badges" role="dialog" aria-modal="true" aria-labelledby="vqcBadgeTitle" aria-describedby="vqcBadgeSummary" hidden>
+ <div class="vqc-reward-modal__panel" tabindex="-1">
+  <button id="vqcBadgeClose" class="vqc-reward-modal__close" type="button" aria-label="Đóng bộ sưu tập huy hiệu">×</button>
+  <div class="vqc-reward-modal__hero">
+   <span class="vqc-reward-modal__hero-icon" aria-hidden="true">🏅</span>
+   <span class="vqc-reward-modal__eyebrow">THÀNH TÍCH CỦA EM</span>
+   <h2 id="vqcBadgeTitle">Bộ sưu tập huy hiệu</h2>
+   <p id="vqcBadgeSummary" role="status">Hoàn thành từng vùng đất để thu thập huy hiệu.</p>
+  </div>
+  <div id="vqcBadgeList" class="vqc-badge-list" aria-label="Năm huy hiệu chinh phục"></div>
+  <p class="vqc-reward-modal__note">Huy hiệu được cấp tự động theo tiến độ học tập, không cần sử dụng Xu Kỳ Thủ.</p>
+  <button id="vqcBadgeDone" class="vqc-reward-modal__done" type="button">Tiếp tục hành trình</button>
+ </div>
+</div>
+<div id="vqcBadgeToast" class="vqc-reward-toast vqc-reward-toast--badge" role="status" aria-live="polite" hidden></div>
+
+<div id="vqcTreasureModal" class="vqc-reward-modal vqc-reward-modal--treasure" role="dialog" aria-modal="true" aria-labelledby="vqcTreasureTitle" aria-describedby="vqcTreasureSummary" hidden>
+ <div class="vqc-reward-modal__panel" tabindex="-1">
+  <button id="vqcTreasureClose" class="vqc-reward-modal__close" type="button" aria-label="Đóng kho báu">×</button>
+  <div class="vqc-reward-modal__hero">
+   <span class="vqc-reward-modal__hero-icon" aria-hidden="true">🎁</span>
+   <span class="vqc-reward-modal__eyebrow">PHẦN THƯỞNG CHINH PHỤC</span>
+   <h2 id="vqcTreasureTitle">Kho báu Đảo Kỳ Thủ</h2>
+   <p id="vqcTreasureSummary" role="status">Hoàn thành các vùng đất để mở rương.</p>
+  </div>
+  <div id="vqcTreasureList" class="vqc-treasure-list" aria-label="Bảy rương theo cột mốc"></div>
+  <p class="vqc-reward-modal__note">Rương hiển thị những phần thưởng đã có trong hệ thống Xu Kỳ Thủ. Xem rương không cộng thêm xu và không có phần thưởng ngẫu nhiên.</p>
+  <button id="vqcTreasureDone" class="vqc-reward-modal__done" type="button">Tiếp tục khám phá</button>
+ </div>
+</div>
+
+<div id="vqcAvatarModal" class="vqc-avatar-modal" role="dialog" aria-modal="true" aria-labelledby="vqcAvatarModalTitle" aria-describedby="vqcAvatarModalDesc" hidden>
+ <div class="vqc-avatar-modal__dialog" tabindex="-1">
+  <button id="vqcAvatarClose" type="button" class="vqc-avatar-modal__close" aria-label="Đóng cửa sổ chọn nhân vật">×</button>
+  <span class="vqc-avatar-modal__eyebrow">✨ TẠO HÌNH NHÀ THÁM HIỂM</span>
+  <h2 id="vqcAvatarModalTitle">Chọn nhân vật của bạn</h2>
+  <p id="vqcAvatarModalDesc">Học giả và Nhà thám hiểm được sử dụng miễn phí. Em có thể dùng Xu Kỳ Thủ để mở khóa những nhân vật khác!</p>
+  <div class="vqc-avatar-wallet">🪙 Xu hiện có: <strong id="vqcAvatarCoins">0</strong> xu</div>
+  <div class="vqc-avatar-choices" id="vqcAvatarChoices" aria-label="Năm nhân vật có thể lựa chọn">
+    <button class="vqc-avatar-option" type="button" data-avatar="king" aria-pressed="false">
+     <span class="vqc-avatar-option__photo"><img src="./assets/nhanvat%20(2).png" alt="" width="240" height="240" loading="lazy"><span class="vqc-avatar-option__check" aria-hidden="true">✓</span></span>
+     <span class="vqc-avatar-option__label">Nhà vua</span><span class="vqc-avatar-option__status" data-avatar-price="king">🪙 7.000 xu</span>
+    </button>
+    <button class="vqc-avatar-option" type="button" data-avatar="queen" aria-pressed="false">
+     <span class="vqc-avatar-option__photo"><img src="./assets/nhanvat%20(3).png" alt="" width="240" height="240" loading="lazy"><span class="vqc-avatar-option__check" aria-hidden="true">✓</span></span>
+     <span class="vqc-avatar-option__label">Nữ hoàng</span><span class="vqc-avatar-option__status" data-avatar-price="queen">🪙 7.000 xu</span>
+    </button>
+    <button class="vqc-avatar-option" type="button" data-avatar="knight" aria-pressed="false">
+     <span class="vqc-avatar-option__photo"><img src="./assets/nhanvat%20(4).png" alt="" width="240" height="240" loading="lazy"><span class="vqc-avatar-option__check" aria-hidden="true">✓</span></span>
+     <span class="vqc-avatar-option__label">Hiệp sĩ</span><span class="vqc-avatar-option__status" data-avatar-price="knight">🪙 3.000 xu</span>
+    </button>
+    <button class="vqc-avatar-option" type="button" data-avatar="scholar" aria-pressed="false">
+     <span class="vqc-avatar-option__photo"><img src="./assets/nhanvat%20(5).png" alt="" width="240" height="240" loading="lazy"><span class="vqc-avatar-option__check" aria-hidden="true">✓</span></span>
+     <span class="vqc-avatar-option__label">Học giả</span><span class="vqc-avatar-option__status" data-avatar-price="scholar">Miễn phí</span>
+    </button>
+    <button class="vqc-avatar-option" type="button" data-avatar="explorer" aria-pressed="false">
+     <span class="vqc-avatar-option__photo"><img src="./assets/nhanvat%20(6).png" alt="" width="240" height="240" loading="lazy"><span class="vqc-avatar-option__check" aria-hidden="true">✓</span></span>
+     <span class="vqc-avatar-option__label">Nhà thám hiểm</span><span class="vqc-avatar-option__status" data-avatar-price="explorer">Miễn phí</span>
+    </button>
+  </div>
+  <p class="vqc-avatar-modal__tip" id="vqcAvatarShopMessage" role="status" aria-live="polite">Nhân vật đã mua được dùng vĩnh viễn và có thể đổi bất cứ lúc nào.</p>
+  <button id="vqcAvatarConfirm" class="vqc-avatar-modal__confirm" type="button">✓ Xác nhận nhân vật</button>
+ </div>
+</div>
+
+<main class="app">
+
+<aside class="card sidebar">
+
+    <div class="profile">
+
+        <div class="avatar">
+
+            🧒
+
+        </div>
+
+        <h3>
+
+            Nhà thám hiểm nhỏ
+
+        </h3>
+
+        <p>
+
+            Hôm nay mình học cờ nhé!
+
+        </p>
+
+    </div>
+
+    <div class="lesson-title">
+
+        Khám phá quân cờ
+
+    </div>
+
+    <div class="lesson" data-piece="R">
+
+        <div class="lesson-icon">
+
+            ♜
+
+        </div>
+
+        Quân Xe
+
+    </div>
+
+    <div class="lesson" data-piece="B">
+
+        <div class="lesson-icon">
+
+            ♝
+
+        </div>
+
+        Quân Tượng
+
+    </div>
+
+    <div class="lesson" data-piece="Q">
+
+        <div class="lesson-icon">
+
+            ♛
+
+        </div>
+
+        Quân Hậu
+
+    </div>
+
+    <div class="lesson" data-piece="K">
+
+        <div class="lesson-icon">
+
+            ♚
+
+        </div>
+
+        Quân Vua
+
+    </div>
+
+    <div class="lesson" data-piece="N">
+
+        <div class="lesson-icon">
+
+            ♞
+
+        </div>
+
+        Quân Mã
+
+    </div>
+
+    <div class="lesson" data-piece="P">
+
+        <div class="lesson-icon">
+
+            ♟
+
+        </div>
+
+        Quân Tốt
+
+    </div>
+
+    <div class="lesson-title">🧠 Khởi động trí tuệ</div>
+    <div class="lesson" id="vqcWarmupLaunch" role="button" tabindex="0" onclick="vqcWarmupOpen()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();vqcWarmupOpen();}"><div class="lesson-icon">🧠</div> 5 phút khởi động</div>
+
+    <div class="lesson-title">
+
+        Thử thách
+
+    </div>
+
+    <div class="lesson" id="escapeMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('escapeOpen',0)"><div class="lesson-icon">🛡️</div> Thoát chiếu</div>
+    <div class="lesson" id="checkOneMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('checkOneOpen',0)"><div class="lesson-icon">⚡</div> Chiếu trong 1 nước</div>
+    <div class="lesson" id="castlingMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('castlingOpen',0)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();vqcOpenChallengeSafe('castlingOpen',0);}"><div class="lesson-icon">♔</div> Nhập thành: Có hay Không?</div>
+    <div class="lesson" id="doubleAttackMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('doubleAttackOpen',0)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();vqcOpenChallengeSafe('doubleAttackOpen',0);}"><div class="lesson-icon">⚔️</div> Tấn công đôi (24 bài)</div>
+    <div class="lesson" id="beginnerPuzzleMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('beginnerPuzzleOpen',0)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();vqcOpenChallengeSafe('beginnerPuzzleOpen',0);}"><div class="lesson-icon">♟️</div> Đố cờ vua cơ bản (10 bài)</div>
+    <div class="lesson" id="mateOneBasicMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('vqcMateOneBasicOpen',0)"><div class="lesson-icon">♕</div> Chiếu hết trong 1 nước (Cơ bản)</div>
+    <div class="lesson" id="mateOnePdfMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('vqcMateOneOpen',0)"><div class="lesson-icon">♛</div> Chiếu hết trong 1 nước (Nâng cao)</div>
+    <div class="lesson" id="pawnGamesMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('pawnGameOpen',0)"><div class="lesson-icon">♟️</div> Trò chơi Tốt và Mã</div>
+    <div class="lesson" id="defenseAttackMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('defenseOpenNew',0)"><div class="lesson-icon">🛡️</div> Phòng thủ quân bị tấn công</div>
+    <div class="lesson" id="defenseMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('defenseOpen',0)"><div class="lesson-icon">🛡️</div> Phòng thủ</div>
+<div class="lesson" id="freeCaptureMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('freeCaptureOpen',0)"><div class="lesson-icon">🎯</div> Ăn quân không được bảo vệ</div>
+<div class="lesson" id="captureMenu" role="button" tabindex="0" onclick="vqcOpenChallengeSafe('captureOpen',0)"><div class="lesson-icon">🎯</div> Ăn quân</div>
+<div class="lesson" id="openMateExercises" role="button" tabindex="0" onclick="openMateExercises(0)" onkeydown="if(event.key==='Enter')openMateExercises(0)"><div class="lesson-icon">♔</div> Chiếu hết trong 2 nước</div>
+<div class="lesson" role="button" tabindex="0" onclick="openMate3(0)"><div class="lesson-icon">♛</div> Chiếu hết trong 3 nước</div><div class="lesson" id="loneKingMateMenu" role="button" tabindex="0" onclick="loneKingMateOpen(0)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();loneKingMateOpen(0)}"><div class="lesson-icon">♚</div> Chiếu hết Vua đơn độc</div>
+<div class="lesson" id="pvpMenu" role="button" tabindex="0" onclick="openPvp()" onkeydown="if(event.key==='Enter')openPvp()"><div class="lesson-icon">⚔️</div> Đối kháng trực tuyến</div></aside>
+
+<section class="center">
+
+    <div id="pieceGameBar" class="piece-game-bar">
+        <div>
+            <div id="pieceGameTitle" class="piece-game-title">⭐ Thử thách quân cờ</div>
+            <div id="pieceGameHelp" class="piece-game-help">Đi đúng luật để nhặt đủ 6 ngôi sao.</div>
+        </div>
+        <div id="pieceGameScore" class="piece-game-score">⭐ 0 / 6</div>
+    </div>
+
+    <div class="vqc-classroom-tabs" role="tablist" aria-label="Chế độ bàn cờ lớp học">
+      <button type="button" id="vqcClassBoardTab" class="is-active" role="tab" aria-selected="true" onclick="vqcGameReviewShowBoard()">♟ Bàn cờ lớp học</button>
+      <button type="button" id="vqcReviewTab" role="tab" aria-selected="false" onclick="vqcGameReviewOpen()">📋 Xem lại ván đấu</button>
+    </div>
+    <section id="vqcReviewWorkspace" class="vqc-review-workspace" hidden aria-label="Xem lại ván đấu bằng PGN">
+      <div class="vqc-review-workspace__board">
+        <div class="vqc-review-status">
+          <div><strong id="vqcReviewCounter">Chưa có ván đấu</strong><span id="vqcReviewTurn" class="vqc-review-turn"></span></div>
+          <span class="vqc-review-live"><i></i> Đồng bộ lớp học</span>
+        </div>
+        <div class="board-shell vqc-review-board-shell"><div id="vqcReviewBoard" class="board" aria-label="Bàn cờ xem lại"></div></div>
+        <div class="vqc-review-controls" aria-label="Điều khiển nước đi">
+          <button id="vqcReviewFirst" type="button" title="Về đầu (Home)" aria-label="Về đầu"><span>⏮</span><small>Đầu</small></button>
+          <button id="vqcReviewPrev" type="button" title="Nước trước (←)" aria-label="Nước trước"><span>◀</span><small>Trước</small></button>
+          <button id="vqcReviewNext" type="button" title="Nước sau (→)" aria-label="Nước sau"><span>▶</span><small>Sau</small></button>
+          <button id="vqcReviewLast" type="button" title="Đến cuối (End)" aria-label="Đến cuối"><span>⏭</span><small>Cuối</small></button>
+          <span class="vqc-review-shortcut">Dùng phím ← / → để di chuyển</span>
+        </div>
+      </div>
+      <div class="vqc-review-workspace__side">
+        <section class="vqc-review-variation-actions" aria-label="Thử nước đi trên bàn cờ xem lại">
+          <div class="vqc-review-variation-actions__heading">
+            <strong>♟ Thử nước đi</strong>
+            <small id="vqcReviewVariationStatus">Chọn quân cờ trên bàn để tự thử nước đi từ vị trí đang xem.</small>
+          </div>
+          <div class="vqc-review-variation-actions__buttons">
+            <button type="button" id="vqcReviewVariationReset" hidden>↺ Khôi phục vị trí PGN</button>
+            <button type="button" id="vqcReviewFlipBoard" aria-label="Đảo bàn cờ" aria-pressed="false">↻ Đảo bàn cờ · Trắng</button>
+            <button type="button" id="vqcReviewReturnBoard" class="is-return">↩ Quay lại bàn cờ lớp học</button>
+          </div>
+          <div id="vqcReviewPromotion" class="vqc-review-promotion" hidden></div>
+        </section>
+        <details id="vqcReviewImport" class="vqc-review-import">
+          <summary><span class="vqc-review-import-icon">📥</span><span class="vqc-review-import-copy"><strong>Nhập ván đấu PGN</strong><small>Dán nội dung, lấy từ clipboard hoặc chọn tệp</small></span><span class="vqc-review-chevron">⌄</span></summary>
+          <div class="vqc-review-import-body" id="vqcReviewTeacherTools">
+            <label class="vqc-review-label" for="vqcReviewPgn">Nội dung PGN</label>
+            <textarea id="vqcReviewPgn" class="vqc-review-input" spellcheck="false" placeholder='[Event "Training"]&#10;[Result "*"]&#10;&#10;1. e4 e5 2. Nf3 Nc6 *'></textarea>
+            <div class="vqc-review-import-actions">
+              <button id="vqcReviewPaste" class="vqc-review-secondary" type="button">📋 Dán từ clipboard</button>
+              <label class="vqc-review-file">📂 Chọn file .pgn<input id="vqcReviewFile" type="file" accept=".pgn,.txt,text/plain"></label>
+              <button id="vqcReviewLoad" class="vqc-review-load" type="button">Tải PGN và chia sẻ</button>
+            </div>
+            <div id="vqcReviewError" class="vqc-review-error" role="alert" aria-live="polite"></div>
+          </div>
+        </details>
+        
+        <div id="vqcReviewStudentHint" class="vqc-review-student-hint" hidden>👩‍🏫 Giáo viên điều khiển ván PGN gốc. Cả giáo viên và học sinh đều có thể chọn bất kỳ quân Trắng hoặc Đen để thử đi, không cần luân phiên; nước thử được đồng bộ trên các máy trong phòng và không làm thay đổi PGN gốc.</div>
+        <div class="vqc-review-moves-heading"><div><strong>📋 Biên bản ván đấu</strong><small id="vqcReviewMoveCount">Chưa có nước đi</small></div><div class="vqc-review-actions"><button id="vqcReviewCopy" type="button" title="Sao chép PGN">Sao chép</button><button id="vqcReviewDownload" type="button" title="Tải tệp PGN">Tải .pgn</button></div></div>
+        <div class="vqc-review-moves-wrap">
+          <div class="vqc-review-move-grid" id="vqcReviewMoves" role="list" aria-label="Danh sách nước đi">
+            <div class="vqc-review-move-head"><span>#</span><span>Trắng</span><span>Đen</span></div>
+            <p class="vqc-review-empty">Nhập PGN để xem biên bản các nước đi.</p>
+          </div>
+        </div>
+        <p class="vqc-review-note">Chọn một nước đi để nhảy đến đúng vị trí trên bàn cờ. Học sinh theo dõi thao tác của giáo viên.</p>
+      </div>
+    </section>
+    <div class="board-shell">
+
+        <div
+
+            id="board"
+
+            class="board"
+
+        ></div>
+
+    </div>
+
+    <div class="board-toolbar">
+
+        <button
+
+            class="btn btn-green"
+
+            onclick="setupStart()"
+
+        >
+
+            ♟ Xếp bàn chuẩn
+
+        </button>
+
+        <button
+
+            class="btn btn-yellow"
+
+            onclick="undoMove()"
+
+        >
+
+            ↩ Đi lại
+
+        </button>
+
+        <button
+
+            class="btn btn-soft"
+
+            onclick="clearBoard()"
+
+        >
+
+            ✨ Xóa bàn
+
+        </button>
+
+    </div>
+
+</section>
+
+<aside class="card">
+
+    <div class="panel-header">
+
+        <h2>
+
+            🏫 Phòng học trực tiếp
+
+        </h2>
+
+        <p>
+
+            Giáo viên và học sinh cùng thao tác
+
+        </p>
+
+    </div>
+<div class="panel-content">
+
+        <div class="roles">
+
+            <button
+
+                id="studentBtn"
+
+                class="role-btn active"
+
+                onclick="setRole('student')"
+
+            >
+
+                🧒 Học sinh
+
+            </button>
+
+            <button
+
+                id="teacherBtn"
+
+                class="role-btn"
+
+                onclick="setRole('teacher')"
+
+            >
+
+                👩‍🏫 Giáo viên
+
+            </button>
+
+        </div>
+
+        <div
+
+            class="connection"
+
+            id="connection"
+
+        >
+
+            <div class="dot"></div>
+
+            Chưa vào phòng
+
+        </div>
+
+        <div class="mission">
+
+            <div class="mission-title">
+
+                ⭐ NHIỆM VỤ HÔM NAY
+
+            </div>
+
+            <p id="missionText">
+
+                Hãy thử di chuyển một quân cờ trên bàn.
+
+            </p>
+
+        </div>
+
+        <div
+
+            class="status"
+
+            id="status"
+
+        >
+
+            Chọn quân trong bảng chỉnh sửa rồi đặt lên bàn cờ.
+
+        </div>
+
+        <div class="log-title">
+
+            📋 Hoạt động gần đây
+
+        </div>
+
+        <div
+
+            class="log"
+
+            id="log"
+
+        ></div>
+
+    </div>
+
+</aside>
+
+</main>
+
+<div id="vqcToasts" aria-live="polite"></div>
+<div id="editorPromotionDialog" class="vqc-promotion" role="dialog" aria-modal="true" aria-label="Chọn quân phong cấp">
+ <div class="vqc-promotion-card"><h3>♟ Tốt được phong cấp!</h3><p>Chọn quân muốn phong cấp để tiếp tục thế cờ.</p><div id="editorPromotionChoices" class="vqc-promotion-choices"></div><button class="btn btn-soft" onclick="editorClosePromotion()">Hủy</button></div>
+</div>
+<div class="mate-overlay" id="mateOverlay" role="dialog" aria-modal="true" aria-label="Bài tập chiếu hết trong hai nước">
+<div class="mate-dialog"><div class="mate-top"><strong id="mateTitle">♔ Chiếu hết trong 2 nước</strong><button class="btn btn-soft" onclick="closeMateExercises()">✕ Đóng</button></div>
+<div class="mate-layout"><div id="mateBoard" class="mate-board"></div><div class="mate-side">
+<div class="mate-msg" id="mateMessage">Trắng đi trước. Hãy chiếu hết Vua Đen trong 2 nước của Trắng.</div>
+<button onclick="matePrev()">← Bài trước</button>
+<button onclick="mateNext()">Bài sau →</button>
+<button onclick="mateReset()">↻ Làm lại</button>
+<button onclick="mateHint()">💡 Gợi ý</button>
+</div></div></div></div>
+<div class="mate3-overlay" id="mate3Overlay" role="dialog" aria-modal="true"><div class="mate3-dialog"><div class="mate-top"><strong id="mate3Title">♛ Chiếu hết trong 3 nước</strong><button class="btn btn-soft" onclick="closeMate3()">✕ Đóng</button></div><div class="mate3-layout"><div class="mate3-board" id="mate3Board"></div><div class="mate3-side"><div class="mate-msg" id="mate3Message"></div><button onclick="openMate3(mate3Index-1)">← Bài trước</button><button onclick="openMate3(mate3Index+1)">Bài sau →</button><button onclick="resetMate3()">↻ Làm lại</button><button onclick="hintMate3()">💡 Gợi ý</button></div></div></div></div>
+<div id="mate3PromotionDialog" role="dialog" aria-modal="true" aria-label="Chọn quân phong cấp" style="display:none;position:fixed;inset:0;z-index:5500;background:rgba(15,35,55,.72);align-items:center;justify-content:center;padding:16px">
+  <div style="background:white;border-radius:20px;padding:24px;max-width:480px;width:100%;text-align:center;box-shadow:0 18px 60px #172d4666">
+    <h3 style="margin:0 0 8px;color:#3479b4">♟ Chọn quân phong cấp</h3>
+    <p style="margin:0 0 18px">Tốt đã đến hàng cuối. Em muốn phong cấp thành quân nào?</p>
+    <div id="mate3PromotionChoices" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px"></div>
+    <button class="btn btn-soft" style="margin-top:18px" onclick="closeMate3Promotion()">Hủy</button>
+  </div>
+</div>
+<div id="pvpPromotionDialog" role="dialog" aria-modal="true" aria-label="Chọn quân phong cấp khi đối kháng" style="display:none;position:fixed;inset:0;z-index:5600;background:rgba(15,35,55,.72);align-items:center;justify-content:center;padding:16px">
+  <div style="background:white;border-radius:20px;padding:24px;max-width:480px;width:100%;text-align:center;box-shadow:0 18px 60px #172d4666">
+    <h3 style="margin:0 0 8px;color:#3479b4">♟ Chọn quân phong cấp</h3>
+    <p style="margin:0 0 18px">Tốt đã đến hàng cuối. Bạn muốn phong cấp thành quân nào?</p>
+    <div id="pvpPromotionChoices" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px"></div>
+    <button class="btn btn-soft" style="margin-top:18px" onclick="closePvpPromotion()">Hủy</button>
+  </div>
+</div>
+<div class="pvp-overlay" id="pvpOverlay" role="dialog" aria-modal="true" aria-label="Đối kháng trực tuyến">
+ <div class="pvp-dialog"><div class="mate-top"><strong>⚔️ Giáo viên đấu với học sinh</strong><button class="btn btn-soft" onclick="closePvp()">✕ Đóng</button></div>
+ <div class="pvp-layout"><div id="pvpBoard" class="pvp-board"></div><div class="pvp-side">
+ <div class="pvp-status" id="pvpStatus">Tạo phòng hoặc vào lớp để bắt đầu.</div>
+ <label for="pvpTeacherColor">Giáo viên cầm quân</label>
+ <select id="pvpTeacherColor"><option value="w">⚪ Trắng</option><option value="b">⚫ Đen</option></select>
+ <button id="pvpStartBtn" onclick="pvpStart()">♟ Bắt đầu ván mới</button>
+ <button onclick="pvpOfferDraw()">🤝 Đề nghị hòa</button>
+ <button onclick="pvpResign()">🏳️ Xin thua</button>
+ <div class="pvp-history" id="pvpHistory">Chưa có nước đi.</div>
+ <small>Giáo viên chọn màu trước khi bắt đầu. Học sinh tự động nhận màu còn lại. Chỉ được đi đúng lượt.</small>
+ </div></div></div>
+</div>
+
+<div id="vqcFriendsModal" class="vqc-friends-modal" role="dialog" aria-modal="true" aria-labelledby="vqcFriendsTitle" aria-describedby="vqcFriendsDescription" hidden>
+ <div class="vqc-friends-dialog">
+  <button id="vqcFriendsClose" class="vqc-friends-modal__close" type="button" aria-label="Đóng danh sách bạn bè">×</button>
+  <div class="vqc-friends-hero">
+   <span class="vqc-friends-hero__emoji" aria-hidden="true">👥</span>
+   <span class="vqc-friends-hero__eyebrow">ĐỒNG HÀNH CÙNG KỲ THỦ</span>
+   <h2 id="vqcFriendsTitle">Bạn bè Kỳ Thủ</h2>
+   <p id="vqcFriendsDescription">Kết bạn bằng mã riêng, cùng nhau khám phá thành tích học cờ!</p>
+  </div>
+  <section class="vqc-friends-codebox" aria-label="Mã kết bạn của em">
+   <div><strong>🔑 Mã Kỳ Thủ của em</strong><p>Chỉ chia sẻ mã với bạn quen biết ngoài đời.</p></div>
+   <div class="vqc-friends-codebox__row"><code id="vqcFriendsMyCode">Đang tải...</code><button id="vqcFriendsCopyCode" type="button">Sao chép</button></div>
+  </section>
+  <section class="vqc-friends-invite" aria-labelledby="vqcFriendsInviteHeading">
+   <label id="vqcFriendsInviteHeading" for="vqcFriendsCodeInput">✉️ Gửi lời mời kết bạn</label>
+   <div class="vqc-friends-invite__row">
+    <input id="vqcFriendsCodeInput" type="text" inputmode="text" maxlength="14" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Nhập mã KTXXXXXXXXXX" aria-describedby="vqcFriendsInviteHint">
+    <button id="vqcFriendsFind" type="button">Tìm bạn</button><button id="vqcFriendsSend" type="button">Gửi lời mời</button>
+   </div>
+   <div id="vqcFriendsFound" class="vqc-friends-found" hidden><span aria-hidden="true">♟️</span> <strong id="vqcFriendsFoundName"></strong></div>
+   <small id="vqcFriendsInviteHint">Bạn nhận được lời mời sẽ chọn Đồng ý hoặc Từ chối. Không có trò chuyện riêng.</small>
+  </section>
+  <section class="vqc-friends-settings-wrap">
+   <button id="vqcFriendsSettingsToggle" type="button" aria-controls="vqcFriendsSettings">⚙️ Cài đặt bạn bè</button>
+   <div id="vqcFriendsSettings" class="vqc-friends-settings" hidden>
+    <label class="vqc-friends-setting-line"><input id="vqcFriendsShareName" type="checkbox"> Cho phép bạn bè đã kết bạn xem họ và tên của em</label>
+    <p>Họ tên chỉ hiện với bạn bè đã xác nhận; có thể tắt bất cứ lúc nào.</p>
+    <label for="vqcFriendsView">Kiểu hiển thị danh sách</label>
+    <select id="vqcFriendsView"><option value="cards">Thẻ có thành tích</option><option value="compact">Danh sách gọn</option></select>
+   </div>
+  </section>
+  <div class="vqc-friends-tabs" role="tablist" aria-label="Các mục bạn bè">
+   <button type="button" role="tab" class="is-active" aria-selected="true" data-friends-tab="friends">👥 Bạn bè <span id="vqcFriendsCount">0</span></button>
+   <button type="button" role="tab" aria-selected="false" data-friends-tab="incoming">📩 Lời mời <span id="vqcFriendsIncomingCount">0</span></button>
+   <button type="button" role="tab" aria-selected="false" data-friends-tab="outgoing">📤 Đã gửi <span id="vqcFriendsOutgoingCount">0</span></button>
+  </div>
+  <div id="vqcFriendsPaneFriends" class="vqc-friends-pane" role="tabpanel">
+   <div id="vqcFriendsList" class="vqc-friends-list"><p class="vqc-friends-empty">Đang tải bạn bè...</p></div>
+  </div>
+  <div id="vqcFriendsPaneIncoming" class="vqc-friends-pane" role="tabpanel" hidden>
+   <div id="vqcFriendsIncomingList" class="vqc-friends-list"></div>
+  </div>
+  <div id="vqcFriendsPaneOutgoing" class="vqc-friends-pane" role="tabpanel" hidden>
+   <div id="vqcFriendsOutgoingList" class="vqc-friends-list"></div>
+  </div>
+  <p id="vqcFriendsStatus" role="status" aria-live="polite" class="vqc-friends-status">Chỉ những người được em đồng ý mới vào danh sách bạn bè.</p>
+  <div class="vqc-friends-debug">
+   <button id="vqcFriendsDiagnose" type="button" class="vqc-friends-debug__button">🔍 Kiểm tra quyền Firebase</button>
+   <ol id="vqcFriendsDiagnostics" class="vqc-friends-debug__results" role="status" aria-live="polite" aria-label="Kết quả kiểm tra quyền kết bạn" hidden></ol>
+  </div>
+  <p class="vqc-friends-safety">🛡️ Họ tên chỉ chia sẻ khi được cho phép; không hiển thị số điện thoại hoặc địa chỉ. Có thể hủy kết bạn, từ chối hay chặn lời mời. Nếu có điều khiến em khó chịu, hãy báo cho giáo viên hoặc người lớn tin cậy.</p>
+  <button id="vqcFriendsDone" class="vqc-friends-done" type="button">Quay lại Đảo Kỳ Thủ</button>
+ </div>
+</div>
+<div id="accountOverlay" class="account-overlay" role="dialog" aria-modal="true" aria-label="Đăng nhập Đảo Kỳ Thủ">
+  <div class="vqc-login-layout">
+    <div class="vqc-login-scene" aria-hidden="true">
+      <div class="vqc-login-sun"></div><div class="vqc-login-cloud cloud-a"></div><div class="vqc-login-cloud cloud-b"></div>
+      <div class="vqc-login-brand"><img class="vqc-login-brand-logo" src="./assets/logo.png" alt="" aria-hidden="true"><strong>ĐẢO <span>KỲ THỦ</span></strong></div>
+      <div class="vqc-login-castle"><span>🏰</span></div>
+      <div class="vqc-login-flag">♞</div>
+      <div class="vqc-login-children"><span class="vqc-login-boy">🤴</span><span class="vqc-login-girl">👸</span></div>
+      <div class="vqc-login-board"><div class="vqc-login-pieces">♜　♞　♚　♟<br>♙　♔　♖　♘</div></div>
+      <div class="vqc-login-features">
+        <div><b>🎓</b><span><strong>Học qua trò chơi</strong><small>Bài học sinh động, dễ hiểu</small></span></div>
+        <div><b>🏆</b><span><strong>Luyện tập theo cấp độ</strong><small>Từ cơ bản đến nâng cao</small></span></div>
+        <div><b>👥</b><span><strong>Giáo viên theo dõi</strong><small>Đồng bộ thời gian thực</small></span></div>
+      </div>
+    </div>
+    <div class="account-modal">
+      <div class="vqc-login-formhead"><img class="vqc-login-form-logo" src="./assets/logo.png" alt="" aria-hidden="true"><h2>Đăng nhập</h2><p>Vào Đảo Kỳ Thủ</p></div>
+      <div id="accountLoginArea">
+        <div class="vqc-login-roles" aria-label="Loại tài khoản">
+          <button type="button" class="selected" id="vqcLoginStudent" onclick="vqcSelectLoginRole('student')">🎓 Học sinh</button>
+          <button type="button" id="vqcLoginTeacher" onclick="vqcSelectLoginRole('teacher')">👩‍🏫 Giáo viên</button>
+        </div>
+        <label class="vqc-login-label" for="accountLoginId">Tên đăng nhập</label>
+        <div class="vqc-login-input"><span>👤</span><input id="accountLoginId" autocomplete="username" placeholder="Tên đăng nhập"></div>
+        <label class="vqc-login-label" for="accountLoginPassword">Mật khẩu</label>
+        <div class="vqc-login-input"><span>🔒</span><input id="accountLoginPassword" type="password" autocomplete="current-password" placeholder="Mật khẩu" onkeydown="if(event.key==='Enter')accountSignIn()"><button type="button" class="vqc-login-eye" onclick="vqcToggleLoginPassword()" aria-label="Hiện hoặc ẩn mật khẩu">👁</button></div>
+        <button type="button" class="vqc-login-submit" onclick="accountSignIn()">➜ &nbsp; Đăng nhập</button>
+        <p id="accountLoginError" class="account-error" aria-live="polite"></p>
+        <div class="vqc-login-divider"><span>♟</span></div>
+        <p class="vqc-login-help">Chưa có tài khoản hoặc quên mật khẩu?<br><strong>Liên hệ giáo viên để được hỗ trợ.</strong></p>
+        <div class="vqc-login-welcome"><span>♖</span><p>Tham gia ngay để khám phá thế giới cờ vua thú vị!</p></div><p class="vqc-login-copyright">© 2026 Đảo Kỳ Thủ · Tác giả: <strong>Dương Thanh Sang</strong></p>
+      </div>
+<div id="accountLoggedArea" style="display:none"><div class="account-tabs"><button onclick="accountShowTab('profile')">Hồ sơ</button><button id="accountManageTab" onclick="accountShowTab('manage')">Quản lý học viên</button><button id="accountClassTab" onclick="accountShowTab('classes')">Lớp & giao bài</button><button onclick="accountShowTab('progress')">Tiến độ</button></div>
+<div id="accountTabBody"></div><p id="accountActionMessage" class="account-note"></p><button class="btn btn-soft" onclick="hideAccountPanel()">← Về bàn cờ</button></div>
+</div></div>
+<script>
+function vqcSelectLoginRole(role){document.getElementById('vqcLoginStudent').classList.toggle('selected',role==='student');document.getElementById('vqcLoginTeacher').classList.toggle('selected',role==='teacher');}
+function vqcToggleLoginPassword(){const el=document.getElementById('accountLoginPassword');el.type=el.type==='password'?'text':'password';}
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-functions-compat.js"></script>
+
+  <script src="./js/core.js?v=20261117-room-sync-review-v2"></script>
+
+<div class="reward-overlay" id="starRewardOverlay" role="dialog" aria-modal="true" aria-labelledby="starRewardTitle" aria-describedby="starRewardMessage">
+  <div class="reward-card">
+    <div class="reward-medal" aria-hidden="true">🏆</div>
+    <h2 id="starRewardTitle">Xuất sắc! Chúc mừng em!</h2>
+    <p id="starRewardMessage">Em đã hoàn thành thử thách!</p>
+    <div class="reward-score">⭐ 6 / 6 ngôi sao</div>
+    <div><button type="button" class="reward-close" onclick="closeStarReward()">Tiếp tục học ♟️</button></div>
+  </div>
+</div>
+
+<div class="capture-overlay" id="captureOverlay" role="dialog" aria-modal="true" aria-label="Bài tập ăn quân">
+ <div class="capture-dialog"><div class="mate-top"><strong>🎯 Ăn quân — 5 bài tập</strong><button class="btn btn-soft" onclick="captureClose()">✕ Đóng</button></div>
+ <div class="capture-layout"><div id="captureBoard" class="capture-board"></div><div class="capture-side"><h2>🏹 Ăn quân</h2><p id="captureInstruction">Hãy ăn quân đen!</p><div id="captureFeedback" class="capture-feedback" hidden></div><div class="capture-stars" id="captureStars"></div><div class="capture-controls"><button onclick="captureOpen(captureIndex-1)">← Bài trước</button><button onclick="captureReset()">↻ Thử lại</button><button onclick="captureOpen(captureIndex+1)">Bài tiếp →</button></div></div></div>
+ </div>
+</div>
+<script src="./js/capture.js?v=lastmove-20261023-1"></script>
+
+<script src="./js/exercise-sync.js?v=lastmove-20261023-1"></script>
+
+<div class="defense-overlay" id="defenseOverlay" role="dialog" aria-modal="true" aria-label="Bài tập phòng thủ"><div class="defense-dialog"><div class="mate-top"><strong id="defenseTitle">🛡️ Phòng thủ — 8 bài tập</strong><button class="btn btn-soft" onclick="defenseClose()">✕ Đóng</button></div><div class="defense-layout"><div class="defense-board" id="defenseBoard"></div><div class="defense-side"><h2>🛡️ Phòng thủ</h2><p id="defenseInstruction"></p><div id="defenseFeedback" class="defense-feedback" hidden></div><div id="defenseStars" class="defense-stars"></div><div class="defense-controls"><button onclick="defenseOpen(defenseIndex===defenseTaskRange()[0]?defenseTaskRange()[1]-1:defenseIndex-1)">← Bài trước</button><button onclick="defenseOpen(defenseIndex+1===defenseTaskRange()[1]?defenseTaskRange()[0]:defenseIndex+1)">Bài tiếp →</button><button onclick="defenseReset()">↻ Thử lại</button><button onclick="defenseShowThreats()">👁 Ô nguy hiểm</button></div></div></div></div></div>
+<script src="./js/defense.js?v=lastmove-20261023-1"></script>
+
+<div class="checkone-overlay" id="checkOneOverlay" role="dialog" aria-modal="true" aria-label="Chiếu trong một nước"><div class="checkone-dialog"><div class="mate-top"><strong>⚡ Chiếu trong 1 nước — 7 bài</strong><button class="btn btn-soft" onclick="checkOneClose()">✕ Đóng</button></div><div class="checkone-layout"><div class="checkone-board" id="checkOneBoard"></div><div class="checkone-side"><h2>⚡ Chiếu trong 1 nước</h2><p id="checkOneInstruction">Hãy chiếu Vua đen chỉ bằng một nước đi!</p><div id="checkOneFeedback" class="checkone-feedback" hidden></div><div id="checkOneStars" class="checkone-stars"></div><div class="checkone-controls"><button onclick="checkOneOpen(checkOneIndex-1)">← Bài trước</button><button onclick="checkOneOpen(checkOneIndex+1)">Bài tiếp →</button><button onclick="checkOneReset()">↻ Thử lại</button></div></div></div></div></div>
+<script src="./js/check-one.js?v=lastmove-20261023-1"></script>
+
+<div class="escape-overlay" id="escapeOverlay" role="dialog" aria-modal="true" aria-label="Bài tập thoát chiếu"><div class="escape-dialog"><div class="mate-top"><strong>🛡️ Thoát chiếu — 13 bài</strong><button class="btn btn-soft" onclick="escapeClose()">✕ Đóng</button></div><div class="escape-layout"><div class="escape-board" id="escapeBoard"></div><div class="escape-side"><h2>🛡️ Thoát chiếu</h2><p id="escapeInstruction">Hãy bảo vệ Vua trắng!</p><div id="escapeFeedback" class="escape-feedback" hidden></div><div id="escapeStars" class="escape-stars"></div><div class="escape-controls"><button onclick="escapeOpen(escapeIndex-1)">← Bài trước</button><button onclick="escapeOpen(escapeIndex+1)">Bài tiếp →</button><button onclick="escapeReset()">↻ Thử lại</button></div></div></div></div></div>
+<script src="./js/escape.js?v=lastmove-20261023-1"></script>
+
+<script src="./js/check-effects.js"></script>
+
+<div class="freecapture-overlay" id="freeCaptureOverlay" role="dialog" aria-modal="true" aria-label="Ăn quân không được bảo vệ"><div class="freecapture-dialog">
+<div class="mate-top"><strong>🎯 Ăn quân không được bảo vệ — Hình 43–50</strong><button class="btn btn-soft" onclick="freeCaptureClose()">✕ Đóng</button></div>
+<div class="freecapture-layout"><div class="freecapture-board" id="freeCaptureBoard"></div><div class="freecapture-side"><h2>🎯 Tìm quân có thể ăn</h2><div id="freeCaptureInstruction" class="freecapture-info"></div><div id="freeCaptureFeedback" class="freecapture-feedback" hidden></div><div id="freeCaptureNumbers" class="freecapture-numbers"></div><div class="freecapture-controls"><button onclick="freeCaptureOpen(freeCaptureIndex-1)">← Bài trước</button><button onclick="freeCaptureOpen(freeCaptureIndex+1)">Bài tiếp →</button><button onclick="freeCaptureReset()">↻ Thử lại</button><button onclick="freeCaptureShowHint()">💡 Gợi ý</button></div></div></div></div></div>
+<script src="./js/free-capture.js?v=20261117-snapshot-dedupe-v1"></script>
+
+<div id="pawnGameOverlay" class="pawn-game-overlay" role="dialog" aria-modal="true" aria-label="Trò chơi Tốt và Mã">
+ <div class="pawn-game-dialog"><div class="pawn-game-top"><h2>♟️ Trò chơi Tốt và Mã</h2><button onclick="pawnGameClose()">✕ Đóng</button></div>
+ <div class="pawn-game-layout"><div id="pawnGameBoard" class="pawn-game-board"></div><div class="pawn-game-side">
+ <button id="pawnGameTab0" onclick="pawnGameOpen(0)">1. Cờ Tốt</button><button id="pawnGameTab1" onclick="pawnGameOpen(1)">2. Mã chống Tốt</button>
+ <div id="pawnGameAssign" class="pawn-game-assign"><strong>Giáo viên chọn bên chơi</strong><div class="pawn-game-choice"><button id="pawnGameChooseW" onclick="pawnGameChoose('w')">♙ GV chơi Trắng / Mã</button><button id="pawnGameChooseB" onclick="pawnGameChoose('b')">♟ GV chơi Đen / Tốt</button></div><small>Học sinh tự động nhận bên còn lại. Chỉ giáo viên được đổi bên và bắt đầu ván mới.</small></div><div id="pawnGameRoles" class="pawn-game-roles"></div><div id="pawnGameRules" class="pawn-game-rules"></div><div id="pawnGameStatus" class="pawn-game-status" aria-live="polite"></div>
+ <button onclick="pawnGameReset()">↻ Chơi lại</button><button onclick="pawnGameFlip()">⇅ Đảo bàn cờ</button></div></div></div>
+ <div id="pawnGamePromotion" class="pawn-promotion-overlay" role="dialog" aria-modal="true" aria-label="Chọn quân phong cấp" hidden><div class="pawn-promotion-card"><h3>♟️ Phong cấp Tốt</h3><p>Chọn quân em muốn phong cấp trước khi kết thúc ván đấu.</p><div id="pawnGamePromotionChoices" class="pawn-promotion-choices"></div></div></div></div>
+
+<script id="pawn-games-script" src="./js/pawn-games.js?v=lastmove-20261023-1"></script>
+<script src="./js/learning-modes.js?v=harbor-1"></script>
+<script src="./js/adventure.js?v=forest-repeat-20261025-2"></script>
+<script src="./js/adventure-ux.js?v=20261025-responsive-dialogs-v1"></script>
+<script src="./js/friends.js?v=friend-chat-20261020-2"></script>
+<script src="./js/friend-duel.js?v=lastmove-20261023-1"></script>
+<script src="./js/friend-chat.js?v=friend-chat-audit-20261020-3"></script>
+<script src="./js/arcade-games.js?v=lastmove-20261023-1"></script>
+<script src="./js/arcade-online.js?v=arcade-recheck-20261020-4"></script>
+<script src="./js/friend-challenges.js?v=challenges-20261020-2"></script>
+<script src="./js/annotations.js?v=20261112-double-attack-v1"></script>
+<script src="./js/game-review.js?v=20261117-orientation-sync-v1"></script>
+
+<script>
+(function(){
+ const targetMap={
+  escapeMenu:['escapeOpen','escapeOverlay'],
+  checkOneMenu:['checkOneOpen','checkOneOverlay'],
+  castlingMenu:['castlingOpen','castlingOverlay'],
+  doubleAttackMenu:['doubleAttackOpen','doubleAttackOverlay'],
+  beginnerPuzzleMenu:['beginnerPuzzleOpen','beginnerPuzzleOverlay'],
+  pawnGamesMenu:['pawnGameOpen','pawnGameOverlay'],
+  defenseAttackMenu:['defenseOpenNew','defenseOverlay'],
+  defenseMenu:['defenseOpen','defenseOverlay'],
+  freeCaptureMenu:['freeCaptureOpen','freeCaptureOverlay'],
+  captureMenu:['captureOpen','captureOverlay'],
+  loneKingMateMenu:['loneKingMateOpen','vqcLoneMateOverlay'],
+  mateOnePdfMenu:['vqcMateOneOpen','vqcMateOneOverlay'],
+   mateOneBasicMenu:['vqcMateOneBasicOpen','vqcMateOneBasicOverlay']
+ };
+ window.vqcOpenChallengeSafe=function(name,index){
+  const found=Object.entries(targetMap).find(([,v])=>v[0]===name);
+  if(!found)return;
+  vqcChallengeLaunch(found[0],index);
+ };
+ function issue(message){
+  let el=document.getElementById('vqcChallengeError');
+  if(!el){el=document.createElement('div');el.id='vqcChallengeError';el.setAttribute('role','alert');document.body.appendChild(el);}
+  el.textContent=message;el.hidden=false;clearTimeout(window.vqcChallengeErrorTimer);
+  window.vqcChallengeErrorTimer=setTimeout(()=>el.hidden=true,11000);
+ }
+ function vqcChallengeLaunch(id,index){
+  const pair=targetMap[id];if(!pair)return;
+  if((id==='mateOnePdfMenu'||id==='mateOneBasicMenu')&&typeof roomRef!=='undefined'&&roomRef&&role==='student'){
+    if(typeof vqcNotify==='function')vqcNotify('Giáo viên chọn bài; em có thể giải trực tiếp trên bàn cờ đang đồng bộ.','warning');
+    return;
+  }
+  const [fnName,overlayId]=pair,overlay=document.getElementById(overlayId);
+  if(!overlay){issue('Không tìm thấy cửa sổ bài tập '+id+'.');return;}
+  try{
+   if(typeof window[fnName]!=='function')throw Error('Tệp bài tập chưa tải hoặc hàm '+fnName+' chưa sẵn sàng.');
+   if(overlay.parentElement!==document.body)document.body.appendChild(overlay);
+   window[fnName](index);
+   overlay.classList.add('open');
+   document.querySelectorAll('.lesson').forEach(n=>n.classList.toggle('active',n.id===id));
+  }catch(error){
+   console.error('[Đảo Kỳ Thủ] Thử thách '+id,error);
+   issue('Không thể mở '+document.getElementById(id)?.textContent.trim()+': '+(error.message||String(error)));
+  }
+ }
+ document.addEventListener('click',function(event){
+  const el=event.target.closest('.lesson[id]');
+  if(!el||!targetMap[el.id])return;
+  event.preventDefault();event.stopPropagation();
+  vqcChallengeLaunch(el.id,0);
+ },true);
+ document.addEventListener('keydown',function(event){
+  if(event.key!=='Enter'&&event.key!==' ')return;
+  const el=event.target.closest('.lesson[id]');
+  if(!el||!targetMap[el.id])return;
+  event.preventDefault();event.stopImmediatePropagation();
+  vqcChallengeLaunch(el.id,0);
+ },true);
+})();
+</script>
+<script>
+document.addEventListener('click',function(ev){
+ const btn=ev.target.closest&&ev.target.closest('#vqcMembershipLaunch');
+ if(!btn)return;
+ ev.preventDefault();ev.stopImmediatePropagation();
+ window.vqcOpenMembershipSafe();
+},true);
+window.vqcOpenMembershipSafe=function(){
+ const account=document.getElementById('accountOverlay');
+ if(account&&window.accountProfile)account.classList.add('hidden');
+ const dialog=document.getElementById('vqcMembershipDialog');
+ if(!dialog){alert('Không tìm thấy giao diện Gói thành viên.');return;}
+ if(dialog.parentElement!==document.body)document.body.appendChild(dialog);
+ dialog.hidden=false;
+ dialog.style.display='flex';
+ dialog.style.position='fixed';
+ dialog.style.inset='0';
+ dialog.style.zIndex='2147483647';
+ const body=document.getElementById('vqcMembershipBody');
+ if(body&&!body.textContent.trim())body.textContent='Đang tải thông tin thành viên. Nếu nội dung không xuất hiện, vui lòng tải lại trang và kiểm tra Console (F12).';
+ try{
+  if(typeof window.vqcOpenMembership==='function')window.vqcOpenMembership();
+  else if(body)body.textContent='Không tải được chức năng Gói thành viên. Vui lòng tải lại trang hoặc kiểm tra đường dẫn js/membership.js.';
+ }catch(e){console.error('Membership open:',e);if(body)body.textContent='Lỗi Gói thành viên: '+(e.message||String(e));}
+ dialog.hidden=false;dialog.style.display='flex';
+};
+window.vqcCloseMembershipSafe=function(){
+ const dialog=document.getElementById('vqcMembershipDialog');
+ if(dialog){dialog.hidden=true;dialog.style.display='none';}
+};
+</script>
+<nav class="vqc-mobile-nav" aria-label="Điều hướng trên điện thoại">
+ <button type="button" data-vqc-mobile="home" aria-current="page"><span class="vqc-mobile-icon" aria-hidden="true">⌂</span><span>Trang chủ</span></button>
+ <button type="button" data-vqc-mobile="lessons" aria-expanded="false" aria-controls="vqcMobileLessonSheet"><span class="vqc-mobile-icon" aria-hidden="true">📚</span><span>Bài học</span></button>
+ <button type="button" data-vqc-mobile="board"><span class="vqc-mobile-icon" aria-hidden="true">♟</span><span>Bàn cờ</span></button>
+ <button type="button" data-vqc-mobile="friends"><span class="vqc-mobile-icon" aria-hidden="true">👥</span><span>Bạn bè</span><span class="vqc-mobile-unread" aria-hidden="true"></span></button>
+ <button type="button" data-vqc-mobile="account"><span class="vqc-mobile-icon" aria-hidden="true">👤</span><span>Hồ sơ</span></button>
+ <button type="button" data-vqc-mobile="more" aria-expanded="false" aria-controls="vqcMobileMoreSheet"><span class="vqc-mobile-icon" aria-hidden="true">☰</span><span>Thêm</span></button>
+</nav>
+<script src="./js/mobile-layout.js?v=20261023-mobile7"></script>
+<div id="vqcMembershipDialog" class="vqc-membership-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="vqcMembershipTitle">
+ <div class="vqc-membership-modal"><div class="vqc-membership-head"><h2 id="vqcMembershipTitle">👑 Gói thành viên Đảo Kỳ Thủ</h2><button class="btn btn-soft" type="button" onclick="vqcCloseMembershipSafe()" aria-label="Đóng">✕</button></div><div id="vqcMembershipBody"></div><section id="vqcMembershipAdmin" hidden></section></div>
+</div>
+<link rel="stylesheet" href="./css/membership.css?v=20261023-mobile1">
+<script src="./js/membership.js?v=20261023-8"></script>
+<script src="./js/board-appearance.js?v=lastmove-allmodes-20261023-4"></script>
+
+<div id="vqcLoneMateOverlay" role="dialog" aria-modal="true" aria-labelledby="vqcLoneMateTitle">
+ <div class="vqc-lonemate-dialog">
+  <div class="vqc-lonemate-top">
+   <div><h2 id="vqcLoneMateTitle">♚ Chiếu hết Vua đơn độc</h2><p id="vqcLoneMateSubtitle">Luyện kỹ năng chiếu hết · Trắng đi trước</p></div>
+   <button class="btn btn-soft" id="vqcLoneMateClose" type="button">✕ Đóng</button>
+  </div>
+  <div class="vqc-lonemate-nav">
+   <button type="button" id="vqcLoneMatePrev">← Dạng trước</button>
+   <button type="button" id="vqcLoneMateNext">Dạng tiếp →</button>
+  </div>
+  <div class="vqc-lonemate-layout">
+   <div id="vqcLoneMateBoard" class="vqc-lonemate-board" aria-label="Bàn cờ tập chiếu hết"></div>
+   <section class="vqc-lonemate-info">
+    <h3>🎯 Mục tiêu: chiếu hết</h3>
+    <p id="vqcLoneMateAdvice">Dùng các quân trắng để chiếu hết Vua đen.</p>
+    <p id="vqcLoneMateStage" class="vqc-lonemate-stage" aria-live="polite">Bước 1/4 · Dùng quân trắng khống chế các đường đi của Vua đen.</p>
+    <p id="vqcLoneMateMessage" role="status" aria-live="polite"></p>
+    <p id="vqcLoneMateMoves" aria-live="polite"></p>
+    <div class="vqc-lonemate-actions">
+     <button type="button" id="vqcLoneMateRestart">↻ Chơi lại</button>
+     <button type="button" id="vqcLoneMateBack">↶ Lùi nước</button>
+     <button type="button" id="vqcLoneMateHint">💡 Gợi ý</button>
+    </div>
+    <p class="vqc-lonemate-rules">Vua đen chỉ đi các nước hợp lệ và có thể ăn quân không được bảo vệ. Không được để hai Vua đứng sát nhau. Nếu bên đến lượt không còn nước hợp lệ nhưng không bị chiếu, ván cờ hòa Pat. Bàn cờ cũng xử lý hòa do lặp lại và luật 50 nước.</p>
+   </section>
+  </div>
+ </div>
+</div>
+<script src="./js/lone-king-mate.js?v=lastmove-20261023-1"></script>
+<script src="./js/last-move.js?v=mate-basic-20261025"></script>
+
+<div id="vqcMateOneOverlay" role="dialog" aria-modal="true" aria-labelledby="vqcMateOneTitle">
+ <div class="vqc-mateone-dialog">
+  <div class="vqc-mateone-top">
+   <div><h2 id="vqcMateOneTitle">♛ Chiếu hết trong 1 nước</h2><p id="vqcMateOneSubtitle">Bài 1–100 trong PDF · Trắng hoặc Đen đi trước</p></div>
+   <button type="button" id="vqcMateOneClose" aria-label="Đóng bài tập">✕ Đóng</button>
+  </div>
+  <div class="vqc-mateone-layout">
+   <div id="vqcMateOneBoard" class="vqc-mateone-board" aria-label="Bàn cờ chiếu hết 1 nước"></div>
+   <section class="vqc-mateone-side">
+    <div id="vqcMateOneProgress" class="vqc-mateone-progress">Đã hoàn thành 0/100 bài</div>
+    <p id="vqcMateOneFeedback" class="vqc-mateone-feedback" role="status" aria-live="polite">Hãy tìm nước chiếu hết!</p>
+    <div class="vqc-mateone-controls">
+     <button type="button" id="vqcMateOnePrev">← Bài trước</button>
+     <button type="button" id="vqcMateOneNext">Bài tiếp →</button>
+     <button type="button" id="vqcMateOneReset">↻ Thử lại</button>
+     <button type="button" id="vqcMateOneHint">💡 Gợi ý</button>
+    </div>
+    <div class="vqc-mateone-jump"><label for="vqcMateOneJump">Chuyển đến bài</label>
+     <input id="vqcMateOneJump" type="number" min="1" max="100" value="1" inputmode="numeric">
+     <button type="button" id="vqcMateOneGo">Chuyển</button>
+    </div>
+    <p class="vqc-mateone-rules">✏️ <strong>Vẽ trên bàn cờ:</strong> trên máy tính, kéo chuột phải để kẻ mũi tên hoặc nhấn chuột phải để khoanh ô. Trên điện thoại, bật nút “Vẽ”, sau đó kéo hoặc chạm vào ô. Nét vẽ của giáo viên được đồng bộ tới học sinh. Chỉ tính đúng khi đối phương bị chiếu và không còn bất kỳ nước đi hợp lệ nào. Hòa Pat không được tính. Trong lớp, giáo viên chuyển bài; giáo viên và học sinh đều có thể giải trên bàn cờ được đồng bộ.</p>
+   </section>
+  </div>
+ </div>
+</div>
+<script src="./js/mate-one-pdf-100-data.js?v=20261025-source1"></script>
+<script src="./js/mate-one-pdf-100.js?v=20261025-source1"></script>
+<div id="vqcMateOneBasicOverlay" role="dialog" aria-modal="true" aria-labelledby="vqcMateOneBasicTitle">
+ <div class="vqc-mateone-dialog">
+  <div class="vqc-mateone-top">
+   <div><h2 id="vqcMateOneBasicTitle">♕ Chiếu hết trong 1 nước (Cơ bản)</h2><p id="vqcMateOneBasicSubtitle">10 bài luyện tập dễ · Chỉ 3 quân trên bàn cờ</p></div>
+   <button type="button" id="vqcMateOneBasicClose" aria-label="Đóng bài tập">✕ Đóng</button>
+  </div>
+  <div class="vqc-mateone-layout">
+   <div id="vqcMateOneBasicBoard" class="vqc-mateone-board" aria-label="Bàn cờ chiếu hết 1 nước"></div>
+   <section class="vqc-mateone-side">
+    <div id="vqcMateOneBasicProgress" class="vqc-mateone-progress">Đã hoàn thành 0/10 bài</div>
+    <p id="vqcMateOneBasicFeedback" class="vqc-mateone-feedback" role="status" aria-live="polite">Hãy tìm nước chiếu hết!</p>
+    <div class="vqc-mateone-controls">
+     <button type="button" id="vqcMateOneBasicPrev">← Bài trước</button>
+     <button type="button" id="vqcMateOneBasicNext">Bài tiếp →</button>
+     <button type="button" id="vqcMateOneBasicReset">↻ Thử lại</button>
+     <button type="button" id="vqcMateOneBasicHint">💡 Gợi ý</button>
+    </div>
+    <div class="vqc-mateone-jump"><label for="vqcMateOneBasicJump">Chuyển đến bài</label>
+     <input id="vqcMateOneBasicJump" type="number" min="1" max="10" value="1" inputmode="numeric">
+     <button type="button" id="vqcMateOneBasicGo">Chuyển</button>
+    </div>
+    <p class="vqc-mateone-rules">Mỗi bài chỉ có 2 Vua và 1 quân Hậu hoặc Xe. Hãy tìm nước chiếu hết, không chỉ chiếu Vua! Bật công cụ Vẽ để khoanh ô hoặc kẻ mũi tên; nét vẽ của giáo viên sẽ đồng bộ tới học sinh.</p>
+   </section>
+  </div>
+ </div>
+</div>
+<script src="./js/mate-one-basic-10.js?v=20261025-basic-v1"></script>
+<script src="./js/classroom-warmups.js?v=20261031-v1"></script>
+<script src="./js/castling.js?v=20261117-answer-sync-v1"></script>
+<div class="castling-overlay" id="castlingOverlay" role="dialog" aria-modal="true" aria-labelledby="castlingTitle" hidden>
+ <div class="castling-dialog">
+  <header class="castling-top mate-top">
+   <div><h2 id="castlingTitle">♔ Bài tập: Nước nhập thành</h2><p>Quan sát thế cờ và xác định Vua có thể nhập thành hay không.</p></div>
+   <button class="castling-close" type="button" onclick="castlingClose()">✕ Đóng</button>
+  </header>
+  <div class="castling-body">
+   <div class="castling-progress"><span id="castlingProgressText">Hình 141 · Câu 1/10</span><span id="castlingScore">Đã trả lời 0/10 · Đúng 0/10</span></div>
+   <div class="castling-progress-track" aria-hidden="true"><span id="castlingProgressFill"></span></div>
+   <div class="castling-layout">
+    <div><div class="castling-board-wrap"><div class="castling-board" id="castlingBoard" aria-label="Bàn cờ bài tập nhập thành"></div></div><p class="castling-board-caption">Góc nhìn Trắng ở phía dưới · Hàng ngang a–h, hàng dọc 1–8</p></div>
+    <section class="castling-question-card">
+     <div class="castling-kicker" id="castlingFigure">HÌNH 141</div>
+     <div class="castling-side" id="castlingSide">⚪ Trắng · Nhập thành ngắn (O-O)</div>
+     <h3>Em hãy quan sát bàn cờ</h3>
+     <p class="castling-prompt" id="castlingQuestion">Trắng có thể nhập thành ngắn không?</p>
+     <div class="castling-choice-label">Chọn câu trả lời của em</div>
+     <div class="castling-answers"><button class="castling-answer" type="button" id="castlingYes">✓ Có</button><button class="castling-answer" type="button" id="castlingNo">✕ Không</button></div>
+     <div class="castling-feedback" id="castlingFeedback" role="status" aria-live="polite"></div>
+     <div class="castling-summary">Cả bộ có 10 thế cờ từ Hình 141 đến Hình 150.</div>
+     <div class="castling-controls">
+      <button type="button" id="castlingPrev">← Hình trước</button><button type="button" class="primary" id="castlingNext">Hình tiếp →</button><button type="button" id="castlingRetry">↻ Thử lại câu này</button><button type="button" id="castlingReset">Làm lại cả 10 câu</button>
+     </div>
+     <p class="castling-room-note" id="castlingRoomNote">Chọn Có hoặc Không. Sau khi trả lời, em sẽ thấy lý do đúng/sai.</p>
+    </section>
+   </div>
+  </div>
+ </div>
+</div>
+<div id="doubleAttackOverlay" role="dialog" aria-modal="true" aria-labelledby="doubleAttackTitle">
+ <div class="double-attack-dialog">
+  <header class="double-attack-top">
+   <div><h2 id="doubleAttackTitle">⚔️ Tấn công đôi — Bài 1/24</h2><p id="doubleAttackSubtitle">Trắng đi trước · Theo sơ đồ PDF</p></div>
+   <button type="button" id="doubleAttackClose">✕ Đóng</button>
+  </header>
+  <div class="double-attack-layout">
+   <div id="doubleAttackBoard" class="double-attack-board" aria-label="Bàn cờ bài tập Tấn công đôi"></div>
+   <section class="double-attack-side">
+    <div id="doubleAttackNumber" class="double-attack-number">Bài 1/24</div>
+    <p id="doubleAttackFeedback" class="double-attack-feedback" role="status" aria-live="polite">Hãy tìm một nước đi tạo đòn tấn công đôi.</p>
+    <div id="doubleAttackTargets" class="double-attack-progress"></div>
+    <div id="doubleAttackProgress" class="double-attack-progress">Đã hoàn thành 0/24 bài</div>
+    <div class="double-attack-controls">
+     <button type="button" id="doubleAttackPrev">← Bài trước</button><button type="button" id="doubleAttackNext">Bài tiếp →</button>
+     <button type="button" id="doubleAttackReset">↻ Thử lại</button><button type="button" id="doubleAttackHint">💡 Gợi ý</button>
+     <button type="button" id="doubleAttackConfirm" hidden>✓ GV xác nhận hoàn thành</button>
+    </div>
+    <div class="double-attack-jump">
+     <label for="doubleAttackJump">Chuyển đến bài</label><input id="doubleAttackJump" type="number" min="1" max="24" value="1" inputmode="numeric"><button type="button" id="doubleAttackGo">Chuyển</button>
+    </div>
+    <p class="double-attack-rules">Mục tiêu: sau một nước đi hợp lệ, quân vừa di chuyển đồng thời tấn công ít nhất hai quân đối phương. Có thể có nhiều nước giải đúng. Giáo viên có thể dùng công cụ Vẽ để minh họa các đường tấn công.</p>
+    <p id="doubleAttackSourceNote" class="double-attack-source"></p>
+   </section>
+  </div>
+ </div>
+</div>
+<script src="./js/double-attack.js?v=20261112-pdf24-v1"></script>
+<div id="beginnerPuzzleOverlay" role="dialog" aria-modal="true" aria-labelledby="beginnerPuzzleTitle" hidden><div class="beginner-puzzle-dialog">
+<header class="beginner-puzzle-top"><div><h2 id="beginnerPuzzleTitle">♟️ Đố cờ vua cơ bản — Bài 1/10</h2><p id="beginnerPuzzleSubtitle">Đen đi trước</p></div><button type="button" id="beginnerPuzzleClose">✕ Đóng</button></header>
+<div class="beginner-puzzle-layout"><div class="beginner-puzzle-board-wrap"><div id="beginnerPuzzleBoard" class="beginner-puzzle-board" aria-label="Bàn cờ câu đố cơ bản"></div></div><section class="beginner-puzzle-side">
+<div class="beginner-puzzle-progress"><span id="beginnerPuzzleSectionNumber">Bài 1/10</span><span id="beginnerPuzzleDone">Đã hoàn thành 0/10 bài</span></div><div class="beginner-puzzle-track"><span id="beginnerPuzzleProgressFill" style="width:0%"></span></div><div class="beginner-puzzle-steps" id="beginnerPuzzleSteps" aria-label="10 câu đố cơ bản"></div>
+<div class="beginner-puzzle-number" id="beginnerPuzzleNumber">Bài 1/10</div><p class="beginner-puzzle-prompt" id="beginnerPuzzlePrompt">Hãy tìm nước chiến thuật đúng.</p><p class="beginner-puzzle-feedback" id="beginnerPuzzleFeedback" role="status" aria-live="polite">Chọn quân và ô đích để giải.</p><div class="beginner-puzzle-attempts" id="beginnerPuzzleAttempts">Số lần thử: 0</div>
+<div class="beginner-puzzle-controls"><button type="button" id="beginnerPuzzlePrev">← Bài trước</button><button type="button" id="beginnerPuzzleNext">Bài tiếp →</button><button type="button" id="beginnerPuzzleHint">💡 Gợi ý</button><button type="button" id="beginnerPuzzleAnswer">Xem lời giải</button><button type="button" id="beginnerPuzzleRestart">↻ Thử lại</button><button type="button" id="beginnerPuzzleEngineRetry" hidden>↻ Thử lại đáp trả</button></div>
+<p id="beginnerPuzzleHintText" class="beginner-puzzle-hint" hidden></p><p id="beginnerPuzzleAnswerText" class="beginner-puzzle-answer" hidden></p><div class="beginner-puzzle-notation" id="beginnerPuzzleNotation">Chọn quân có lượt đi, sau đó chọn ô đích được đánh dấu.</div><div class="beginner-puzzle-source">Nguồn thế cờ và lời giải: <a href="https://chessfox.com/chess-puzzles-for-beginners/" target="_blank" rel="noopener">Chessfox — 10 Easy Chess Puzzles for Beginners</a>.</div>
+</section></div></div></div>
+<script src="./js/beginner-puzzles.js?v=20261114-puzzle8-fen-v3"></script>
+</body>
+
+</html>

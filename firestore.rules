@@ -1,0 +1,491 @@
+rules_version = '2';
+service cloud.firestore {
+ match /databases/{database}/documents {
+  function signed(){return request.auth!=null;}
+  function me(){return get(/databases/$(database)/documents/users/$(request.auth.uid));}
+  function active(){return signed() && me().data.active==true;}
+  function teacher(){return active() && me().data.role=='teacher';}
+  function student(){return active() && me().data.role=='student';}
+  function friendUser(){return active() && me().data.role in ['student','teacher'];}
+  match /users/{uid} {
+   allow read: if active() && (request.auth.uid==uid || request.auth.uid=='DIZfL0tmr5eT7I7gOGF3h75EGkH3' || (teacher() && resource.data.role=='student' && resource.data.teacherId==request.auth.uid));
+   allow write: if false;
+  }
+  match /membershipTrials/{uid} {
+   allow get: if signed() && request.auth.uid==uid;
+   allow list: if false;
+   allow create: if active() && request.auth.uid==uid
+     && request.resource.data.keys().hasOnly(['plan','startedAt','endsAt','cancelled','cancelledAt'])
+     && request.resource.data.plan == (teacher() ? 'teacher_pro' : 'premium')
+     && request.resource.data.startedAt == request.time
+     && request.resource.data.endsAt is timestamp
+     && request.resource.data.endsAt >= request.time + duration.value(7,'d') - duration.value(5,'m')
+     && request.resource.data.endsAt <= request.time + duration.value(7,'d') + duration.value(5,'m')
+     && request.resource.data.cancelled == false
+     && request.resource.data.cancelledAt == null;
+   allow update: if active() && request.auth.uid==uid
+     && resource.data.plan == request.resource.data.plan
+     && resource.data.startedAt == request.resource.data.startedAt
+     && resource.data.endsAt == request.resource.data.endsAt
+     && resource.data.cancelled == false
+     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['cancelled','cancelledAt'])
+     && request.resource.data.cancelled == true
+     && request.resource.data.cancelledAt == request.time;
+   allow delete: if false;
+  }
+  function membershipOwner(){return signed() && request.auth.uid=='DIZfL0tmr5eT7I7gOGF3h75EGkH3';}
+  match /membershipEntitlements/{uid} {
+   allow get: if signed() && (request.auth.uid==uid || membershipOwner());
+   allow list: if false;
+   allow create,update: if membershipOwner()
+     && exists(/databases/$(database)/documents/users/$(uid))
+     && get(/databases/$(database)/documents/users/$(uid)).data.active==true
+     && request.resource.data.keys().hasOnly(['plan','expiresAt','revoked','grantedAt','grantedBy','updatedAt','revokedAt','revokedBy'])
+     && request.resource.data.plan in ['premium','teacher_pro']
+     && request.resource.data.plan == (get(/databases/$(database)/documents/users/$(uid)).data.role=='teacher' ? 'teacher_pro' : 'premium')
+     && (request.resource.data.expiresAt == null || request.resource.data.expiresAt is timestamp)
+     && request.resource.data.revoked is bool
+     && request.resource.data.grantedBy == request.auth.uid
+     && request.resource.data.grantedAt is timestamp
+     && request.resource.data.updatedAt == request.time
+     && request.resource.data.grantedAt <= request.time
+     && (request.resource.data.expiresAt == null || request.resource.data.expiresAt > request.time);
+   allow delete: if false;
+  }
+  match /membershipAudit/{id} {
+   allow read: if membershipOwner();
+   allow create: if membershipOwner()
+     && request.resource.data.keys().hasOnly(['uid','action','plan','actor','at','days'])
+     && request.resource.data.uid is string
+     && request.resource.data.action in ['grant','revoke']
+     && request.resource.data.plan in ['premium','teacher_pro']
+     && request.resource.data.actor==request.auth.uid
+     && request.resource.data.at==request.time
+     && (request.resource.data.days == null || request.resource.data.days in [7,30,365]);
+   allow update,delete: if false;
+  }
+  match /studentCodes/{code} {allow read,write: if false;}
+  match /classes/{id} {
+   allow read: if teacher() && resource.data.teacherId==request.auth.uid || student() && resource.data.teacherId==me().data.teacherId && resource.data.code==me().data.classCode;
+   allow write: if false;
+  }
+  match /assignments/{id} {
+   allow read: if teacher() && resource.data.teacherId==request.auth.uid || student() && resource.data.teacherId==me().data.teacherId && resource.data.classCode==me().data.classCode;
+   allow write: if false;
+  }
+  match /progress/{id} {
+   allow read: if student() && resource.data.studentId==request.auth.uid || teacher() && resource.data.teacherId==request.auth.uid;
+   allow create: if student() && id.matches(request.auth.uid+'_(basic_[RBNQKP]|mate2_(5[2-9]|6[01])|mate3_16[2-7])') && request.resource.data.keys().hasOnly(['studentId','teacherId','exercise','completed','score','updatedAt']) && request.resource.data.studentId==request.auth.uid && request.resource.data.teacherId==me().data.teacherId && request.resource.data.exercise is string && request.resource.data.completed is bool && request.resource.data.score is number && request.resource.data.score>=0 && request.resource.data.score<=6;
+   allow update: if student() && resource.data.studentId==request.auth.uid && resource.data.teacherId==me().data.teacherId && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['completed','score','updatedAt']) && request.resource.data.score is number && request.resource.data.score>=0 && request.resource.data.score<=6 && request.resource.data.completed is bool;
+   allow delete: if false;
+  }
+  match /adventureProgress/{uid} {
+   allow read: if active() && request.auth.uid==uid;
+   allow create,update: if student() && request.auth.uid==uid
+     && request.resource.data.keys().hasOnly(['studentId','done','forestDone','canyonDone','crystalDone','volcanoDone','rewardedRegions','purchasedAvatars','stars','updatedAt'])
+     && request.resource.data.studentId==uid
+     && request.resource.data.done is list
+     && request.resource.data.done.size()<=10
+     && request.resource.data.forestDone is list
+     && request.resource.data.forestDone.size()<=6
+     && request.resource.data.canyonDone is list
+     && request.resource.data.canyonDone.size()<=13
+     && request.resource.data.crystalDone is list
+     && request.resource.data.crystalDone.size()<=14
+     && request.resource.data.volcanoDone is list
+     && request.resource.data.volcanoDone.size()<=13
+     && request.resource.data.rewardedRegions is list
+     && request.resource.data.rewardedRegions.size()<=5
+     && request.resource.data.rewardedRegions.hasOnly([0,1,2,3,4])
+     && (resource == null ||
+       request.resource.data.rewardedRegions.hasAll(resource.data.get('rewardedRegions',[])))
+     && request.resource.data.purchasedAvatars is list
+     && request.resource.data.purchasedAvatars.size()<=3
+     && request.resource.data.purchasedAvatars.hasOnly(['knight','queen','king'])
+     && (resource == null ||
+       request.resource.data.purchasedAvatars.hasAll(resource.data.get('purchasedAvatars',[])))
+     && ((('knight' in request.resource.data.purchasedAvatars) ? 3000 : 0)
+         + (('queen' in request.resource.data.purchasedAvatars) ? 7000 : 0)
+         + (('king' in request.resource.data.purchasedAvatars) ? 7000 : 0))
+       <= ((0 in request.resource.data.rewardedRegions ? 1000 : 0)
+         + (1 in request.resource.data.rewardedRegions ? 2000 : 0)
+         + (2 in request.resource.data.rewardedRegions ? 3000 : 0)
+         + (3 in request.resource.data.rewardedRegions ? 4000 : 0)
+         + (4 in request.resource.data.rewardedRegions ? 5000 : 0))
+     && request.resource.data.stars is int
+     && request.resource.data.stars>=0
+     && request.resource.data.stars<=186;
+   allow delete: if false;
+  }
+  match /friendSettings/{uid} {
+   allow get: if friendUser() && request.auth.uid==uid;
+   allow list: if false;
+   allow create: if friendUser() && request.auth.uid==uid
+     && request.resource.data.keys().hasOnly(['code','createdAt'])
+     && request.resource.data.code is string
+     && request.resource.data.code.matches('KT[A-HJ-NP-Z2-9]{10}')
+     && request.resource.data.createdAt==request.time
+     && getAfter(/databases/$(database)/documents/friendDirectory/$(request.resource.data.code)).data.ownerId==uid;
+   allow update,delete: if false;
+  }
+  match /friendDirectory/{code} {
+   allow get: if friendUser();
+   allow list: if false;
+   allow create: if friendUser() && code.matches('KT[A-HJ-NP-Z2-9]{10}')
+     && request.resource.data.keys().hasOnly(['ownerId','createdAt'])
+     && request.resource.data.ownerId==request.auth.uid
+     && request.resource.data.createdAt==request.time
+     && getAfter(/databases/$(database)/documents/friendSettings/$(request.auth.uid)).data.code==code;
+   allow update,delete: if false;
+  }
+  function friendPair(a,b) {
+   return a < b ? a+'_'+b : b+'_'+a;
+  }
+  match /friendships/{pair} {
+   allow get,list: if friendUser() && request.auth.uid in resource.data.members;
+   allow create: if friendUser()
+     && request.resource.data.keys().hasOnly([
+       'members','requesterId','recipientId','status','createdAt','updatedAt'])
+     && request.resource.data.requesterId==request.auth.uid
+     && request.resource.data.recipientId is string
+     && request.resource.data.recipientId!=request.auth.uid
+     && pair==friendPair(request.auth.uid,request.resource.data.recipientId)
+     && request.resource.data.members is list
+     && request.resource.data.members.size()==2
+     && request.resource.data.members.hasAll([request.auth.uid,request.resource.data.recipientId])
+     && request.resource.data.status=='pending'
+     && request.resource.data.createdAt==request.time
+     && request.resource.data.updatedAt==request.time
+     && exists(/databases/$(database)/documents/users/$(request.resource.data.recipientId))
+     && get(/databases/$(database)/documents/users/$(request.resource.data.recipientId)).data.role in ['student','teacher']
+     && get(/databases/$(database)/documents/users/$(request.resource.data.recipientId)).data.active==true;
+   allow update: if friendUser()
+     && request.auth.uid==resource.data.recipientId
+     && resource.data.status=='pending'
+     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','updatedAt'])
+     && request.resource.data.status in ['accepted','declined','blocked']
+     && request.resource.data.updatedAt==request.time;
+   allow update: if friendUser()
+     && resource.data.status=='accepted'
+     && request.auth.uid in resource.data.members
+     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['quickMessage','challenge','updatedAt'])
+     && request.resource.data.updatedAt==request.time
+     && (
+       (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['quickMessage','updatedAt'])
+        && request.resource.data.quickMessage.keys().hasOnly(['text','from','at'])
+        && request.resource.data.quickMessage.from==request.auth.uid
+        && request.resource.data.quickMessage.text in ['👋 Chào bạn!','♟️ Bạn chơi cờ với mình nhé?','👏 Bạn chơi hay quá!','🎉 Chúc mừng bạn!','😊 Cảm ơn bạn!']
+        && request.resource.data.quickMessage.at==request.time)
+       ||
+       (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['challenge','updatedAt'])
+        && request.resource.data.challenge.keys().hasOnly(['status','from','at','respondedAt'])
+        && request.resource.data.challenge.from in resource.data.members
+        && (
+          (request.resource.data.challenge.from==request.auth.uid
+           && request.resource.data.challenge.status=='pending'
+           && request.resource.data.challenge.at==request.time)
+          ||
+          (resource.data.get('challenge',{}).get('status','')=='pending'
+           && resource.data.challenge.from!=request.auth.uid
+           && request.resource.data.challenge.from==resource.data.challenge.from
+           && request.resource.data.challenge.at==resource.data.challenge.at
+           && request.resource.data.challenge.status in ['accepted','declined']
+           && request.resource.data.challenge.respondedAt==request.time)
+        ))
+     );
+   allow delete: if friendUser()
+     && request.auth.uid in resource.data.members
+     && (resource.data.status=='accepted' ||
+       (resource.data.status=='pending'&&resource.data.requesterId==request.auth.uid));
+  }
+  function acceptedDuel(pairId) {
+   return exists(/databases/$(database)/documents/friendships/$(pairId))
+    && get(/databases/$(database)/documents/friendships/$(pairId)).data.status=='accepted'
+    && get(/databases/$(database)/documents/friendships/$(pairId)).data.challenge.status=='accepted';
+  }
+  function duelChallenge(pairId) {
+   return get(/databases/$(database)/documents/friendships/$(pairId)).data.challenge;
+  }
+  function initialDuel(d, pairId) {
+   return d.keys().hasOnly(['members','friendshipId','challengeAt','white','black','fen','turn','moves','status','lastMove','updatedAt'])
+    && d.friendshipId==pairId
+    && d.members is list && d.members.size()==2
+    && d.members.hasAll([d.white,d.black])
+    && d.white!=d.black
+    && pairId==friendPair(d.white,d.black)
+    && d.white==duelChallenge(pairId).from
+    && d.challengeAt==duelChallenge(pairId).at
+    && d.turn==d.white && d.moves==0 && d.status=='playing'
+    && d.lastMove=='' && d.updatedAt==request.time
+    && d.fen=='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+  }
+  match /friendMatches/{pairId} {
+   allow get: if friendUser()
+    && exists(/databases/$(database)/documents/friendships/$(pairId))
+    && get(/databases/$(database)/documents/friendships/$(pairId)).data.status=='accepted'
+    && request.auth.uid in get(/databases/$(database)/documents/friendships/$(pairId)).data.members;
+   allow list: if false;
+   allow create: if friendUser() && acceptedDuel(pairId)
+    && request.auth.uid in request.resource.data.members
+    && initialDuel(request.resource.data,pairId);
+   allow update: if friendUser() && acceptedDuel(pairId)
+    && request.auth.uid in resource.data.members
+    && (
+      (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['fen','turn','moves','status','lastMove','updatedAt'])
+       && resource.data.status=='playing'
+       && resource.data.turn==request.auth.uid
+       && request.resource.data.moves==resource.data.moves+1
+       && request.resource.data.moves<=400
+       && request.resource.data.fen is string
+       && request.resource.data.fen.size()<=110
+       && request.resource.data.lastMove is string
+       && request.resource.data.lastMove.matches('[a-h][1-8][a-h][1-8]')
+       && request.resource.data.status in ['playing','finished']
+       && request.resource.data.turn==(request.resource.data.status=='finished'?'':(resource.data.white==request.auth.uid?resource.data.black:resource.data.white))
+       && request.resource.data.updatedAt==request.time)
+      ||
+      (resource.data.challengeAt!=duelChallenge(pairId).at
+       && initialDuel(request.resource.data,pairId))
+    );
+   allow delete: if false;
+  }
+  function chatPeer(pairId) {
+   let members=get(/databases/$(database)/documents/friendships/$(pairId)).data.members;
+   return members[0]==request.auth.uid?members[1]:members[0];
+  }
+  match /chatBlocks/{owner}/blocked/{other} {
+   allow get: if friendUser() && request.auth.uid in [owner,other];
+   allow list: if false;
+   allow create,update: if friendUser() && request.auth.uid==owner
+    && request.resource.data.keys().hasOnly(['owner','other','at'])
+    && request.resource.data.owner==owner
+    && request.resource.data.other==other
+    && owner!=other
+    && request.resource.data.at==request.time;
+   allow delete: if friendUser() && request.auth.uid==owner;
+  }
+  match /friendChats/{pairId}/messages/{messageId} {
+   allow get,list: if friendUser()
+    && exists(/databases/$(database)/documents/friendships/$(pairId))
+    && get(/databases/$(database)/documents/friendships/$(pairId)).data.status=='accepted'
+    && request.auth.uid in get(/databases/$(database)/documents/friendships/$(pairId)).data.members;
+   allow create: if friendUser()
+    && exists(/databases/$(database)/documents/friendships/$(pairId))
+    && get(/databases/$(database)/documents/friendships/$(pairId)).data.status=='accepted'
+    && request.auth.uid in get(/databases/$(database)/documents/friendships/$(pairId)).data.members
+    && request.resource.data.keys().hasOnly(['from','text','at'])
+    && request.resource.data.from==request.auth.uid
+    && request.resource.data.text is string
+    && request.resource.data.text.size()>0
+    && request.resource.data.text.size()<=500
+    && request.resource.data.at==request.time
+    && !exists(/databases/$(database)/documents/chatBlocks/$(request.auth.uid)/blocked/$(chatPeer(pairId)))
+    && !exists(/databases/$(database)/documents/chatBlocks/$(chatPeer(pairId))/blocked/$(request.auth.uid));
+   allow update,delete: if false;
+  }
+
+  function arcadeFriend(d) {
+   return friendUser() && d.members is list && d.members.size()==2
+    && request.auth.uid in d.members
+    && exists(/databases/$(database)/documents/friendships/$(friendPair(d.members[0],d.members[1])))
+    && get(/databases/$(database)/documents/friendships/$(friendPair(d.members[0],d.members[1]))).data.status=='accepted';
+  }
+  function arcadeInviteId(d) {
+   return friendPair(d.members[0],d.members[1])+(d.game==0?'_0':'_1');
+  }
+  match /arcadeInvites/{id} {
+   allow get: if friendUser() && (resource==null || arcadeFriend(resource.data));
+   allow list: if false;
+   allow create: if arcadeFriend(request.resource.data)
+    && request.resource.data.keys().hasOnly(['members','from','game','status','at'])
+    && request.resource.data.game in [0,1]
+    && id==arcadeInviteId(request.resource.data)
+    && request.resource.data.from==request.auth.uid
+    && request.resource.data.status=='pending'
+    && request.resource.data.at==request.time;
+   allow update: if arcadeFriend(resource.data)
+    && request.resource.data.members==resource.data.members
+    && request.resource.data.game==resource.data.game
+    && id==arcadeInviteId(resource.data)
+    && (
+      (request.auth.uid==request.resource.data.from
+       && (resource.data.status!='pending' || resource.data.from==request.auth.uid)
+       && request.resource.data.keys().hasOnly(['members','from','game','status','at','respondedAt'])
+       && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['from','status','at','respondedAt'])
+       && request.resource.data.status=='pending'
+       && request.resource.data.at==request.time)
+      ||
+      (resource.data.status=='pending'
+       && request.auth.uid!=resource.data.from
+       && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','respondedAt'])
+       && request.resource.data.status in ['accepted','declined']
+       && request.resource.data.respondedAt==request.time)
+    );
+   allow delete: if false;
+  }
+  function arcadeStart(d,id) {
+   return d.keys().hasOnly(['members','game','inviteAt','white','black','pos','turn','enPassant','ended','last','moves','updatedAt'])
+    && id==arcadeInviteId(d)
+    && d.game in [0,1]
+    && d.members is list && d.members.size()==2
+    && d.members.hasAll([d.white,d.black])
+    && d.white!=d.black
+    && d.white==get(/databases/$(database)/documents/arcadeInvites/$(id)).data.from
+    && d.inviteAt==get(/databases/$(database)/documents/arcadeInvites/$(id)).data.at
+    && d.turn=='w' && d.moves==0 && d.enPassant=='' && d.ended=='' && d.last==''
+    && d.updatedAt==request.time
+    && d.pos==(d.game==0?{'a2':'P','a7':'p','b2':'P','b7':'p','c2':'P','c7':'p','d2':'P','d7':'p','e2':'P','e7':'p','f2':'P','f7':'p','g2':'P','g7':'p','h2':'P','h7':'p'}:{'e1':'N','d7':'p','e7':'p','f7':'p'});
+  }
+  function arcadeAccepted(id) {
+   return exists(/databases/$(database)/documents/arcadeInvites/$(id))
+    && get(/databases/$(database)/documents/arcadeInvites/$(id)).data.status=='accepted';
+  }
+  match /arcadeMatches/{id} {
+   allow get: if friendUser() && (resource==null || arcadeFriend(resource.data));
+   allow list: if false;
+   allow create: if arcadeAccepted(id) && arcadeFriend(request.resource.data)
+    && arcadeStart(request.resource.data,id);
+   allow update: if arcadeAccepted(id) && arcadeFriend(resource.data)
+    && (
+      (resource.data.inviteAt!=get(/databases/$(database)/documents/arcadeInvites/$(id)).data.at
+       && arcadeStart(request.resource.data,id))
+      ||
+      (resource.data.inviteAt==get(/databases/$(database)/documents/arcadeInvites/$(id)).data.at
+       && resource.data.ended==''
+       && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['pos','turn','enPassant','ended','last','moves','updatedAt'])
+       && request.resource.data.moves==resource.data.moves+1
+       && request.resource.data.moves<=200
+       && request.resource.data.pos is map
+       && request.resource.data.pos.size()<=16
+       && request.resource.data.turn in ['w','b']
+       && (request.resource.data.turn!=resource.data.turn || request.resource.data.ended!='')
+       && request.auth.uid==(resource.data.turn=='w'?resource.data.white:resource.data.black)
+       && request.resource.data.enPassant is string
+       && (request.resource.data.enPassant=='' || request.resource.data.enPassant.matches('[a-h][1-8]'))
+       && request.resource.data.ended is string
+       && request.resource.data.ended.size()<=130
+       && request.resource.data.last is string
+       && request.resource.data.last.matches('[a-h][1-8] → [a-h][1-8]')
+       && request.resource.data.updatedAt==request.time)
+    );
+   allow delete: if false;
+  }
+
+  match /chatClears/{owner}/pairs/{pairId} {
+   allow get: if friendUser() && request.auth.uid==owner;
+   allow list: if false;
+   allow create,update: if friendUser() && request.auth.uid==owner
+    && request.resource.data.keys().hasOnly(['owner','pairId','clearedAt'])
+    && request.resource.data.owner==owner
+    && request.resource.data.pairId==pairId
+    && exists(/databases/$(database)/documents/friendships/$(pairId))
+    && owner in get(/databases/$(database)/documents/friendships/$(pairId)).data.members
+    && request.resource.data.clearedAt==request.time;
+   allow delete: if false;
+  }
+  match /chatReports/{reportId} {
+   allow create: if friendUser()
+    && request.resource.data.keys().hasOnly(['reporter','reported','pairId','messageId','reason','text','at'])
+    && request.resource.data.reporter==request.auth.uid
+    && request.resource.data.reported is string
+    && request.resource.data.reported!=request.auth.uid
+    && request.resource.data.pairId==friendPair(request.auth.uid,request.resource.data.reported)
+    && request.resource.data.messageId is string
+    && request.resource.data.messageId.size()>0
+    && request.resource.data.reason=='inappropriate'
+    && request.resource.data.text is string
+    && request.resource.data.text.size()<=500
+    && request.resource.data.at==request.time
+    && exists(/databases/$(database)/documents/friendships/$(request.resource.data.pairId))
+    && get(/databases/$(database)/documents/friendships/$(request.resource.data.pairId)).data.status=='accepted';
+   allow read,update,delete: if false;
+  }
+  match /friendPublicProfiles/{uid} {
+   allow get: if friendUser() &&
+     (request.auth.uid==uid ||
+      (exists(/databases/$(database)/documents/friendships/$(friendPair(request.auth.uid,uid))) &&
+       get(/databases/$(database)/documents/friendships/$(friendPair(request.auth.uid,uid))).data.status=='accepted'));
+   allow list: if false;
+   allow create,update: if friendUser() && request.auth.uid==uid
+     && request.resource.data.keys().hasOnly(['avatar','stars','regions','badges','sharedName','updatedAt'])
+     && request.resource.data.sharedName is string
+     && request.resource.data.sharedName.size()<=100
+     && request.resource.data.avatar in ['king','queen','knight','scholar','explorer']
+     && request.resource.data.stars is int
+     && request.resource.data.stars>=0 && request.resource.data.stars<=186
+     && request.resource.data.regions is int
+     && request.resource.data.regions>=0 && request.resource.data.regions<=5
+     && request.resource.data.badges is int
+     && request.resource.data.badges>=0 && request.resource.data.badges<=5
+     && request.resource.data.updatedAt==request.time;
+   allow delete: if false;
+  }
+  function timerStamp(v, prev) {
+   return v == null || (v is timestamp && (v == request.time || v == prev));
+  }
+  function timerValid(t, prev) {
+   return t is map
+    && t.keys().hasOnly(['open','mode','status','dur','base','anchor','pausedAt','laps','style','beep','seq'])
+    && t.keys().hasAll(['open','mode','status','dur','base','anchor','pausedAt','laps','style','beep','seq'])
+    && t.open is bool
+    && t.mode in ['down','up']
+    && t.status in ['ready','running','paused']
+    && t.dur is int && t.dur >= 0 && t.dur <= 86400000
+    && t.base is int && t.base >= 0 && t.base <= 360000000
+    && t.laps is list && t.laps.size() <= 60
+    && t.style in ['big','ring','led','flip','glass']
+    && t.beep is bool
+    && t.seq is int && t.seq >= 0 && t.seq > prev.get('seq', -1)
+    && timerStamp(t.anchor, prev.get('anchor', null))
+    && timerStamp(t.pausedAt, prev.get('pausedAt', null));
+  }
+  function timerWriter() {
+   return teacher()
+    && request.resource.data.get('teacherId', '') == request.auth.uid
+    && resource.data.get('teacherId', request.auth.uid) == request.auth.uid;
+  }
+  match /clockSync/{uid} {
+   allow get: if signed() && request.auth.uid==uid;
+   allow list: if false;
+   allow create,update: if signed() && request.auth.uid==uid
+     && request.resource.data.keys().hasOnly(['at'])
+     && request.resource.data.at==request.time;
+   allow delete: if false;
+  }
+  match /rooms/{roomId} {
+   allow read: if active();
+   allow create: if active()
+     && !('classTimer' in request.resource.data)
+     && !('teacherId' in request.resource.data);
+   allow update: if active()
+     && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['classTimer','teacherId'])
+       || (timerWriter()
+         && (!('classTimer' in request.resource.data)
+           || timerValid(request.resource.data.classTimer, resource.data.get('classTimer', {})))));
+   allow delete: if false;
+  }
+  match /chernevResults/{id} {
+   allow get: if active() && (resource == null
+     || resource.data.teacherId==request.auth.uid
+     || resource.data.studentId==request.auth.uid);
+   allow list: if active() && (resource.data.teacherId==request.auth.uid
+     || resource.data.studentId==request.auth.uid);
+   allow create: if teacher()
+     && request.resource.data.keys().hasOnly(['id','room','teacherId','teacherName','studentId','studentName','num','fen0','goal','goalSide','studentColor','teacherColor','limit','kind','winner','objectiveMet','studentOk','reason','by','note','playedMs','usedW','usedB','plies','moves','sans','startedAtMs','endedAtMs','createdAt'])
+     && request.resource.data.keys().hasAll(['id','teacherId','studentId','num','fen0','goal','moves','createdAt'])
+     && request.resource.data.id==id
+     && request.resource.data.teacherId==request.auth.uid
+     && request.resource.data.studentId is string
+     && request.resource.data.studentId!=request.auth.uid
+     && request.resource.data.num is int
+     && request.resource.data.num>=1 && request.resource.data.num<=300
+     && request.resource.data.fen0 is string && request.resource.data.fen0.size()<=110
+     && request.resource.data.goal in ['win','draw']
+     && request.resource.data.moves is list && request.resource.data.moves.size()<=400
+     && request.resource.data.sans is list && request.resource.data.sans.size()<=400
+     && request.resource.data.createdAt==request.time;
+   allow update,delete: if false;
+  }
+  match /{document=**} {allow read,write: if false;}
+ }
+}

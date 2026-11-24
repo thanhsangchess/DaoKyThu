@@ -1,0 +1,175 @@
+
+body .header .logo-icon{
+  box-sizing:border-box;
+  padding:3px;
+  overflow:hidden;
+  background:linear-gradient(145deg,#ffffff,#eef7ff)!important;
+  border:1px solid #d7e8f7;
+  box-shadow:0 5px 13px rgba(43,111,201,.17),inset 0 1px 0 #fff!important;
+}
+body .header .logo-icon img{
+  display:block;
+  width:100%;
+  height:100%;
+  max-width:100%;
+  max-height:100%;
+  object-fit:contain;
+  object-position:center;
+}
+
+.vqc-entry .vqc-entry-symbol{
+  box-sizing:border-box;
+  padding:5px;
+  overflow:hidden;
+  background:linear-gradient(145deg,#fff,#edf7ff)!important;
+  border:1px solid #d7e8f7;
+  box-shadow:0 10px 25px rgba(22,101,169,.18),inset 0 1px 0 #fff;
+}
+.vqc-entry .vqc-entry-symbol img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:center;
+}
+
+#accountOverlay .vqc-login-form-logo{
+  display:block;
+  width:66px;
+  height:78px;
+  max-width:100%;
+  margin:0 auto 8px;
+  object-fit:contain;
+  object-position:center;
+  filter:drop-shadow(0 4px 5px rgba(27,76,126,.14));
+}
+#accountOverlay .vqc-login-brand-logo{
+  display:block;
+  width:clamp(58px,7vw,92px);
+  height:clamp(68px,8vw,104px);
+  object-fit:contain;
+  object-position:center;
+  margin:0 auto 7px;
+}
+
+#accountOverlay .vqc-login-brand{
+  align-items:center;
+  text-align:center;
+}
+#accountOverlay .vqc-login-brand strong{
+  display:block;
+}
+
+@media(max-width:850px){
+  #accountOverlay .vqc-login-form-logo{
+    width:56px;
+    height:66px;
+    margin-bottom:5px;
+  }
+}
+
+body > .header .logo-icon{
+  width:60px!important;
+  height:62px!important;
+  flex:0 0 60px!important;
+  box-sizing:border-box;
+  padding:0!important;
+  overflow:visible!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+body > .header .logo-icon img{
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+  object-position:center;
+  filter:drop-shadow(0 3px 5px rgba(17,55,100,.18));
+}
+
+.vqc-entry .vqc-entry-symbol{
+  width:100px!important;
+  height:112px!important;
+  flex:0 0 100px!important;
+  padding:4px!important;
+  border-radius:22px!important;
+  border:2px solid rgba(255,255,255,.96)!important;
+  background:linear-gradient(150deg,#f8fcff,#e8f4ff)!important;
+  box-shadow:0 6px 0 #c6def1,0 12px 24px rgba(31,91,145,.18)!important;
+  overflow:hidden;
+}
+.vqc-entry .vqc-entry-symbol img{
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+  object-position:center;
+}
+
+#accountOverlay .vqc-login-form-logo{
+  width:76px!important;
+  height:102px!important;
+  margin:0 auto 10px!important;
+  object-fit:contain!important;
+}
+#accountOverlay .vqc-login-brand-logo{
+  width:76px!important;
+  height:102px!important;
+  object-fit:contain!important;
+}
+
+@media(max-width:850px){
+  body > .header .logo-icon{
+    width:46px!important;
+    height:52px!important;
+    flex-basis:46px!important;
+  }
+  .vqc-entry .vqc-entry-symbol{
+    width:78px!important;
+    height:90px!important;
+    flex-basis:78px!important;
+  }
+  #accountOverlay .vqc-login-form-logo{
+    width:64px!important;
+    height:86px!important;
+  }
+}
+
+body > .header .logo-icon{
+  padding:4px!important;
+  overflow:hidden!important;
+  border:1px solid #d9e8f5!important;
+  border-radius:17px!important;
+  background:linear-gradient(145deg,#ffffff,#edf6ff)!important;
+  box-shadow:0 4px 12px rgba(24,78,128,.16),inset 0 1px 0 #fff!important;
+}
+body > .header .logo-icon img{
+  border-radius:12px!important;
+}
+
+.vqc-entry .vqc-entry-symbol{
+  border-radius:27px!important;
+  overflow:hidden!important;
+}
+.vqc-entry .vqc-entry-symbol img{
+  border-radius:20px!important;
+}
+
+#accountOverlay .vqc-login-form-logo,
+#accountOverlay .vqc-login-brand-logo{
+  box-sizing:border-box;
+  padding:5px;
+  border:1px solid #d9e8f5;
+  border-radius:19px;
+  background:linear-gradient(145deg,#ffffff,#edf6ff);
+  box-shadow:0 5px 13px rgba(24,78,128,.14),inset 0 1px 0 #fff;
+}
+
+@media(max-width:850px){
+  body > .header .logo-icon{border-radius:14px!important}
+  body > .header .logo-icon img{border-radius:10px!important}
+  .vqc-entry .vqc-entry-symbol{border-radius:22px!important}
+  .vqc-entry .vqc-entry-symbol img{border-radius:16px!important}
+  #accountOverlay .vqc-login-form-logo,
+  #accountOverlay .vqc-login-brand-logo{border-radius:16px}
+}
