@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);
-const VERSION='20261124-duel-v18';
+const VERSION='20261124-duel-v19';
 const PROTO=2;
 const FILES='abcdefgh';
 const SIDE={w:'Trắng',b:'Đen'};
@@ -1355,7 +1355,7 @@ function render(){
  $('vqcChdResign').textContent=confirmResign?'❗ Bấm lần nữa để chịu thua':'🏳️ Chịu thua';
  show('vqcChdSwitch',teacher&&!review&&!setupOpen&&(!M||ctl||!LIVE.includes(st)));
  $('vqcChdSwitch').textContent=M&&LIVE.includes(st)?'🔄 Đổi bài / học sinh':'➕ Ván mới';
- show('vqcChdHint',review?true:(ctl&&!!game));
+ show('vqcChdHint',review?teacher:(ctl&&!!game));
  $('vqcChdHint').disabled=hintBusy||(!!review&&!teacher);
  $('vqcChdHint').title=review&&!teacher?'Chức năng này đã bị khóa với học sinh':'';
  $('vqcChdHint').textContent=hintBusy?(engineState==='loading'?'⏳ Đang tải Stockfish…':'⏳ Máy đang phân tích…'):(review?'🤖 Máy phân tích thế cờ này':'💡 Máy đánh giá thế cờ (gợi ý cho giáo viên)');

@@ -399,6 +399,7 @@ function paint(){
   const bk=$('vqcVsrBack');bk.disabled=!teacher;bk.title=teacher?'':LOCK;
  }
  const ab=$('vqcVsrAna');
+ ab.hidden=!teacher;
  ab.disabled=busy||!teacher;
  ab.title=teacher?'':LOCK;
  ab.textContent=busy?(engState==='loading'?'⏳ Đang tải Stockfish…':'⏳ Máy đang phân tích…'):'🤖 Máy phân tích thế cờ này';
