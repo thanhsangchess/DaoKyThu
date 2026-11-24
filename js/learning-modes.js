@@ -146,6 +146,14 @@
    l.id='vqcQuietCss';l.rel='stylesheet';l.href='./css/ui-quiet.css?v=20261124-quiet-v1';
    document.head.appendChild(l);
   }
+  if(!document.getElementById('vqcLoginUpgradeCss')){
+   const l=document.createElement('link');
+   l.id='vqcLoginUpgradeCss';l.rel='stylesheet';l.href='./css/login-upgrade.css?v=20261124-login-v1';
+   document.head.appendChild(l);
+  }
+  const s=document.createElement('script');
+  s.src='./js/login-upgrade.js?v=20261124-login-v1';s.async=false;
+  document.head.appendChild(s);
  }catch(e){}
 })();
 

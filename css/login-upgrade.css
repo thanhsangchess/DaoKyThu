@@ -1,0 +1,131 @@
+#accountOverlay .account-modal{animation:vqcLoginIn .5s cubic-bezier(.2,.8,.2,1) both}
+@keyframes vqcLoginIn{from{opacity:0;transform:translateY(16px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes vqcLoginShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(5px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+@keyframes vqcLoginSpin{to{transform:rotate(360deg)}}
+
+#accountOverlay .vqc-login-formhead h2{
+ color:#16306f;
+ background:linear-gradient(135deg,#132a66 10%,#1b5ad0 90%);
+ -webkit-background-clip:text;background-clip:text;
+ -webkit-text-fill-color:transparent;
+ letter-spacing:-.8px;
+}
+#accountOverlay .vqc-login-formhead p{color:#6a7fa3;font-weight:600;letter-spacing:.2px}
+
+#accountOverlay .vqc-login-roles{
+ padding:5px!important;gap:6px!important;border-radius:17px!important;
+ background:#eaf3ff!important;border:1px solid #d4e5fb!important;
+}
+#accountOverlay .vqc-login-roles button{
+ min-height:46px;border-radius:13px!important;font-weight:800;
+ color:#4f6a96!important;transition:background .2s,color .2s,box-shadow .2s,transform .15s;
+}
+#accountOverlay .vqc-login-roles button:not(.selected):hover{background:rgba(255,255,255,.75)!important;color:#1a52b8!important}
+#accountOverlay .vqc-login-roles button.selected{
+ background:linear-gradient(135deg,#1a7bff,#1253e2)!important;color:#fff!important;
+ box-shadow:0 6px 14px rgba(20,102,232,.30)!important;
+}
+#accountOverlay .vqc-login-roles button:focus-visible{outline:3px solid rgba(20,102,232,.35);outline-offset:2px}
+
+#accountOverlay .vqc-login-label{color:#30476f!important;font-weight:800!important;letter-spacing:.1px}
+
+#accountOverlay .vqc-login-input{
+ height:56px!important;padding:0 12px 0 10px!important;gap:12px!important;
+ border:1.5px solid #d8e6f8!important;border-radius:16px!important;background:#f7fbff!important;
+ transition:border-color .18s,box-shadow .18s,background .18s;
+}
+#accountOverlay .vqc-login-input:hover{border-color:#b7d1f2!important}
+#accountOverlay .vqc-login-input:focus-within{
+ background:#fff!important;border-color:#1466e8!important;box-shadow:0 0 0 4px rgba(20,102,232,.13)!important;
+}
+#accountOverlay .vqc-login-ico{
+ width:36px;height:36px;flex:0 0 36px;border-radius:11px;background:#e3efff;color:#1b63d6;
+ display:grid;place-items:center;font-size:0!important;transition:background .18s,color .18s;
+}
+#accountOverlay .vqc-login-ico svg{width:19px;height:19px;display:block}
+#accountOverlay .vqc-login-input:focus-within .vqc-login-ico{background:#1466e8;color:#fff}
+#accountOverlay .vqc-login-input input{font-size:15.5px!important;font-weight:600;color:#16294f!important}
+#accountOverlay .vqc-login-input input::placeholder{color:#93a5c3;font-weight:500}
+#accountOverlay .vqc-login-input input:-webkit-autofill,
+#accountOverlay .vqc-login-input input:-webkit-autofill:hover,
+#accountOverlay .vqc-login-input input:-webkit-autofill:focus{
+ -webkit-text-fill-color:#16294f;
+ -webkit-box-shadow:0 0 0 60px #f7fbff inset!important;box-shadow:0 0 0 60px #f7fbff inset!important;
+ caret-color:#16294f;transition:background-color 99999s ease-out;
+}
+#accountOverlay .vqc-login-input:focus-within input:-webkit-autofill{
+ -webkit-box-shadow:0 0 0 60px #fff inset!important;box-shadow:0 0 0 60px #fff inset!important;
+}
+
+#accountOverlay .vqc-login-eye{
+ width:38px;height:38px;flex:0 0 38px;padding:0!important;border-radius:11px;
+ display:grid;place-items:center;color:#6b80a6;font-size:0!important;
+ transition:background .18s,color .18s;
+}
+#accountOverlay .vqc-login-eye:hover{background:#e3efff;color:#1466e8}
+#accountOverlay .vqc-login-eye:focus-visible{outline:3px solid rgba(20,102,232,.35)}
+#accountOverlay .vqc-login-eye svg{width:21px;height:21px;display:block}
+#accountOverlay .vqc-login-eye .eye-off{display:none}
+#accountOverlay .vqc-login-eye.on .eye-on{display:none}
+#accountOverlay .vqc-login-eye.on .eye-off{display:block}
+#accountOverlay .vqc-login-eye.on{color:#1466e8}
+
+#accountOverlay .vqc-login-caps{
+ display:flex;align-items:center;gap:8px;margin:-4px 0 12px;padding:7px 12px;
+ border-radius:11px;background:#fff8e3;border:1px solid #ffe4a0;color:#8a5d00;
+ font-size:12.5px;font-weight:700;
+}
+#accountOverlay .vqc-login-caps[hidden]{display:none}
+#accountOverlay .vqc-login-caps::before{
+ content:"";width:7px;height:7px;border-radius:50%;background:#f0a800;flex:0 0 7px;
+}
+
+#accountOverlay .account-error:empty{display:none!important}
+#accountOverlay .account-error:not(:empty){
+ display:flex!important;align-items:flex-start;gap:10px;margin:2px 0 14px;padding:11px 14px!important;
+ text-align:left!important;border-radius:14px;background:#fff3f1;border:1px solid #ffd2cd;
+ color:#b3261a!important;font-size:13.5px!important;font-weight:700;line-height:1.45;
+ animation:vqcLoginShake .42s both;
+}
+#accountOverlay .account-error:not(:empty)::before{
+ content:"!";flex:0 0 20px;height:20px;border-radius:50%;background:#e5483b;color:#fff;
+ font-size:13px;font-weight:900;display:grid;place-items:center;margin-top:1px;
+}
+
+#accountOverlay .vqc-login-submit{
+ position:relative;display:flex!important;align-items:center;justify-content:center;gap:10px;
+ height:56px!important;margin-top:6px!important;border-radius:16px!important;
+ background:linear-gradient(135deg,#1a7bff 0%,#1252e0 100%)!important;color:#fff;
+ font-size:18px!important;font-weight:800;letter-spacing:.3px;
+ box-shadow:0 9px 22px rgba(20,102,232,.33),inset 0 1px 0 rgba(255,255,255,.28)!important;
+ transition:transform .15s,box-shadow .2s,filter .2s;
+}
+#accountOverlay .vqc-login-submit:hover{
+ transform:translateY(-1px);filter:brightness(1.06)!important;
+ box-shadow:0 13px 28px rgba(20,102,232,.38),inset 0 1px 0 rgba(255,255,255,.3)!important;
+}
+#accountOverlay .vqc-login-submit:active{transform:translateY(1px);filter:brightness(.97)!important}
+#accountOverlay .vqc-login-submit:focus-visible{outline:3px solid rgba(20,102,232,.4);outline-offset:3px}
+#accountOverlay .vqc-login-submit:disabled{cursor:progress;filter:saturate(.85);transform:none}
+#accountOverlay .vqc-login-submit.loading::after{
+ content:"";width:19px;height:19px;border-radius:50%;
+ border:2.5px solid rgba(255,255,255,.4);border-top-color:#fff;
+ animation:vqcLoginSpin .7s linear infinite;
+}
+
+#accountOverlay .vqc-login-divider{background:linear-gradient(90deg,transparent,#d9e6f5 20%,#d9e6f5 80%,transparent)!important}
+#accountOverlay .vqc-login-help{line-height:1.65}
+#accountOverlay .vqc-login-welcome{
+ background:linear-gradient(135deg,#eef7ff,#f6faff)!important;border:1px solid #dcecfb!important;
+}
+
+@media(max-width:600px){
+ #accountOverlay .vqc-login-input input{font-size:16px!important}
+ #accountOverlay .vqc-login-input{height:54px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ #accountOverlay .account-modal,
+ #accountOverlay .account-error:not(:empty),
+ #accountOverlay .vqc-login-submit.loading::after{animation:none!important}
+ #accountOverlay .vqc-login-submit,#accountOverlay .vqc-login-input,#accountOverlay .vqc-login-roles button{transition:none!important}
+}

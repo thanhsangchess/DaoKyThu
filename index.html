@@ -938,10 +938,11 @@
           <button type="button" id="vqcLoginTeacher" onclick="vqcSelectLoginRole('teacher')">👩‍🏫 Giáo viên</button>
         </div>
         <label class="vqc-login-label" for="accountLoginId">Tên đăng nhập</label>
-        <div class="vqc-login-input"><span>👤</span><input id="accountLoginId" autocomplete="username" placeholder="Tên đăng nhập"></div>
+        <div class="vqc-login-input"><span class="vqc-login-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></span><input id="accountLoginId" autocomplete="username" placeholder="Tên đăng nhập" autocapitalize="none" spellcheck="false"></div>
         <label class="vqc-login-label" for="accountLoginPassword">Mật khẩu</label>
-        <div class="vqc-login-input"><span>🔒</span><input id="accountLoginPassword" type="password" autocomplete="current-password" placeholder="Mật khẩu" onkeydown="if(event.key==='Enter')accountSignIn()"><button type="button" class="vqc-login-eye" onclick="vqcToggleLoginPassword()" aria-label="Hiện hoặc ẩn mật khẩu">👁</button></div>
-        <button type="button" class="vqc-login-submit" onclick="accountSignIn()">➜ &nbsp; Đăng nhập</button>
+        <div class="vqc-login-input"><span class="vqc-login-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10.5" width="16" height="10.5" rx="3"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/><circle cx="12" cy="15.7" r="1.3" fill="currentColor" stroke="none"/></svg></span><input id="accountLoginPassword" type="password" autocomplete="current-password" placeholder="Mật khẩu" onkeydown="if(event.key==='Enter')accountSignIn()"><button type="button" class="vqc-login-eye" onclick="vqcToggleLoginPassword()" aria-label="Hiện hoặc ẩn mật khẩu" aria-pressed="false"><svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.9 17.9A10.1 10.1 0 0 1 12 19C5.6 19 2 12 2 12a17.6 17.6 0 0 1 4.1-5"/><path d="M9.9 5.2A9.7 9.7 0 0 1 12 5c6.4 0 10 7 10 7a17.7 17.7 0 0 1-2.2 3.2"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/><path d="M3 3l18 18"/></svg></button></div>
+        <p class="vqc-login-caps" id="vqcLoginCaps" hidden>Caps Lock đang bật</p>
+        <button type="button" class="vqc-login-submit" onclick="accountSignIn()"><span class="vqc-login-submit-label">Đăng nhập</span></button>
         <p id="accountLoginError" class="account-error" aria-live="polite"></p>
         <div class="vqc-login-divider"><span>♟</span></div>
         <p class="vqc-login-help">Chưa có tài khoản hoặc quên mật khẩu?<br><strong>Liên hệ giáo viên để được hỗ trợ.</strong></p>
@@ -952,7 +953,7 @@
 </div></div>
 <script>
 function vqcSelectLoginRole(role){document.getElementById('vqcLoginStudent').classList.toggle('selected',role==='student');document.getElementById('vqcLoginTeacher').classList.toggle('selected',role==='teacher');}
-function vqcToggleLoginPassword(){const el=document.getElementById('accountLoginPassword');el.type=el.type==='password'?'text':'password';}
+function vqcToggleLoginPassword(){const el=document.getElementById('accountLoginPassword');const show=el.type==='password';el.type=show?'text':'password';const b=document.querySelector('#accountOverlay .vqc-login-eye');if(b){b.classList.toggle('on',show);b.setAttribute('aria-pressed',String(show));}}
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
