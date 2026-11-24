@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);
-const VERSION='20261124-duel-v16';
+const VERSION='20261124-duel-v17';
 const PROTO=2;
 const FILES='abcdefgh';
 const SIDE={w:'Trắng',b:'Đen'};
@@ -802,7 +802,7 @@ function evalText(ev){
 }
 function evalShare(ev){if(!ev)return 50;if(ev.mate!==undefined)return ev.mate>0?97:3;return Math.round(50+50*Math.tanh(ev.cp/400)*0.94);}
 function analyzeReview(){
- if(!review||hintBusy)return;
+ if(!review||hintBusy||!isTeacherUser())return;
  const g=reviewGame();if(!g)return;
  const fen=g.fen(),turn=g.turn();
  if(g.game_over()){review.ana=null;notice=g.in_checkmate()?'Thế cờ này đã bị chiếu hết.':'Thế cờ này đã kết thúc (hòa).';render();return;}
@@ -1309,7 +1309,8 @@ function render(){
  show('vqcChdSwitch',teacher&&!review&&!setupOpen&&(!M||ctl||!LIVE.includes(st)));
  $('vqcChdSwitch').textContent=M&&LIVE.includes(st)?'🔄 Đổi bài / học sinh':'➕ Ván mới';
  show('vqcChdHint',review?true:(ctl&&!!game));
- $('vqcChdHint').disabled=hintBusy;
+ $('vqcChdHint').disabled=hintBusy||(!!review&&!teacher);
+ $('vqcChdHint').title=review&&!teacher?'Chức năng này đã bị khóa với học sinh':'';
  $('vqcChdHint').textContent=hintBusy?(engineState==='loading'?'⏳ Đang tải Stockfish…':'⏳ Máy đang phân tích…'):(review?'🤖 Máy phân tích thế cờ này':'💡 Máy đánh giá thế cờ (gợi ý cho giáo viên)');
  const box=$('vqcChdEval'),cur=review?anaCur():(hint&&ctl&&game&&hint.fen===game.fen()?hint:null);
  if(cur){
