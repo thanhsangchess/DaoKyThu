@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);
-const VERSION='20261124-duel-v17';
+const VERSION='20261124-duel-v18';
 const PROTO=2;
 const FILES='abcdefgh';
 const SIDE={w:'Trắng',b:'Đen'};
@@ -21,7 +21,7 @@ let lastRoomKey='',roomSeen=false,listenRef=null,listenOff=null,wrappedAck=false
 let mListenKey='',mListenOff=null,mRetryAt=0,mListenErr='';
 let pvRemote=null,pvIn=null,pvViewKey='',pvSig='',pvSigAt=0,pvLastSig='',pvLastAt=0,pvBusy=false,pvRetryAt=0,txBusy=0;
 const PV_TTL=120000,PV_REFRESH=50000,PV_DEBOUNCE=350;
-let annOn=false,vwRemote=null,vwIn=null,vwSig='',vwSigAt=0,vwLastSig='',vwLastAt=0,vwBusy=false,vwRetryAt=0,mirrorKey='',mirrored=false;
+let tyRemote=null,tySig='',tySigAt=0,tyLastSig='',tyBusy=false,tyRetryAt=0,annOn=false,vwRemote=null,vwIn=null,vwSig='',vwSigAt=0,vwLastSig='',vwLastAt=0,vwBusy=false,vwRetryAt=0,mirrorKey='',mirrored=false;
 const VW_TTL=75000,VW_REFRESH=20000,VW_DEBOUNCE=250;
 let lastBeat=0,flagKey='',flagAt=0,flagSeen=0,autoKey='',inviteKey='',turnKey='',endedHandled=new Set(),userClosed=new Set();
 let pvSuppress='',pvAuto=false,duelAnnounced=false;
@@ -203,7 +203,7 @@ async function txMatch(fn){
    const cur=d&&d.chernevMatch?norm(d.chernevMatch):null;
    const res=fn(cur,sNow(),d);
    if(!res||res.abort){out=res||{abort:'state'};return;}
-   const body={chernevMatch:res.clear?null:res.match,room:code,proto:PROTO,chernevPreview:null,chernevView:null};
+   const body={chernevMatch:res.clear?null:res.match,room:code,proto:PROTO,chernevPreview:null,chernevView:null,chernevTry:null};
    if(snap.exists)t.update(ref,body);else t.set(ref,body);
    out=res;
   });
@@ -382,6 +382,7 @@ function onMatchData(data){
  pvRemote=data&&data.chernevPreview&&typeof data.chernevPreview==='object'?data.chernevPreview:null;
  pvIn=!isTeacherUser()&&pvRemote?normPreview(pvRemote):null;
  vwRemote=data&&data.chernevView&&typeof data.chernevView==='object'?data.chernevView:null;
+ tyRemote=data&&data.chernevTry&&typeof data.chernevTry==='object'?data.chernevTry:null;
  vwIn=!isTeacherUser()&&vwRemote?normView(vwRemote):null;
  const raw=data&&data.chernevMatch,n=raw?norm(raw):null;
  if(n&&n.anchorMs!=null&&n.anchorMs!==lastObsAnchor&&n.status==='running'&&!ownSynced&&timerOffset()==null){
@@ -440,14 +441,56 @@ function marksFromView(list,b){
  for(const m of list||[])out.push({kind:m.k,from:sqToIx(m.f,b),to:sqToIx(m.t,b),color:m.c,...(m.n?{knightPath:true}:{})});
  return out;
 }
+function rid(rec){return String(rec.id||('n'+rec.num)).slice(0,80);}
+function touchReview(){if(review){review.sinceMs=sNow();review.by='';}}
+function cleanVm(rec,ply,vm){
+ const g=new Chess();if(!g.load(rec.fen0))return [];
+ for(let i=0;i<ply&&i<rec.moves.length;i++){const p=parseUci(rec.moves[i]);if(!p||!g.move({from:p.from,to:p.to,promotion:p.promotion}))break;}
+ const out=[];
+ for(const u of vm){const p=parseUci(u);if(!p||!g.move({from:p.from,to:p.to,promotion:p.promotion}))break;out.push(u);}
+ return out;
+}
+function tyWant(){
+ if(isTeacherUser()||!roomOn()||!isOpen||!review||!mirrored||!review.local||!(review.vm||[]).length||!myUid())return null;
+ return {rid:rid(review.rec),ply:review.ply|0,vm:review.vm.slice(0,60)};
+}
+function tyTick(){
+ if(isTeacherUser()||!roomOn())return;
+ const w=tyWant(),sig=w?w.rid+'|'+w.ply+'|'+w.vm.join(','):'',now=Date.now();
+ if(sig!==tySig){tySig=sig;tySigAt=now;}
+ if(!w){tyLastSig='';return;}
+ if(sig===tyLastSig||tyBusy||now<tyRetryAt||now-tySigAt<200)return;
+ const ref=matchRef();if(!ref||typeof firebase==='undefined')return;
+ tyBusy=true;
+ ref.set({chernevTry:{[myUid()]:Object.assign({},w,{at:firebase.firestore.FieldValue.serverTimestamp()})},room:roomCode(),proto:PROTO},{merge:true})
+  .then(()=>{tyBusy=false;tyLastSig=sig;})
+  .catch(e=>{tyBusy=false;tyRetryAt=Date.now()+6000;console.info('Đấu cờ tàn: chưa gửi được nước đi thử sang máy giáo viên:',e&&e.code||e);});
+}
+function tyApply(){
+ if(!isTeacherUser()||!isOpen||!review||!tyRemote)return;
+ const me=myUid(),id=rid(review.rec);let best=null;
+ for(const uid of Object.keys(tyRemote)){
+  if(uid===me)continue;
+  const e=tyRemote[uid];if(!e||typeof e!=='object')continue;
+  const at=toMs(e.at);
+  if(at==null||String(e.rid)!==id||(e.ply|0)!==review.ply)continue;
+  if(at<=(review.sinceMs||0)-1000||at<=(review.tyAt||0))continue;
+  if(!best||at>best.at)best={at,vm:Array.isArray(e.vm)?e.vm.filter(x=>typeof x==='string'&&UCI_RE.test(x)).slice(0,60):[]};
+ }
+ if(!best)return;
+ review.tyAt=best.at;
+ const vm=cleanVm(review.rec,review.ply,best.vm);
+ if(!vm.length||vm.join(',')===(review.vm||[]).join(','))return;
+ review.vm=vm;review.by='hs';review.ana=null;selected=null;promotion=null;annReset();render();
+}
 function vwDesired(){
  if(!isTeacherUser()||!roomOn()||!isOpen||!review||corrupt||!myUid())return null;
  const rec=vwRec(review.rec);
  if(!rec.fen0)return null;
  if(!rec.id)rec.id='n'+rec.num;
- return {teacherId:myUid(),ply:Math.max(0,Math.min(rec.moves.length,review.ply|0)),bottom:bottomSide(),marks:(review.marks||[]).slice(0,40),vm:(review.vm||[]).slice(0,60),rec};
+ return {teacherId:myUid(),ply:Math.max(0,Math.min(rec.moves.length,review.ply|0)),bottom:bottomSide(),marks:(review.marks||[]).slice(0,40),vm:(review.vm||[]).slice(0,60),by:review.by==='hs'?'hs':'gv',rec};
 }
-function vwSigOf(o){return o?o.rec.id+'|'+o.ply+'|'+o.bottom+'|'+JSON.stringify(o.marks)+'|'+o.vm.join(','):'';}
+function vwSigOf(o){return o?o.rec.id+'|'+o.ply+'|'+o.bottom+'|'+JSON.stringify(o.marks)+'|'+o.vm.join(',')+'|'+o.by:'';}
 async function vwWrite(o){
  const ref=matchRef();if(!ref||typeof firebase==='undefined')return false;
  try{
@@ -489,7 +532,7 @@ function normView(raw){
   if(m&&typeof m==='object'&&/^[a-h][1-8]$/.test(String(m.f))&&/^[a-h][1-8]$/.test(String(m.t))&&ANN_COLORS.includes(m.c))marks.push({k:m.k==='circle'?'circle':'arrow',f:m.f,t:m.t,c:m.c,...(m.n===true?{n:true}:{})});
  }
  const vm=Array.isArray(raw.vm)?raw.vm.filter(x=>typeof x==='string'&&UCI_RE.test(x)).slice(0,60):[];
- return {teacherId:tid,atMs:at,ply:ci(raw.ply,0,moves.length),vm,bottom:raw.bottom==='b'?'b':raw.bottom==='w'?'w':null,marks,rec};
+ return {teacherId:tid,atMs:at,ply:ci(raw.ply,0,moves.length),vm,by:raw.by==='hs'?'hs':'gv',bottom:raw.bottom==='b'?'b':raw.bottom==='w'?'w':null,marks,rec};
 }
 function currentView(){
  if(isTeacherUser()||!vwIn)return null;
@@ -509,7 +552,11 @@ function applyView(){
   const before=review&&!first?bottomSide():null;
   if(first)review={rec:v.rec,ply:v.ply,vm:[]};else review.ply=v.ply;
   const pk=v.rec.id+'|'+v.ply+'|'+v.vm.join(',');
-  if(first||review.posKey!==pk){review.posKey=pk;review.vm=v.vm.slice();review.local=false;review.ana=null;selected=null;promotion=null;}
+  if(first||review.posKey!==pk){
+   const lv=(review.vm||[]).join(','),vv=v.vm.join(',');
+   const mine=!first&&review.local&&v.ply===review.ply&&Date.now()-(review.localAt||0)<4000&&v.vm.length<(review.vm||[]).length&&(vv===''||lv.indexOf(vv)===0);
+   if(!mine){review.posKey=pk;review.vm=v.vm.slice();review.local=false;review.by=v.by;review.ana=null;selected=null;promotion=null;}
+  }else review.by=v.by;
   if(v.bottom)review.bottom=v.bottom;
   const after=bottomSide();
   if(before&&before!==after)annSetOwn(annOwn().map(m=>({...m,from:63-m.from,to:63-m.to})));
@@ -527,7 +574,7 @@ function resetMatch(){
  lastSig='';M=null;game=null;corrupt=false;selected=null;promotion=null;pending=null;notice='';hint=null;verdictOpen=false;review=null;
  autoKey='';inviteKey='';turnKey='';flagKey='';
  pvRemote=null;pvIn=null;pvViewKey='';pvLastSig='';pvLastAt=0;pvSuppress='';pvAuto=false;
- vwRemote=null;vwIn=null;mirrorKey='';mirrored=false;vwLastSig='';
+ tyRemote=null;tyLastSig='';vwRemote=null;vwIn=null;mirrorKey='';mirrored=false;vwLastSig='';
  paintInvite();
 }
 function resetAll(){
@@ -938,13 +985,13 @@ function reviewPush(from,to,promo){
  const vm=review.vm||[];if(vm.length>=60){notice='Đã đi thử quá nhiều nước, hãy bấm “Về thế cờ hiện tại”.';selected=null;render();return;}
  const g=reviewGame();if(!g)return;
  if(!g.move({from,to,promotion:promo})){selected=null;render();return;}
- review.vm=vm.concat(from+to+(promo||''));review.local=!isTeacherUser();review.ana=null;
+ review.vm=vm.concat(from+to+(promo||''));review.local=!isTeacherUser();review.localAt=Date.now();review.ana=null;touchReview();
  selected=null;promotion=null;notice='';annReset();render();
 }
 function reviewBack(){
  if(!review)return;
  selected=null;promotion=null;notice='';
- if(isTeacherUser()){review.vm=[];review.ana=null;annReset();}
+ if(isTeacherUser()){review.vm=[];review.ana=null;touchReview();annReset();}
  else{review.vm=[];review.local=false;review.posKey='';mirrorKey='';applyView();}
  render();
 }
@@ -952,13 +999,13 @@ function openReview(id){
  const rec=allResults().find(r=>r.id===id);if(!rec)return;
  if(annOn)annSetOwn([]);
  const moves=Array.isArray(rec.moves)?rec.moves.filter(x=>UCI_RE.test(x)):[];
- review={rec:Object.assign({},rec,{moves}),ply:moves.length,vm:[]};
+ review={rec:Object.assign({},rec,{moves}),ply:moves.length,vm:[]};touchReview();
  tab='game';selected=null;promotion=null;render();
 }
 function closeReview(){review=null;render();}
 function reviewStep(d){
  if(!review)return;const n=review.rec.moves.length,was=review.ply,vm=review.vm||[];
- selected=null;promotion=null;notice='';
+ selected=null;promotion=null;notice='';touchReview();
  if(d===-1&&vm.length){review.vm=vm.slice(0,-1);review.local=!isTeacherUser();annReset();render();return;}
  if(vm.length){review.vm=[];review.local=false;}
  review.ply=d===Infinity?n:d===-Infinity?0:Math.max(0,Math.min(n,review.ply+d));
@@ -1320,7 +1367,7 @@ function render(){
  }else box.hidden=true;
  {const vb=$('vqcChdVarBox');if(vb){
   const vm=review?(review.vm||[]):[];vb.hidden=!vm.length;
-  if(vm.length){$('vqcChdVarLine').textContent=(teacher?'Nước thử: ':(review.local?'Nước thử của em: ':'Nước thử của GV: '))+varText();{const bk=$('vqcChdVarBack');bk.hidden=false;bk.disabled=!teacher;bk.title=teacher?'':'Chức năng này đã bị khóa với học sinh';}}
+  if(vm.length){$('vqcChdVarLine').textContent=(teacher?(review.by==='hs'?'Nước thử của HS: ':'Nước thử: '):(review.local?'Nước thử của em: ':(review.by==='hs'?'Nước thử của HS: ':'Nước thử của GV: ')))+varText();{const bk=$('vqcChdVarBack');bk.hidden=false;bk.disabled=!teacher;bk.title=teacher?'':'Chức năng này đã bị khóa với học sinh';}}
  }}
  {const tm=$('vqcChdToMachine'),cl=$('vqcChdClose'),lockTip='Chức năng này đã bị khóa với học sinh';
   if(tm){tm.hidden=teacher?!((!M||!LIVE.includes(st))&&!review):false;tm.disabled=!teacher;tm.title=teacher?'':lockTip;}
@@ -1576,7 +1623,7 @@ function tick(){
  if(roomKey()!==lastRoomKey){lastRoomKey=roomKey();roomSeen=false;resetMatch();ensureListener();}
  ensureListener();
  beat(false);
- pvTick();pvRefreshView();annSync();vwTick();applyView();
+ pvTick();pvRefreshView();annSync();vwTick();tyTick();tyApply();applyView();
  if(M&&M.status==='running')syncClock();
  if(isOpen&&M)paintClocks();
  if(isOpen&&(++tickN%4===0)){paintConn();paintStudents();}
