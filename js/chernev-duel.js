@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);
-const VERSION='20261124-duel-v10';
+const VERSION='20261124-duel-v11';
 const PROTO=2;
 const FILES='abcdefgh';
 const SIDE={w:'Trắng',b:'Đen'};
@@ -1282,7 +1282,7 @@ function mountDom(){
   const item=document.createElement('div');
   item.className='lesson';item.id='vsDuelMenu';item.setAttribute('role','button');item.tabIndex=0;
   item.innerHTML='<div class="lesson-icon">👩‍🏫</div> Đấu cờ tàn Chernev (GV – HS)';
-  const launch=()=>openChooser();
+  const launch=()=>open({});
   item.addEventListener('click',launch);
   item.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();launch();}});
   if(anchor)anchor.insertAdjacentElement('afterend',item);
