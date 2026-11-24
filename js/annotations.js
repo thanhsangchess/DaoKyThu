@@ -6,8 +6,8 @@
   'pawnGameBoard','vqcMateOneBoard','vqcMateOneBasicBoard','vqcMateThreeBoard','vqcLoneMateBoard','vqcAdventureBoard','vqcReviewBoard','castlingBoard','doubleAttackBoard','castlingPracticeBoard','beginnerPuzzleBoard',
   'vqcVsmBoard','vqcChdBoard'
  ];
- const PRIVATE_BOARD_IDS=['pvpBoard'];
- const ADAPTER_BOARD_IDS=['vqcVsmBoard','vqcChdBoard'];
+ const PRIVATE_BOARD_IDS=[];
+ const ADAPTER_BOARD_IDS=['vqcVsmBoard','vqcChdBoard','pvpBoard'];
  const SELECTOR=BOARD_IDS.map(id=>'#'+id).join(',');
  const SVG_NS='http://www.w3.org/2000/svg';
  const ANNOTATION_COLOR='#f2b52a';

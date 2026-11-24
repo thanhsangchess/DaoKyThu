@@ -1,7 +1,7 @@
 (function(){
  'use strict';
  if(window.vqcDuelReview)return;
- const VERSION='20261124-review-v3';
+ const VERSION='20261124-review-v4';
  const POLL_MS=Number(window.vqcReviewPollMs)||700;
  const BOX_ID='vqcChdReviewTools';
  let shownKey='',ctx=null,runId=0,engine=null,busy=false,lastRowId='',markPly=-1;
@@ -60,12 +60,24 @@
   const humanName=r.shared?'Cả lớp (giáo viên & học sinh)':(r.teacherName||'Người chơi'),aiName='Máy Stockfish'+(lv?' ('+lv.label+')':'');
   const winner=r.result==='win'?r.human:(r.result==='loss'?(r.human==='w'?'b':'w'):null);
   const rec={id:r.id,num:r.num,fen0:r.fen0,moves:r.moves,kind:r.result==='draw'?'stalemate':'manual',winner:winner,reason:r.reason,endedAtMs:r.endedAtMs};
-  const c={num:r.num,live:false,rec:rec,reviewPly:inf.ply,inReview:!!inf.teacher,vsm:true};
+  const c={num:r.num,live:false,rec:rec,reviewPly:inf.ply,inReview:!!inf.teacher,vsm:true,host:'vsm'};
   c.fen0=r.fen0;c.uci=r.moves.slice();c.sans=null;
   c.white=r.human==='w'?humanName:aiName;c.black=r.human==='w'?aiName:humanName;c.studentSide=null;
   c.event=r.kind==='chernev'?'Cờ tàn Chernev đấu với máy – bài '+r.num:'Đấu với máy';
   c.fileTag=r.kind==='chernev'?'dau-voi-may-chernev-'+r.num:'dau-voi-may';
   c.key='vsm:'+r.id;
+  return c;
+ }
+ function pvpContext(){
+  const vr=window.vqcPvpReview;
+  if(!vr||typeof vr.active!=='function'||!vr.active()||typeof vr.info!=='function')return null;
+  const inf=vr.info();if(!inf||!inf.rec)return null;
+  const r=inf.rec;
+  const rec={id:r.id,num:0,fen0:r.fen0,moves:r.moves,kind:r.winner?'manual':'stalemate',winner:r.winner,reason:r.reason,endedAtMs:r.endedAtMs};
+  const c={num:0,live:false,rec:rec,reviewPly:inf.ply,inReview:!!inf.teacher,pvp:true,host:'pvp'};
+  c.fen0=r.fen0;c.uci=r.moves.slice();c.sans=null;
+  c.white=r.teacherColor==='w'?(r.teacherName||'Giáo viên'):'Học sinh';c.black=r.teacherColor==='w'?'Học sinh':(r.teacherName||'Giáo viên');c.studentSide=null;
+  c.event='Đối kháng trực tuyến (giáo viên – học sinh)';c.fileTag='doi-khang-gv-hs';c.key='pvp:'+r.id;
   return c;
  }
  function context(){
@@ -245,7 +257,8 @@
  }
  function makeBox(vsm){
   let box=$(BOX_ID),panel,wrap;
-  if(vsm){panel=document.querySelector('#vqcVsMachineOverlay .vqc-vsm-side');wrap=panel&&panel.querySelector('.vqc-vsm-histwrap');}
+  if(vsm==='vsm'){panel=document.querySelector('#vqcVsMachineOverlay .vqc-vsm-side');wrap=panel&&panel.querySelector('.vqc-vsm-histwrap');}
+  else if(vsm==='pvp'){panel=document.querySelector('#pvpOverlay .pvp-side');wrap=panel&&panel.querySelector('#pvpHistory');}
   else{panel=$('vqcChdPanelGame');wrap=panel&&panel.querySelector('.vqc-chd-histwrap');}
   if(!panel)return box||null;
   if(box){
@@ -333,6 +346,7 @@
  }
  function jump(ply){
   if(ctx&&ctx.vsm){if(window.vqcVsmReview&&window.vqcVsmReview.jump)window.vqcVsmReview.jump(ply);return;}
+  if(ctx&&ctx.pvp){if(window.vqcPvpReview&&window.vqcPvpReview.jump)window.vqcPvpReview.jump(ply);return;}
   const bar=$('vqcChdReplayBar');if(!bar||bar.hidden)return;
   const first=bar.querySelector('[data-step="-Infinity"]'),next=bar.querySelector('[data-step="1"]');
   if(!first||!next)return;
@@ -375,8 +389,8 @@
  }
 
  function tick(){
-  const vc=vsmContext();
-  const box=makeBox(!!vc);if(!box)return;
+  const vc=vsmContext()||pvpContext();
+  const box=makeBox(vc?vc.host:'');if(!box)return;
   const c=vc||context();
   const show=!!(c&&c.fen0&&((c.uci&&c.uci.length)||(c.sans&&c.sans.length)));
   if(!show){

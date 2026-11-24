@@ -1633,6 +1633,7 @@ function pvpHistoryChess(){
  return c;
 }
 function renderPvp(){
+ if(window.vqcPvpReview&&window.vqcPvpReview.active()){window.vqcPvpReview.paint();return;}
  window.vqcLastMove?.fromUci('pvpBoard',pvpData?.moves||[]);
  const board=document.getElementById('pvpBoard');if(!board)return;
  if(typeof Chess!=='function'){board.textContent='Không tải được thư viện chess.js. Hãy kiểm tra Internet và tải lại trang.';return;}
@@ -1732,6 +1733,19 @@ function pvpClick(sq){
 }
 async function pvpSendMove(from,to,promotion){
  if(!roomRef||pvpSending)return;pvpSending=true;
+ const prevData=pvpData;let opt=null;
+ try{
+  if(pvpData&&pvpData.status==='playing'){
+   const oc=pvpChess();
+   const mv=oc&&oc.move({from,to,promotion});
+   if(mv){
+    const rp=pvpHistoryChess();rp.move({from,to,promotion});
+    const res=pvpFinished(rp);
+    opt={...pvpData,fen:oc.fen(),moves:[...(pvpData.moves||[]),from+to+(mv.promotion||'')],drawBy:null,version:(pvpData.version||0)+1,status:res?'finished':'playing',result:res||''};
+    pvpData=opt;pvpSelected=null;renderPvp();
+   }
+  }
+ }catch(e){opt=null;pvpData=prevData;}
  try{
   await db.runTransaction(async tx=>{
    const snap=await tx.get(roomRef);if(!snap.exists)throw Error('Không tìm thấy phòng');
@@ -1745,7 +1759,11 @@ async function pvpSendMove(from,to,promotion){
    const result=pvpFinished(replay);
    tx.update(roomRef,{pvp:{...d,fen:c.fen(),moves:[...(d.moves||[]),from+to+(m.promotion||'')],drawBy:null,version:(d.version||0)+1,status:result?'finished':'playing',result:result||''},updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
   });
- }catch(e){console.error(e);pvpStatus('Không gửi được nước đi: '+e.message);}
+ }catch(e){
+  console.error(e);
+  if(opt&&pvpData===opt){pvpData=prevData;pvpSelected=null;renderPvp();}
+  pvpStatus('Không gửi được nước đi: '+e.message);
+ }
  finally{pvpSending=false;}
 }
 async function pvpResign(){
