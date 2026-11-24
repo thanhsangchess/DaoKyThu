@@ -260,7 +260,7 @@ function mountDom(){
  if(!$('mate3PdfMenu')){
   const item=document.createElement('div');
   item.className='lesson';item.id='mate3PdfMenu';item.setAttribute('role','button');item.tabIndex=0;
-  item.innerHTML='<div class="lesson-icon">♛</div> Mate in 3 (500 bài)';
+  item.innerHTML='<div class="lesson-icon">♛</div> Mate in 3';
   const launch=()=>{
    open(0);
    if($('vqcMateThreeOverlay')?.classList.contains('open'))document.querySelectorAll('.lesson').forEach(n=>n.classList.toggle('active',n===item));

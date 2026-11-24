@@ -69,7 +69,7 @@
 
 (function(){
  try{
-  const v='?v=20261121-m3-v2';
+  const v='?v=20261124-m3-v3';
   const mountDrawing=function(){try{if(typeof window.vqcAnnotationsMount==='function')window.vqcAnnotationsMount();}catch(e){}};
   const names=['mate-three-pdf-500-data.js','mate-three-pdf-500-data-2.js','mate-three-pdf-500-data-3.js','mate-three-pdf-500-data-4.js','mate-three-pdf-500-data-5.js','mate-three-pdf-500.js'];
   names.forEach(function(name,i){
