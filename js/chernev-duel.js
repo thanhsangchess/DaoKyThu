@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);
-const VERSION='20261123-duel-v7';
+const VERSION='20261124-duel-v8';
 const PROTO=2;
 const FILES='abcdefgh';
 const SIDE={w:'Trắng',b:'Đen'};
@@ -384,8 +384,16 @@ function onMatchData(data){
   lastObsAnchor=n.anchorMs;const obs=n.anchorMs-Date.now();fallbackOffset=fallbackOffset==null?obs:Math.max(fallbackOffset,obs);
  }
  applyMatch(raw?n:null,!!raw&&!n);
+ if(!isTeacherUser()&&M&&!review&&(M.status==='ended'||M.status==='declined')&&pvIn&&pvIn.teacherId===M.teacherId&&pvIn.atMs!=null&&pvIn.atMs>(M.endedAtMs||M.createdAtMs||0))leaveFinished();
  pvRefreshView();
  if(isOpen){paintStudents();paintConn();}
+}
+function leaveFinished(){
+ if(!M||review||(M.status!=='ended'&&M.status!=='declined'))return false;
+ M=null;game=null;selected=null;promotion=null;pending=null;hint=null;verdictOpen=false;notice='';confirmResign=false;
+ if(isTeacherUser())setupOpen=true;
+ paintInvite();paintChip();
+ return true;
 }
 function roomKey(){try{return roomRef?(roomRef.path||roomRef.id||'room'):'';}catch(e){return '';}}
 function resetMatch(){
@@ -1445,17 +1453,17 @@ function init(){
  }));
  document.querySelectorAll('#vqcChdReplayBar [data-step]').forEach(b=>b.addEventListener('click',()=>reviewStep(Number(b.dataset.step))));
  $$('vqcChdReplayExit','click',closeReview);
- document.querySelectorAll('#vqcChdOverlay [data-pick]').forEach(b=>b.addEventListener('click',()=>{settings.pick=b.dataset.pick;render();}));
+ document.querySelectorAll('#vqcChdOverlay [data-pick]').forEach(b=>b.addEventListener('click',()=>{settings.pick=b.dataset.pick;leaveFinished();render();}));
  document.querySelectorAll('#vqcChdOverlay [data-dcolor]').forEach(b=>b.addEventListener('click',()=>{settings.color=b.dataset.dcolor;render();}));
  document.querySelectorAll('#vqcChdOverlay [data-dtime]').forEach(b=>b.addEventListener('click',()=>{settings.time=b.dataset.dtime;render();}));
  const clampN=v=>{const n=parseInt(v,10);const max=Math.max(1,problems().length||300);return isNaN(n)?1:Math.max(1,Math.min(max,n));};
- $$('vqcChdNum','change',e=>{settings.num=clampN(e.target.value);render();});
- $$('vqcChdFrom','change',e=>{settings.from=clampN(e.target.value);settings.num=Math.max(settings.num,Math.min(settings.from,settings.to));render();});
- $$('vqcChdTo','change',e=>{settings.to=clampN(e.target.value);render();});
+ $$('vqcChdNum','change',e=>{settings.num=clampN(e.target.value);leaveFinished();render();});
+ $$('vqcChdFrom','change',e=>{settings.from=clampN(e.target.value);settings.num=Math.max(settings.num,Math.min(settings.from,settings.to));leaveFinished();render();});
+ $$('vqcChdTo','change',e=>{settings.to=clampN(e.target.value);leaveFinished();render();});
  $$('vqcChdCustom','change',e=>{const n=parseInt(e.target.value,10);settings.custom=isNaN(n)?5:Math.max(1,Math.min(180,n));render();});
- $$('vqcChdPrev','click',()=>{const len=Math.max(1,problems().length||300);settings.num=((settings.num-2+len)%len)+1;render();});
- $$('vqcChdNext','click',()=>{const len=Math.max(1,problems().length||300);settings.num=(settings.num%len)+1;render();});
- $$('vqcChdSection','change',e=>{const v=parseInt(e.target.value,10);if(!isNaN(v)){settings.num=v;const sec=sectionOf(v);settings.from=sec?sec.from:v;settings.to=sec?sec.to:v;}render();});
+ $$('vqcChdPrev','click',()=>{const len=Math.max(1,problems().length||300);settings.num=((settings.num-2+len)%len)+1;leaveFinished();render();});
+ $$('vqcChdNext','click',()=>{const len=Math.max(1,problems().length||300);settings.num=(settings.num%len)+1;leaveFinished();render();});
+ $$('vqcChdSection','change',e=>{const v=parseInt(e.target.value,10);if(!isNaN(v)){settings.num=v;const sec=sectionOf(v);settings.from=sec?sec.from:v;settings.to=sec?sec.to:v;}leaveFinished();render();});
  $$('vqcChdStudent','change',e=>{settings.studentId=e.target.value;render();});
  $$('vqcChdRefresh','click',()=>loadRoster(true));
  $$('vqcChdSend','click',send);
