@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);
-const VERSION='20261124-duel-v15';
+const VERSION='20261124-duel-v16';
 const PROTO=2;
 const FILES='abcdefgh';
 const SIDE={w:'Trắng',b:'Đen'};
@@ -1291,7 +1291,7 @@ function render(){
  $('vqcChdTabGame').setAttribute('aria-selected',String(tab==='game'));$('vqcChdTabResults').setAttribute('aria-selected',String(tab==='results'));
  $('vqcChdPanelGame').hidden=tab!=='game';$('vqcChdPanelResults').hidden=tab!=='results';
  $('vqcChdReplayBar').hidden=!review;
- document.querySelectorAll('#vqcChdReplayBar button').forEach(b=>{b.disabled=!teacher&&!(b.dataset.step==='-1'&&review&&review.vm&&review.vm.length>0);});
+ document.querySelectorAll('#vqcChdReplayBar button').forEach(b=>{b.disabled=!teacher;});
  {const fb=$('vqcChdReplayFlip');if(fb)fb.title=teacher?'Đảo bàn cờ (cả máy học sinh cũng đảo theo)':'Chức năng này đã bị khóa với học sinh';}
  if(review){const n=review.rec.moves.length;$('vqcChdReplayLabel').textContent='Nước '+review.ply+'/'+n;}
  annSync();
@@ -1319,7 +1319,7 @@ function render(){
  }else box.hidden=true;
  {const vb=$('vqcChdVarBox');if(vb){
   const vm=review?(review.vm||[]):[];vb.hidden=!vm.length;
-  if(vm.length){$('vqcChdVarLine').textContent=(teacher?'Nước thử: ':(review.local?'Nước thử của em: ':'Nước thử của GV: '))+varText();$('vqcChdVarBack').hidden=!(teacher||review.local);}
+  if(vm.length){$('vqcChdVarLine').textContent=(teacher?'Nước thử: ':(review.local?'Nước thử của em: ':'Nước thử của GV: '))+varText();{const bk=$('vqcChdVarBack');bk.hidden=false;bk.disabled=!teacher;bk.title=teacher?'':'Chức năng này đã bị khóa với học sinh';}}
  }}
  {const tm=$('vqcChdToMachine'),cl=$('vqcChdClose'),lockTip='Chức năng này đã bị khóa với học sinh';
   if(tm){tm.hidden=teacher?!((!M||!LIVE.includes(st))&&!review):false;tm.disabled=!teacher;tm.title=teacher?'':lockTip;}
@@ -1672,10 +1672,10 @@ function init(){
   const r=await endMatch(v,note);
   if(r&&r.match){verdictOpen=false;$('vqcChdNote').value='';}
  }));
- document.querySelectorAll('#vqcChdReplayBar [data-step]').forEach(b=>b.addEventListener('click',()=>{const d=Number(b.dataset.step);if(!isTeacherUser()&&!(d===-1&&review&&review.vm&&review.vm.length))return;reviewStep(d);}));
+ document.querySelectorAll('#vqcChdReplayBar [data-step]').forEach(b=>b.addEventListener('click',()=>{if(!isTeacherUser())return;reviewStep(Number(b.dataset.step));}));
  $$('vqcChdReplayExit','click',()=>{if(!isTeacherUser())return;closeReview();});
  $$('vqcChdReplayFlip','click',()=>{if(!isTeacherUser())return;flipReview();});
- $$('vqcChdVarBack','click',reviewBack);
+ $$('vqcChdVarBack','click',()=>{if(!isTeacherUser())return;reviewBack();});
  document.querySelectorAll('#vqcChdOverlay [data-pick]').forEach(b=>b.addEventListener('click',()=>{settings.pick=b.dataset.pick;leaveFinished();render();}));
  document.querySelectorAll('#vqcChdOverlay [data-dcolor]').forEach(b=>b.addEventListener('click',()=>{settings.color=b.dataset.dcolor;render();}));
  document.querySelectorAll('#vqcChdOverlay [data-dtime]').forEach(b=>b.addEventListener('click',()=>{settings.time=b.dataset.dtime;render();}));
