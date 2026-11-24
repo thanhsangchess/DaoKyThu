@@ -286,3 +286,7 @@
 #vqcChdOverlay .vqc-chd-setup.vqc-chd-locked select:disabled,
 #vqcChdOverlay .vqc-chd-setup.vqc-chd-locked input:disabled{opacity:.9;color:#1c3b57;-webkit-text-fill-color:#1c3b57}
 #vqcChdOverlay .vqc-chd-lock{margin:4px 0 6px;font-weight:700;color:#8a5a00}
+#vqcChdOverlay .vqc-chd-varbox{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px;padding:4px 6px;font-weight:700;font-size:14px;color:#6a4a00}
+#vqcChdOverlay .vqc-chd-varbox[hidden]{display:none}
+#vqcChdOverlay .vqc-chd-varbox button{min-height:38px;border:1px solid #f0c978;border-radius:11px;background:#fff4d6;color:#6a4a00;font:inherit;font-weight:750;cursor:pointer;padding:4px 12px}
+#vqcChdOverlay .vqc-chd-cell:not(.ro){cursor:pointer}

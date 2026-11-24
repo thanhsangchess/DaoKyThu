@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);
-const VERSION='20261124-duel-v14';
+const VERSION='20261124-duel-v15';
 const PROTO=2;
 const FILES='abcdefgh';
 const SIDE={w:'Trắng',b:'Đen'};
@@ -445,9 +445,9 @@ function vwDesired(){
  const rec=vwRec(review.rec);
  if(!rec.fen0)return null;
  if(!rec.id)rec.id='n'+rec.num;
- return {teacherId:myUid(),ply:Math.max(0,Math.min(rec.moves.length,review.ply|0)),bottom:bottomSide(),marks:(review.marks||[]).slice(0,40),rec};
+ return {teacherId:myUid(),ply:Math.max(0,Math.min(rec.moves.length,review.ply|0)),bottom:bottomSide(),marks:(review.marks||[]).slice(0,40),vm:(review.vm||[]).slice(0,60),rec};
 }
-function vwSigOf(o){return o?o.rec.id+'|'+o.ply+'|'+o.bottom+'|'+JSON.stringify(o.marks):'';}
+function vwSigOf(o){return o?o.rec.id+'|'+o.ply+'|'+o.bottom+'|'+JSON.stringify(o.marks)+'|'+o.vm.join(','):'';}
 async function vwWrite(o){
  const ref=matchRef();if(!ref||typeof firebase==='undefined')return false;
  try{
@@ -488,7 +488,8 @@ function normView(raw){
  if(Array.isArray(raw.marks))for(const m of raw.marks.slice(0,40)){
   if(m&&typeof m==='object'&&/^[a-h][1-8]$/.test(String(m.f))&&/^[a-h][1-8]$/.test(String(m.t))&&ANN_COLORS.includes(m.c))marks.push({k:m.k==='circle'?'circle':'arrow',f:m.f,t:m.t,c:m.c,...(m.n===true?{n:true}:{})});
  }
- return {teacherId:tid,atMs:at,ply:ci(raw.ply,0,moves.length),bottom:raw.bottom==='b'?'b':raw.bottom==='w'?'w':null,marks,rec};
+ const vm=Array.isArray(raw.vm)?raw.vm.filter(x=>typeof x==='string'&&UCI_RE.test(x)).slice(0,60):[];
+ return {teacherId:tid,atMs:at,ply:ci(raw.ply,0,moves.length),vm,bottom:raw.bottom==='b'?'b':raw.bottom==='w'?'w':null,marks,rec};
 }
 function currentView(){
  if(isTeacherUser()||!vwIn)return null;
@@ -500,17 +501,19 @@ function applyView(){
  const v=roomOn()?currentView():null;
  const free=!corrupt&&(!M||!LIVE.includes(M.status));
  if(v&&free){
-  const k=v.rec.id+'|'+v.ply+'|'+v.bottom+'|'+JSON.stringify(v.marks);
+  const k=v.rec.id+'|'+v.ply+'|'+v.bottom+'|'+JSON.stringify(v.marks)+'|'+v.vm.join(',');
   if(mirrorKey===k&&review)return;
   const first=!mirrored||!review||review.rec.id!==v.rec.id;
   mirrorKey=k;mirrored=true;
   if(!isOpen)open({auto:true});
   const before=review&&!first?bottomSide():null;
-  if(first)review={rec:v.rec,ply:v.ply};else review.ply=v.ply;
+  if(first)review={rec:v.rec,ply:v.ply,vm:[]};else review.ply=v.ply;
+  const pk=v.rec.id+'|'+v.ply+'|'+v.vm.join(',');
+  if(first||review.posKey!==pk){review.posKey=pk;review.vm=v.vm.slice();review.local=false;review.ana=null;selected=null;promotion=null;}
   if(v.bottom)review.bottom=v.bottom;
   const after=bottomSide();
   if(before&&before!==after)annSetOwn(annOwn().map(m=>({...m,from:63-m.from,to:63-m.to})));
-  tab='game';selected=null;promotion=null;
+  tab='game';
   annSetRemote(marksFromView(v.marks,after));
   if(isOpen)render();
  }else if(mirrored){
@@ -798,7 +801,29 @@ function evalText(ev){
  const who=ev.cp>0?'Trắng':'Đen';return a<150?who+' hơi nhỉnh hơn':a<400?who+' đang hơn':who+' hơn rất nhiều';
 }
 function evalShare(ev){if(!ev)return 50;if(ev.mate!==undefined)return ev.mate>0?97:3;return Math.round(50+50*Math.tanh(ev.cp/400)*0.94);}
+function analyzeReview(){
+ if(!review||hintBusy)return;
+ const g=reviewGame();if(!g)return;
+ const fen=g.fen(),turn=g.turn();
+ if(g.game_over()){review.ana=null;notice=g.in_checkmate()?'Thế cờ này đã bị chiếu hết.':'Thế cờ này đã kết thúc (hòa).';render();return;}
+ const epoch=++hintEpoch;
+ hintBusy=true;review.ana=null;notice='';render();
+ let eng;try{eng=ensureEngine();}catch(e){hintBusy=false;notice='⚠️ '+e.message;render();return;}
+ eng.search(fen,{movetime:1000,skill:20}).then(res=>{
+  if(epoch!==hintEpoch)return;hintBusy=false;engineState=engine?engine.state:'idle';
+  if(res.cancelled||!review){render();return;}
+  const probe=new Chess();probe.load(fen);
+  const p=res.valid&&!res.none?parseUci(res.bestmove):null;
+  const legal=p&&probe.moves({verbose:true}).find(x=>x.from===p.from&&x.to===p.to&&(x.promotion||undefined)===p.promotion);
+  const made=legal?probe.move({from:legal.from,to:legal.to,promotion:legal.promotion}):null;
+  review.ana={fen,turn,san:made?made.san:'',from:made?made.from:'',to:made?made.to:'',piece:made?made.piece:'',ev:evalWhite(res.info,turn)};
+  render();
+ }).catch(err=>{
+  if(epoch!==hintEpoch)return;hintBusy=false;disposeEngine();notice='⚠️ Chưa tải được động cơ Stockfish (có thể do mạng hoặc trình duyệt cũ).';render();
+ });
+}
 function analyze(){
+ if(review){analyzeReview();return;}
  if(!amController()||!game||hintBusy)return;
  const fen=game.fen(),turn=game.turn(),epoch=++hintEpoch,mid=M.id;
  hintBusy=true;hint=null;notice='';render();
@@ -821,6 +846,7 @@ function canMove(){
  return isOpen&&!review&&!!M&&!!game&&M.status==='running'&&!pending&&!promotion&&!!mySide()&&game.turn()===mySide();
 }
 function onCell(sq){
+ if(review){reviewCell(sq);return;}
  if(!canMove())return;
  const side=mySide(),p=game.get(sq);
  if(p&&p.color===side){selected=selected===sq?null:sq;notice='';render();return;}
@@ -833,7 +859,9 @@ function onCell(sq){
 }
 function choosePromotion(k){
  if(!promotion||!['q','r','b','n'].includes(k))return;
- const {from,to}=promotion;promotion=null;submitMove(from,to,k);
+ const {from,to,review:rv}=promotion;promotion=null;
+ if(rv){reviewPush(from,to,k);return;}
+ submitMove(from,to,k);
 }
 async function submitMove(from,to,promo){
  if(!M||!game||pending)return;
@@ -866,7 +894,7 @@ function displayGame(){
  return game;
 }
 function lastOf(){
- if(review){const k=review.ply;return k>0?uciToMove(review.rec.moves[k-1]):null;}
+ if(review){const vm=review.vm||[];if(vm.length)return uciToMove(vm[vm.length-1]);const k=review.ply;return k>0?uciToMove(review.rec.moves[k-1]):null;}
  if(pending)return {from:pending.from,to:pending.to};
  return M&&M.last?{from:M.last.from,to:M.last.to}:null;
 }
@@ -875,20 +903,66 @@ function uciToMove(u){const p=parseUci(u);return p?{from:p.from,to:p.to}:null;}
 function reviewGame(){
  const g=new Chess();if(!g.load(review.rec.fen0))return null;
  for(let i=0;i<review.ply&&i<review.rec.moves.length;i++){const p=parseUci(review.rec.moves[i]);if(!p||!g.move({from:p.from,to:p.to,promotion:p.promotion}))break;}
+ for(const u of (review.vm||[])){const p=parseUci(u);if(!p||!g.move({from:p.from,to:p.to,promotion:p.promotion}))break;}
  return g;
+}
+function varText(){
+ const vm=review&&review.vm||[];if(!vm.length)return '';
+ const g=new Chess();if(!g.load(review.rec.fen0))return '';
+ for(let i=0;i<review.ply&&i<review.rec.moves.length;i++){const p=parseUci(review.rec.moves[i]);if(!p||!g.move({from:p.from,to:p.to,promotion:p.promotion}))break;}
+ const out=[];
+ for(const u of vm){
+  const p=parseUci(u);if(!p)break;
+  const t=g.turn(),n=g.fen().split(' ')[5],mv=g.move({from:p.from,to:p.to,promotion:p.promotion});if(!mv)break;
+  out.push((t==='w'?n+'. ':(out.length?'':n+'… '))+mv.san);
+ }
+ return out.join(' ');
+}
+function anaCur(){
+ if(!review||!review.ana)return null;
+ const g=reviewGame();return g&&g.fen()===review.ana.fen?review.ana:null;
+}
+function reviewCell(sq){
+ const g=reviewGame();if(!g||promotion)return;
+ if(g.game_over()){selected=null;notice='Thế cờ này đã kết thúc, không đi tiếp được.';render();return;}
+ const p=g.get(sq);notice='';
+ if(p&&p.color===g.turn()){selected=selected===sq?null:sq;render();return;}
+ if(!selected)return;
+ const choices=g.moves({square:selected,verbose:true}).filter(m=>m.to===sq);
+ if(!choices.length){selected=null;render();return;}
+ if(choices.some(m=>m.promotion)){promotion={from:selected,to:sq,review:true,side:g.turn()};render();return;}
+ reviewPush(selected,sq,undefined);
+}
+function reviewPush(from,to,promo){
+ if(!review)return;
+ const vm=review.vm||[];if(vm.length>=60){notice='Đã đi thử quá nhiều nước, hãy bấm “Về thế cờ hiện tại”.';selected=null;render();return;}
+ const g=reviewGame();if(!g)return;
+ if(!g.move({from,to,promotion:promo})){selected=null;render();return;}
+ review.vm=vm.concat(from+to+(promo||''));review.local=!isTeacherUser();review.ana=null;
+ selected=null;promotion=null;notice='';annReset();render();
+}
+function reviewBack(){
+ if(!review)return;
+ selected=null;promotion=null;notice='';
+ if(isTeacherUser()){review.vm=[];review.ana=null;annReset();}
+ else{review.vm=[];review.local=false;review.posKey='';mirrorKey='';applyView();}
+ render();
 }
 function openReview(id){
  const rec=allResults().find(r=>r.id===id);if(!rec)return;
  if(annOn)annSetOwn([]);
  const moves=Array.isArray(rec.moves)?rec.moves.filter(x=>UCI_RE.test(x)):[];
- review={rec:Object.assign({},rec,{moves}),ply:moves.length};
+ review={rec:Object.assign({},rec,{moves}),ply:moves.length,vm:[]};
  tab='game';selected=null;promotion=null;render();
 }
 function closeReview(){review=null;render();}
 function reviewStep(d){
- if(!review)return;const n=review.rec.moves.length,was=review.ply;
+ if(!review)return;const n=review.rec.moves.length,was=review.ply,vm=review.vm||[];
+ selected=null;promotion=null;notice='';
+ if(d===-1&&vm.length){review.vm=vm.slice(0,-1);review.local=!isTeacherUser();annReset();render();return;}
+ if(vm.length){review.vm=[];review.local=false;}
  review.ply=d===Infinity?n:d===-Infinity?0:Math.max(0,Math.min(n,review.ply+d));
- if(review.ply!==was)annReset();
+ if(review.ply!==was||vm.length)annReset();
  render();
 }
 function flipReview(){
@@ -912,9 +986,9 @@ function paintBoard(){
  const g=displayGame();board.replaceChildren();if(!g)return;
  const bottom=bottomSide(),flip=bottom==='b';
  const ranks=flip?[1,2,3,4,5,6,7,8]:[8,7,6,5,4,3,2,1],files=flip?[...FILES].reverse():[...FILES];
- const legal=selected&&canMove()?game.moves({square:selected,verbose:true}).map(m=>m.to):[];
+ const legal=selected&&review?g.moves({square:selected,verbose:true}).map(m=>m.to):(selected&&canMove()?game.moves({square:selected,verbose:true}).map(m=>m.to):[]);
  const last=lastOf(),checkSq=g.in_check()?kingSquare(g,g.turn()):null;
- const mineCells=canMove();
+ const mineCells=canMove()||!!review,hh=review?anaCur():hint;
  for(let ri=0;ri<8;ri++)for(let fi=0;fi<8;fi++){
   const sq=files[fi]+ranks[ri],p=g.get(sq),b=document.createElement('button');
   b.type='button';b.dataset.square=sq;b.className='vqc-chd-cell '+((ri+fi)%2?'dark':'light');
@@ -922,8 +996,8 @@ function paintBoard(){
   if(legal.includes(sq))b.classList.add('legal');
   if(last&&last.from===sq)b.classList.add('vqc-last-from');
   if(last&&last.to===sq)b.classList.add('vqc-last-to');
-  if(hint&&!review&&hint.from===sq)b.classList.add('hint-from');
-  if(hint&&!review&&hint.to===sq)b.classList.add('hint-to');
+  if(hh&&hh.from===sq)b.classList.add('hint-from');
+  if(hh&&hh.to===sq)b.classList.add('hint-to');
   if(checkSq===sq)b.classList.add('in-check');
   b.setAttribute('aria-label','Ô '+sq+(p?' '+(p.color==='w'?'trắng ':'đen ')+(PIECE[p.type]||''):''));
   if(!mineCells)b.classList.add('ro');
@@ -944,7 +1018,7 @@ function paintPromotion(){
  el.replaceChildren();el.hidden=!promotion;if(!promotion)return;
  const t=document.createElement('p');t.textContent='Tốt phong cấp thành:';el.append(t);
  const row=document.createElement('div');row.className='vqc-chd-promo-row';
- const side=mySide()||'w';
+ const side=promotion&&promotion.review?promotion.side:(mySide()||'w');
  for(const k of ['q','r','b','n']){
   const b=document.createElement('button');b.type='button';b.dataset.promo=k;b.setAttribute('aria-label',PIECE[k]);
   const glyph=typeof pieceSvgMarkup==='function'?pieceSvgMarkup(side==='w'?k.toUpperCase():k):'';
@@ -1217,7 +1291,7 @@ function render(){
  $('vqcChdTabGame').setAttribute('aria-selected',String(tab==='game'));$('vqcChdTabResults').setAttribute('aria-selected',String(tab==='results'));
  $('vqcChdPanelGame').hidden=tab!=='game';$('vqcChdPanelResults').hidden=tab!=='results';
  $('vqcChdReplayBar').hidden=!review;
- document.querySelectorAll('#vqcChdReplayBar button').forEach(b=>{b.disabled=!teacher;});
+ document.querySelectorAll('#vqcChdReplayBar button').forEach(b=>{b.disabled=!teacher&&!(b.dataset.step==='-1'&&review&&review.vm&&review.vm.length>0);});
  {const fb=$('vqcChdReplayFlip');if(fb)fb.title=teacher?'Đảo bàn cờ (cả máy học sinh cũng đảo theo)':'Chức năng này đã bị khóa với học sinh';}
  if(review){const n=review.rec.moves.length;$('vqcChdReplayLabel').textContent='Nước '+review.ply+'/'+n;}
  annSync();
@@ -1234,15 +1308,19 @@ function render(){
  $('vqcChdResign').textContent=confirmResign?'❗ Bấm lần nữa để chịu thua':'🏳️ Chịu thua';
  show('vqcChdSwitch',teacher&&!review&&!setupOpen&&(!M||ctl||!LIVE.includes(st)));
  $('vqcChdSwitch').textContent=M&&LIVE.includes(st)?'🔄 Đổi bài / học sinh':'➕ Ván mới';
- show('vqcChdHint',ctl&&!review&&!!game);
+ show('vqcChdHint',review?true:(ctl&&!!game));
  $('vqcChdHint').disabled=hintBusy;
- $('vqcChdHint').textContent=hintBusy?(engineState==='loading'?'⏳ Đang tải Stockfish…':'⏳ Máy đang phân tích…'):'💡 Máy đánh giá thế cờ (gợi ý cho giáo viên)';
- const box=$('vqcChdEval');
- if(hint&&ctl&&!review&&game&&hint.fen===game.fen()){
+ $('vqcChdHint').textContent=hintBusy?(engineState==='loading'?'⏳ Đang tải Stockfish…':'⏳ Máy đang phân tích…'):(review?'🤖 Máy phân tích thế cờ này':'💡 Máy đánh giá thế cờ (gợi ý cho giáo viên)');
+ const box=$('vqcChdEval'),cur=review?anaCur():(hint&&ctl&&game&&hint.fen===game.fen()?hint:null);
+ if(cur){
   box.hidden=false;
-  $('vqcChdHintText').textContent='💡 Máy gợi ý (chỉ để tham khảo): '+(PIECE[hint.piece]||'quân')+' '+hint.from+' → '+hint.to+' ('+hint.san+')';
-  $('vqcChdEvalText').textContent=evalText(hint.ev);$('vqcChdEvalFill').style.width=evalShare(hint.ev)+'%';$('vqcChdEvalBar').hidden=!hint.ev;
+  $('vqcChdHintText').textContent=(review?'🤖 Máy chọn: ':'💡 Máy gợi ý (chỉ để tham khảo): ')+(PIECE[cur.piece]||'quân')+' '+cur.from+' → '+cur.to+' ('+cur.san+')';
+  $('vqcChdEvalText').textContent=evalText(cur.ev);$('vqcChdEvalFill').style.width=evalShare(cur.ev)+'%';$('vqcChdEvalBar').hidden=!cur.ev;
  }else box.hidden=true;
+ {const vb=$('vqcChdVarBox');if(vb){
+  const vm=review?(review.vm||[]):[];vb.hidden=!vm.length;
+  if(vm.length){$('vqcChdVarLine').textContent=(teacher?'Nước thử: ':(review.local?'Nước thử của em: ':'Nước thử của GV: '))+varText();$('vqcChdVarBack').hidden=!(teacher||review.local);}
+ }}
  {const tm=$('vqcChdToMachine'),cl=$('vqcChdClose'),lockTip='Chức năng này đã bị khóa với học sinh';
   if(tm){tm.hidden=teacher?!((!M||!LIVE.includes(st))&&!review):false;tm.disabled=!teacher;tm.title=teacher?'':lockTip;}
   if(cl){cl.hidden=false;cl.disabled=!teacher;cl.title=teacher?'':lockTip;}}
@@ -1319,6 +1397,7 @@ const OVERLAY_HTML=`<div id="vqcChdOverlay" role="dialog" aria-modal="true" aria
      <button type="button" id="vqcChdReplayFlip">🔄 Đảo bàn cờ</button>
      <button type="button" id="vqcChdReplayExit">✕ Thoát xem lại</button>
     </div>
+    <div id="vqcChdVarBox" class="vqc-chd-varbox" hidden><span id="vqcChdVarLine"></span><button type="button" id="vqcChdVarBack">↩ Về thế cờ hiện tại</button></div>
    </div>
    <section class="vqc-chd-side">
     <div class="vqc-chd-tabs" role="tablist">
@@ -1593,9 +1672,10 @@ function init(){
   const r=await endMatch(v,note);
   if(r&&r.match){verdictOpen=false;$('vqcChdNote').value='';}
  }));
- document.querySelectorAll('#vqcChdReplayBar [data-step]').forEach(b=>b.addEventListener('click',()=>{if(!isTeacherUser())return;reviewStep(Number(b.dataset.step));}));
+ document.querySelectorAll('#vqcChdReplayBar [data-step]').forEach(b=>b.addEventListener('click',()=>{const d=Number(b.dataset.step);if(!isTeacherUser()&&!(d===-1&&review&&review.vm&&review.vm.length))return;reviewStep(d);}));
  $$('vqcChdReplayExit','click',()=>{if(!isTeacherUser())return;closeReview();});
  $$('vqcChdReplayFlip','click',()=>{if(!isTeacherUser())return;flipReview();});
+ $$('vqcChdVarBack','click',reviewBack);
  document.querySelectorAll('#vqcChdOverlay [data-pick]').forEach(b=>b.addEventListener('click',()=>{settings.pick=b.dataset.pick;leaveFinished();render();}));
  document.querySelectorAll('#vqcChdOverlay [data-dcolor]').forEach(b=>b.addEventListener('click',()=>{settings.color=b.dataset.dcolor;render();}));
  document.querySelectorAll('#vqcChdOverlay [data-dtime]').forEach(b=>b.addEventListener('click',()=>{settings.time=b.dataset.dtime;render();}));
