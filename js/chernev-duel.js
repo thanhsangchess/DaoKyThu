@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);
-const VERSION='20261124-duel-v8';
+const VERSION='20261124-duel-v9';
 const PROTO=2;
 const FILES='abcdefgh';
 const SIDE={w:'Trắng',b:'Đen'};
@@ -753,6 +753,7 @@ function reviewGame(){
  return g;
 }
 function openReview(id){
+ if(!isTeacherUser())return;
  const rec=allResults().find(r=>r.id===id);if(!rec)return;
  const moves=Array.isArray(rec.moves)?rec.moves.filter(x=>UCI_RE.test(x)):[];
  review={rec:Object.assign({},rec,{moves}),ply:moves.length};
@@ -1077,6 +1078,8 @@ function render(){
  status.textContent=review?(review.rec.reason||''):statusText();
  status.className='vqc-chd-status'+((M&&M.status==='ended'&&!review)?(M.result&&M.result.studentOk===true?' win':(M.result&&M.result.studentOk===false?' loss':' draw')):'')+(M&&M.status==='paused'?' busy':'')+(corrupt?' error':'')+(M&&M.status==='running'&&mine&&game&&game.turn()===mine&&!review?' mine':'');
  $('vqcChdNotice').textContent=notice;$('vqcChdNotice').hidden=!notice;
+ if(!teacher){if(tab==='results')tab='game';if(review)review=null;}
+ $('vqcChdTabResults').hidden=!teacher;$('vqcChdTabGame').closest('.vqc-chd-tabs').hidden=!teacher;
  $('vqcChdTabGame').setAttribute('aria-selected',String(tab==='game'));$('vqcChdTabResults').setAttribute('aria-selected',String(tab==='results'));
  $('vqcChdPanelGame').hidden=tab!=='game';$('vqcChdPanelResults').hidden=tab!=='results';
  $('vqcChdReplayBar').hidden=!review;
@@ -1432,7 +1435,7 @@ function init(){
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&isOpen&&!promotion&&!verdictOpen)close();});
  $$('vqcChdToMachine','click',()=>{hideOverlay();if(window.vqcVsMachine&&window.vqcVsMachine.open)window.vqcVsMachine.open({kind:'chernev'});});
  $$('vqcChdTabGame','click',()=>{tab='game';render();});
- $$('vqcChdTabResults','click',()=>{tab='results';review=null;loadRemote(true);flushOutbox();render();});
+ $$('vqcChdTabResults','click',()=>{if(!isTeacherUser())return;tab='results';review=null;loadRemote(true);flushOutbox();render();});
  $$('vqcChdResFilter','change',()=>render());
  $$('vqcChdStart','click',()=>startMatch());
  $$('vqcChdPause','click',()=>{if(M&&M.status==='paused')resumeMatch();else pauseMatch();});
