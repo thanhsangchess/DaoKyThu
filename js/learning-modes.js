@@ -124,7 +124,7 @@
    document.head.appendChild(l);
   }
   const s=document.createElement('script');
-  s.src='./js/chernev-duel.js?v=20261124-duel-v13';s.async=false;
+  s.src='./js/chernev-duel.js?v=20261124-duel-v14';s.async=false;
   document.head.appendChild(s);
  }catch(e){}
 })();

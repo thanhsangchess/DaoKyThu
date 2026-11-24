@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);
-const VERSION='20261124-duel-v13';
+const VERSION='20261124-duel-v14';
 const PROTO=2;
 const FILES='abcdefgh';
 const SIDE={w:'Trắng',b:'Đen'};
@@ -21,7 +21,7 @@ let lastRoomKey='',roomSeen=false,listenRef=null,listenOff=null,wrappedAck=false
 let mListenKey='',mListenOff=null,mRetryAt=0,mListenErr='';
 let pvRemote=null,pvIn=null,pvViewKey='',pvSig='',pvSigAt=0,pvLastSig='',pvLastAt=0,pvBusy=false,pvRetryAt=0,txBusy=0;
 const PV_TTL=120000,PV_REFRESH=50000,PV_DEBOUNCE=350;
-let vwRemote=null,vwIn=null,vwSig='',vwSigAt=0,vwLastSig='',vwLastAt=0,vwBusy=false,vwRetryAt=0,mirrorKey='',mirrored=false;
+let annOn=false,vwRemote=null,vwIn=null,vwSig='',vwSigAt=0,vwLastSig='',vwLastAt=0,vwBusy=false,vwRetryAt=0,mirrorKey='',mirrored=false;
 const VW_TTL=75000,VW_REFRESH=20000,VW_DEBOUNCE=250;
 let lastBeat=0,flagKey='',flagAt=0,flagSeen=0,autoKey='',inviteKey='',turnKey='',endedHandled=new Set(),userClosed=new Set();
 let pvSuppress='',pvAuto=false,duelAnnounced=false;
@@ -408,14 +408,46 @@ function vwRec(r){
   winner:r.winner==='w'||r.winner==='b'?r.winner:null,objectiveMet:typeof r.objectiveMet==='boolean'?r.objectiveMet:null,studentOk:typeof r.studentOk==='boolean'?r.studentOk:null,
   reason:String(r.reason||'').slice(0,300),playedMs:Number(r.playedMs)||0,endedAtMs:Number(r.endedAtMs)||null,moves:mv};
 }
+const ANN_ID='vqcChdBoard',ANN_COLORS=['yellow','red','blue','green'];
+function annApi(n){return typeof window[n]==='function'?window[n]:null;}
+function ixToSq(i,b){const r=(i/8)|0,c=i%8;return FILES[b==='b'?7-c:c]+(b==='b'?r+1:8-r);}
+function sqToIx(s,b){const f=FILES.indexOf(s[0]),k=Number(s[1]),c=b==='b'?7-f:f,r=b==='b'?k-1:8-k;return r*8+c;}
+function annOwn(){const f=annApi('vqcAnnotationsOwn');try{return f?f(ANN_ID):[];}catch(e){return [];}}
+function annSetOwn(list){const f=annApi('vqcAnnotationsSetOwn');if(f)try{f(ANN_ID,list);}catch(e){}}
+function annSetRemote(list){const f=annApi('vqcAnnotationsRemote');if(f)try{f(ANN_ID,list);}catch(e){}}
+function annPublish(list){
+ if(!review)return;
+ const b=bottomSide();
+ review.marks=(list||[]).slice(0,40).map(m=>({k:m.kind==='circle'?'circle':'arrow',f:ixToSq(m.from,b),t:ixToSq(m.to,b),c:ANN_COLORS.includes(m.color)?m.color:'yellow',...(m.knightPath?{n:true}:{})}));
+}
+function annReset(){
+ if(review)review.marks=[];
+ if(annOn)annSetOwn([]);
+}
+function annSync(){
+ const want=isTeacherUser()&&isOpen&&!!review&&roomOn();
+ const reg=annApi('vqcAnnotationsAdapter');
+ if(want&&!annOn&&reg){
+  const mount=annApi('vqcAnnotationsMount');if(mount)try{mount();}catch(e){}
+  annOn=!!reg(ANN_ID,{publish:annPublish});
+ }else if(!want&&annOn){
+  annOn=false;
+  if(reg)try{reg(ANN_ID,null);}catch(e){}
+ }
+}
+function marksFromView(list,b){
+ const out=[];
+ for(const m of list||[])out.push({kind:m.k,from:sqToIx(m.f,b),to:sqToIx(m.t,b),color:m.c,...(m.n?{knightPath:true}:{})});
+ return out;
+}
 function vwDesired(){
  if(!isTeacherUser()||!roomOn()||!isOpen||!review||corrupt||!myUid())return null;
  const rec=vwRec(review.rec);
  if(!rec.fen0)return null;
  if(!rec.id)rec.id='n'+rec.num;
- return {teacherId:myUid(),ply:Math.max(0,Math.min(rec.moves.length,review.ply|0)),rec};
+ return {teacherId:myUid(),ply:Math.max(0,Math.min(rec.moves.length,review.ply|0)),bottom:bottomSide(),marks:(review.marks||[]).slice(0,40),rec};
 }
-function vwSigOf(o){return o?o.rec.id+'|'+o.ply:'';}
+function vwSigOf(o){return o?o.rec.id+'|'+o.ply+'|'+o.bottom+'|'+JSON.stringify(o.marks):'';}
 async function vwWrite(o){
  const ref=matchRef();if(!ref||typeof firebase==='undefined')return false;
  try{
@@ -452,7 +484,11 @@ function normView(raw){
   studentName:String(r.studentName||'').slice(0,80),teacherName:String(r.teacherName||'').slice(0,80),kind:String(r.kind||'manual').slice(0,30),
   winner:r.winner==='w'||r.winner==='b'?r.winner:null,objectiveMet:typeof r.objectiveMet==='boolean'?r.objectiveMet:null,studentOk:typeof r.studentOk==='boolean'?r.studentOk:null,
   reason:String(r.reason||'').slice(0,300),playedMs:Number(r.playedMs)||0,plies:moves.length,moves,sans:[],endedAtMs:Number(r.endedAtMs)||null};
- return {teacherId:tid,atMs:at,ply:ci(raw.ply,0,moves.length),rec};
+ const marks=[];
+ if(Array.isArray(raw.marks))for(const m of raw.marks.slice(0,40)){
+  if(m&&typeof m==='object'&&/^[a-h][1-8]$/.test(String(m.f))&&/^[a-h][1-8]$/.test(String(m.t))&&ANN_COLORS.includes(m.c))marks.push({k:m.k==='circle'?'circle':'arrow',f:m.f,t:m.t,c:m.c,...(m.n===true?{n:true}:{})});
+ }
+ return {teacherId:tid,atMs:at,ply:ci(raw.ply,0,moves.length),bottom:raw.bottom==='b'?'b':raw.bottom==='w'?'w':null,marks,rec};
 }
 function currentView(){
  if(isTeacherUser()||!vwIn)return null;
@@ -464,16 +500,22 @@ function applyView(){
  const v=roomOn()?currentView():null;
  const free=!corrupt&&(!M||!LIVE.includes(M.status));
  if(v&&free){
-  const k=v.rec.id+'|'+v.ply;
+  const k=v.rec.id+'|'+v.ply+'|'+v.bottom+'|'+JSON.stringify(v.marks);
   if(mirrorKey===k&&review)return;
   const first=!mirrored||!review||review.rec.id!==v.rec.id;
   mirrorKey=k;mirrored=true;
   if(!isOpen)open({auto:true});
+  const before=review&&!first?bottomSide():null;
   if(first)review={rec:v.rec,ply:v.ply};else review.ply=v.ply;
+  if(v.bottom)review.bottom=v.bottom;
+  const after=bottomSide();
+  if(before&&before!==after)annSetOwn(annOwn().map(m=>({...m,from:63-m.from,to:63-m.to})));
   tab='game';selected=null;promotion=null;
+  annSetRemote(marksFromView(v.marks,after));
   if(isOpen)render();
  }else if(mirrored){
   mirrored=false;mirrorKey='';
+  annSetRemote([]);
   if(review){review=null;if(isOpen)render();}
  }
 }
@@ -837,14 +879,23 @@ function reviewGame(){
 }
 function openReview(id){
  const rec=allResults().find(r=>r.id===id);if(!rec)return;
+ if(annOn)annSetOwn([]);
  const moves=Array.isArray(rec.moves)?rec.moves.filter(x=>UCI_RE.test(x)):[];
  review={rec:Object.assign({},rec,{moves}),ply:moves.length};
  tab='game';selected=null;promotion=null;render();
 }
 function closeReview(){review=null;render();}
 function reviewStep(d){
- if(!review)return;const n=review.rec.moves.length;
- review.ply=d===Infinity?n:d===-Infinity?0:Math.max(0,Math.min(n,review.ply+d));render();
+ if(!review)return;const n=review.rec.moves.length,was=review.ply;
+ review.ply=d===Infinity?n:d===-Infinity?0:Math.max(0,Math.min(n,review.ply+d));
+ if(review.ply!==was)annReset();
+ render();
+}
+function flipReview(){
+ if(!review||!isTeacherUser())return;
+ review.bottom=otherSide(bottomSide());
+ if(annOn)annSetOwn(annOwn().map(m=>({...m,from:63-m.from,to:63-m.to})));
+ render();
 }
 
 function kingSquare(g,color){
@@ -852,7 +903,7 @@ function kingSquare(g,color){
  return null;
 }
 function bottomSide(){
- if(review)return review.rec.studentId===myUid()?review.rec.studentColor:review.rec.teacherColor;
+ if(review)return review.bottom||(review.rec.studentId===myUid()?review.rec.studentColor:review.rec.teacherColor);
  if(!M){const pv=!isTeacherUser()?currentPreview():null;return pv&&pv.color!=='random'?pv.color:'w';}
  return mySide()||M.studentColor;
 }
@@ -1167,7 +1218,9 @@ function render(){
  $('vqcChdPanelGame').hidden=tab!=='game';$('vqcChdPanelResults').hidden=tab!=='results';
  $('vqcChdReplayBar').hidden=!review;
  document.querySelectorAll('#vqcChdReplayBar button').forEach(b=>{b.disabled=!teacher;});
+ {const fb=$('vqcChdReplayFlip');if(fb)fb.title=teacher?'Đảo bàn cờ (cả máy học sinh cũng đảo theo)':'Chức năng này đã bị khóa với học sinh';}
  if(review){const n=review.rec.moves.length;$('vqcChdReplayLabel').textContent='Nước '+review.ply+'/'+n;}
+ annSync();
  paintBoard();paintPromotion();paintHistory();paintPlayers();paintProblem();paintConn();paintSetup();paintVerdict();
  if(tab==='results')paintResults();
  const live=!!M&&LIVE.includes(st)&&!review;
@@ -1263,6 +1316,7 @@ const OVERLAY_HTML=`<div id="vqcChdOverlay" role="dialog" aria-modal="true" aria
      <button type="button" data-step="-Infinity" aria-label="Về đầu">⏮</button><button type="button" data-step="-1" aria-label="Lùi một nước">◀</button>
      <span id="vqcChdReplayLabel"></span>
      <button type="button" data-step="1" aria-label="Tiến một nước">▶</button><button type="button" data-step="Infinity" aria-label="Đến cuối">⏭</button>
+     <button type="button" id="vqcChdReplayFlip">🔄 Đảo bàn cờ</button>
      <button type="button" id="vqcChdReplayExit">✕ Thoát xem lại</button>
     </div>
    </div>
@@ -1442,7 +1496,7 @@ function tick(){
  if(roomKey()!==lastRoomKey){lastRoomKey=roomKey();roomSeen=false;resetMatch();ensureListener();}
  ensureListener();
  beat(false);
- pvTick();pvRefreshView();vwTick();applyView();
+ pvTick();pvRefreshView();annSync();vwTick();applyView();
  if(M&&M.status==='running')syncClock();
  if(isOpen&&M)paintClocks();
  if(isOpen&&(++tickN%4===0)){paintConn();paintStudents();}
@@ -1541,6 +1595,7 @@ function init(){
  }));
  document.querySelectorAll('#vqcChdReplayBar [data-step]').forEach(b=>b.addEventListener('click',()=>{if(!isTeacherUser())return;reviewStep(Number(b.dataset.step));}));
  $$('vqcChdReplayExit','click',()=>{if(!isTeacherUser())return;closeReview();});
+ $$('vqcChdReplayFlip','click',()=>{if(!isTeacherUser())return;flipReview();});
  document.querySelectorAll('#vqcChdOverlay [data-pick]').forEach(b=>b.addEventListener('click',()=>{settings.pick=b.dataset.pick;leaveFinished();render();}));
  document.querySelectorAll('#vqcChdOverlay [data-dcolor]').forEach(b=>b.addEventListener('click',()=>{settings.color=b.dataset.dcolor;render();}));
  document.querySelectorAll('#vqcChdOverlay [data-dtime]').forEach(b=>b.addEventListener('click',()=>{settings.time=b.dataset.dtime;render();}));
