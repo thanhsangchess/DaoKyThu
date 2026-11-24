@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);
-const VERSION='20261124-duel-v12';
+const VERSION='20261124-duel-v13';
 const PROTO=2;
 const FILES='abcdefgh';
 const SIDE={w:'Trắng',b:'Đen'};
@@ -21,6 +21,8 @@ let lastRoomKey='',roomSeen=false,listenRef=null,listenOff=null,wrappedAck=false
 let mListenKey='',mListenOff=null,mRetryAt=0,mListenErr='';
 let pvRemote=null,pvIn=null,pvViewKey='',pvSig='',pvSigAt=0,pvLastSig='',pvLastAt=0,pvBusy=false,pvRetryAt=0,txBusy=0;
 const PV_TTL=120000,PV_REFRESH=50000,PV_DEBOUNCE=350;
+let vwRemote=null,vwIn=null,vwSig='',vwSigAt=0,vwLastSig='',vwLastAt=0,vwBusy=false,vwRetryAt=0,mirrorKey='',mirrored=false;
+const VW_TTL=75000,VW_REFRESH=20000,VW_DEBOUNCE=250;
 let lastBeat=0,flagKey='',flagAt=0,flagSeen=0,autoKey='',inviteKey='',turnKey='',endedHandled=new Set(),userClosed=new Set();
 let pvSuppress='',pvAuto=false,duelAnnounced=false;
 let outboxBusy=false,remoteRes=[],remoteAt=0,remoteBusy=false,remoteErr='',probCache=null;
@@ -201,7 +203,7 @@ async function txMatch(fn){
    const cur=d&&d.chernevMatch?norm(d.chernevMatch):null;
    const res=fn(cur,sNow(),d);
    if(!res||res.abort){out=res||{abort:'state'};return;}
-   const body={chernevMatch:res.clear?null:res.match,room:code,proto:PROTO,chernevPreview:null};
+   const body={chernevMatch:res.clear?null:res.match,room:code,proto:PROTO,chernevPreview:null,chernevView:null};
    if(snap.exists)t.update(ref,body);else t.set(ref,body);
    out=res;
   });
@@ -379,12 +381,15 @@ function onMatchData(data){
  mListenErr='';
  pvRemote=data&&data.chernevPreview&&typeof data.chernevPreview==='object'?data.chernevPreview:null;
  pvIn=!isTeacherUser()&&pvRemote?normPreview(pvRemote):null;
+ vwRemote=data&&data.chernevView&&typeof data.chernevView==='object'?data.chernevView:null;
+ vwIn=!isTeacherUser()&&vwRemote?normView(vwRemote):null;
  const raw=data&&data.chernevMatch,n=raw?norm(raw):null;
  if(n&&n.anchorMs!=null&&n.anchorMs!==lastObsAnchor&&n.status==='running'&&!ownSynced&&timerOffset()==null){
   lastObsAnchor=n.anchorMs;const obs=n.anchorMs-Date.now();fallbackOffset=fallbackOffset==null?obs:Math.max(fallbackOffset,obs);
  }
  applyMatch(raw?n:null,!!raw&&!n);
  if(!isTeacherUser()&&M&&!review&&(M.status==='ended'||M.status==='declined')&&pvIn&&pvIn.teacherId===M.teacherId&&pvIn.atMs!=null&&pvIn.atMs>(M.endedAtMs||M.createdAtMs||0))leaveFinished();
+ applyView();
  pvRefreshView();
  if(isOpen){paintStudents();paintConn();}
 }
@@ -395,11 +400,89 @@ function leaveFinished(){
  paintInvite();paintChip();
  return true;
 }
+function vwRec(r){
+ const mv=Array.isArray(r.moves)?r.moves.filter(x=>typeof x==='string'&&UCI_RE.test(x)).slice(0,400):[];
+ return {id:String(r.id||''),num:Number(r.num)||0,fen0:String(r.fen0||''),goal:r.goal==='draw'?'draw':'win',goalSide:r.goalSide==='b'?'b':'w',
+  studentColor:r.studentColor==='b'?'b':'w',teacherColor:r.teacherColor==='b'?'b':'w',teacherId:String(r.teacherId||''),studentId:String(r.studentId||''),
+  studentName:String(r.studentName||'').slice(0,80),teacherName:String(r.teacherName||'').slice(0,80),kind:String(r.kind||'manual').slice(0,30),
+  winner:r.winner==='w'||r.winner==='b'?r.winner:null,objectiveMet:typeof r.objectiveMet==='boolean'?r.objectiveMet:null,studentOk:typeof r.studentOk==='boolean'?r.studentOk:null,
+  reason:String(r.reason||'').slice(0,300),playedMs:Number(r.playedMs)||0,endedAtMs:Number(r.endedAtMs)||null,moves:mv};
+}
+function vwDesired(){
+ if(!isTeacherUser()||!roomOn()||!isOpen||!review||corrupt||!myUid())return null;
+ const rec=vwRec(review.rec);
+ if(!rec.fen0)return null;
+ if(!rec.id)rec.id='n'+rec.num;
+ return {teacherId:myUid(),ply:Math.max(0,Math.min(rec.moves.length,review.ply|0)),rec};
+}
+function vwSigOf(o){return o?o.rec.id+'|'+o.ply:'';}
+async function vwWrite(o){
+ const ref=matchRef();if(!ref||typeof firebase==='undefined')return false;
+ try{
+  const body=o?{chernevView:Object.assign({},o,{at:firebase.firestore.FieldValue.serverTimestamp()}),room:roomCode(),proto:PROTO}:{chernevView:null,room:roomCode(),proto:PROTO};
+  await ref.set(body,{merge:true});
+  return true;
+ }catch(e){console.info('Đấu cờ tàn: chưa đồng bộ được ván đang xem lại sang máy học sinh:',e&&e.code||e);return false;}
+}
+function vwTick(){
+ if(!isTeacherUser()||!roomOn())return;
+ const now=Date.now(),want=vwDesired(),sig=want?vwSigOf(want):'';
+ if(sig!==vwSig){vwSig=sig;vwSigAt=now;}
+ if(vwBusy||txBusy>0||now<vwRetryAt||now-vwSigAt<VW_DEBOUNCE)return;
+ const r=vwRemote,mine=!!r&&r.teacherId===myUid();
+ let go=false;
+ if(want)go=sig!==vwLastSig||now-vwLastAt>=VW_REFRESH||(!mine&&now-vwLastAt>4000);
+ else if(mine)go=now-vwLastAt>1500;
+ else vwLastSig='';
+ if(!go)return;
+ vwBusy=true;
+ vwWrite(want).then(ok=>{vwBusy=false;if(ok){vwLastSig=sig;vwLastAt=Date.now();}else vwRetryAt=Date.now()+8000;});
+}
+function normView(raw){
+ if(!raw||typeof raw!=='object'||typeof Chess!=='function')return null;
+ const r=raw.rec;if(!r||typeof r!=='object')return null;
+ const moves=Array.isArray(r.moves)?r.moves.filter(x=>typeof x==='string'&&UCI_RE.test(x)).slice(0,400):[];
+ const fen0=typeof r.fen0==='string'?r.fen0:'';
+ if(!fen0||!new Chess().load(fen0))return null;
+ const tid=String(raw.teacherId||''),at=toMs(raw.at);
+ if(!tid||at==null)return null;
+ const num=ci(r.num,1,9999);
+ const rec={id:String(r.id||('n'+num)).slice(0,80),num,fen0,goal:r.goal==='draw'?'draw':'win',goalSide:r.goalSide==='b'?'b':'w',
+  studentColor:r.studentColor==='b'?'b':'w',teacherColor:r.teacherColor==='b'?'b':'w',teacherId:String(r.teacherId||tid).slice(0,128),studentId:String(r.studentId||'').slice(0,128),
+  studentName:String(r.studentName||'').slice(0,80),teacherName:String(r.teacherName||'').slice(0,80),kind:String(r.kind||'manual').slice(0,30),
+  winner:r.winner==='w'||r.winner==='b'?r.winner:null,objectiveMet:typeof r.objectiveMet==='boolean'?r.objectiveMet:null,studentOk:typeof r.studentOk==='boolean'?r.studentOk:null,
+  reason:String(r.reason||'').slice(0,300),playedMs:Number(r.playedMs)||0,plies:moves.length,moves,sans:[],endedAtMs:Number(r.endedAtMs)||null};
+ return {teacherId:tid,atMs:at,ply:ci(raw.ply,0,moves.length),rec};
+}
+function currentView(){
+ if(isTeacherUser()||!vwIn)return null;
+ if(vwIn.atMs!=null&&sNow()-vwIn.atMs>VW_TTL)return null;
+ return vwIn;
+}
+function applyView(){
+ if(isTeacherUser())return;
+ const v=roomOn()?currentView():null;
+ const free=!corrupt&&(!M||!LIVE.includes(M.status));
+ if(v&&free){
+  const k=v.rec.id+'|'+v.ply;
+  if(mirrorKey===k&&review)return;
+  const first=!mirrored||!review||review.rec.id!==v.rec.id;
+  mirrorKey=k;mirrored=true;
+  if(!isOpen)open({auto:true});
+  if(first)review={rec:v.rec,ply:v.ply};else review.ply=v.ply;
+  tab='game';selected=null;promotion=null;
+  if(isOpen)render();
+ }else if(mirrored){
+  mirrored=false;mirrorKey='';
+  if(review){review=null;if(isOpen)render();}
+ }
+}
 function roomKey(){try{return roomRef?(roomRef.path||roomRef.id||'room'):'';}catch(e){return '';}}
 function resetMatch(){
  lastSig='';M=null;game=null;corrupt=false;selected=null;promotion=null;pending=null;notice='';hint=null;verdictOpen=false;review=null;
  autoKey='';inviteKey='';turnKey='';flagKey='';
  pvRemote=null;pvIn=null;pvViewKey='';pvLastSig='';pvLastAt=0;pvSuppress='';pvAuto=false;
+ vwRemote=null;vwIn=null;mirrorKey='';mirrored=false;vwLastSig='';
  paintInvite();
 }
 function resetAll(){
@@ -1083,6 +1166,7 @@ function render(){
  $('vqcChdTabGame').setAttribute('aria-selected',String(tab==='game'));$('vqcChdTabResults').setAttribute('aria-selected',String(tab==='results'));
  $('vqcChdPanelGame').hidden=tab!=='game';$('vqcChdPanelResults').hidden=tab!=='results';
  $('vqcChdReplayBar').hidden=!review;
+ document.querySelectorAll('#vqcChdReplayBar button').forEach(b=>{b.disabled=!teacher;});
  if(review){const n=review.rec.moves.length;$('vqcChdReplayLabel').textContent='Nước '+review.ply+'/'+n;}
  paintBoard();paintPromotion();paintHistory();paintPlayers();paintProblem();paintConn();paintSetup();paintVerdict();
  if(tab==='results')paintResults();
@@ -1340,7 +1424,7 @@ function state(){
  const now=sNow(),clocks={};
  for(const s of ['w','b'])clocks[s]=M?(M.limit?M.limit-usedMs(M,s,now):usedMs(M,s,now)):null;
  return {
-  open:isOpen,tab,review:review?{num:review.rec.num,ply:review.ply}:null,corrupt,pending:!!pending,notice,
+  open:isOpen,tab,review:review?{num:review.rec.num,ply:review.ply,rec:review.rec}:null,corrupt,pending:!!pending,notice,
   match:M?{id:M.id,seq:M.seq,status:M.status,num:M.num,fen0:M.fen0,fen:M.fen,turn:game?game.turn():null,moves:M.moves.slice(),sans:M.sans.slice(),limit:M.limit,used:{...M.used},run:M.run,anchorMs:M.anchorMs,
    studentId:M.studentId,studentName:M.studentName,teacherId:M.teacherId,studentColor:M.studentColor,teacherColor:M.teacherColor,goal:M.goal,goalSide:M.goalSide,result:M.result?{...M.result}:null,last:M.last}:null,
   gameFen:game?game.fen():null,boardFen:(g=>g?g.fen():null)(displayGame()),
@@ -1358,7 +1442,7 @@ function tick(){
  if(roomKey()!==lastRoomKey){lastRoomKey=roomKey();roomSeen=false;resetMatch();ensureListener();}
  ensureListener();
  beat(false);
- pvTick();pvRefreshView();
+ pvTick();pvRefreshView();vwTick();applyView();
  if(M&&M.status==='running')syncClock();
  if(isOpen&&M)paintClocks();
  if(isOpen&&(++tickN%4===0)){paintConn();paintStudents();}
@@ -1455,8 +1539,8 @@ function init(){
   const r=await endMatch(v,note);
   if(r&&r.match){verdictOpen=false;$('vqcChdNote').value='';}
  }));
- document.querySelectorAll('#vqcChdReplayBar [data-step]').forEach(b=>b.addEventListener('click',()=>reviewStep(Number(b.dataset.step))));
- $$('vqcChdReplayExit','click',closeReview);
+ document.querySelectorAll('#vqcChdReplayBar [data-step]').forEach(b=>b.addEventListener('click',()=>{if(!isTeacherUser())return;reviewStep(Number(b.dataset.step));}));
+ $$('vqcChdReplayExit','click',()=>{if(!isTeacherUser())return;closeReview();});
  document.querySelectorAll('#vqcChdOverlay [data-pick]').forEach(b=>b.addEventListener('click',()=>{settings.pick=b.dataset.pick;leaveFinished();render();}));
  document.querySelectorAll('#vqcChdOverlay [data-dcolor]').forEach(b=>b.addEventListener('click',()=>{settings.color=b.dataset.dcolor;render();}));
  document.querySelectorAll('#vqcChdOverlay [data-dtime]').forEach(b=>b.addEventListener('click',()=>{settings.time=b.dataset.dtime;render();}));

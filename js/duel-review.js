@@ -1,7 +1,7 @@
 (function(){
  'use strict';
  if(window.vqcDuelReview)return;
- const VERSION='20261123-review-v1';
+ const VERSION='20261124-review-v2';
  const POLL_MS=Number(window.vqcReviewPollMs)||700;
  const BOX_ID='vqcChdReviewTools';
  let shownKey='',ctx=null,runId=0,engine=null,busy=false,lastRowId='',markPly=-1;
@@ -58,7 +58,7 @@
   if(!st||!st.open||st.tab!=='game')return null;
   let rec=null,num=null,live=false;
   if(st.review){
-   num=st.review.num;rec=findRecord(lastRowId,num);
+   num=st.review.num;rec=findRecord(lastRowId,num)||st.review.rec||null;
   }else if(st.match&&st.match.status==='ended'&&st.match.result&&st.match.result.kind!=='aborted'){
    const m=st.match;live=true;num=m.num;
    rec={id:m.id,num:m.num,fen0:m.fen0,moves:m.moves,sans:m.sans,studentName:m.studentName,teacherName:m.teacherName,

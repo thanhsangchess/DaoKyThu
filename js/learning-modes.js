@@ -124,7 +124,7 @@
    document.head.appendChild(l);
   }
   const s=document.createElement('script');
-  s.src='./js/chernev-duel.js?v=20261124-duel-v12';s.async=false;
+  s.src='./js/chernev-duel.js?v=20261124-duel-v13';s.async=false;
   document.head.appendChild(s);
  }catch(e){}
 })();
@@ -162,7 +162,7 @@
  function start(){
   if(started)return;started=true;
   try{
-   ['move-sounds.js?v=20261124-sounds-v1','move-fx.js?v=20261124-fx-v2','net-status.js?v=20261123-net-v1','class-live.js?v=20261123-live-v1','duel-review.js?v=20261123-review-v1'].forEach(function(name){
+   ['move-sounds.js?v=20261124-sounds-v1','move-fx.js?v=20261124-fx-v2','net-status.js?v=20261123-net-v1','class-live.js?v=20261123-live-v1','duel-review.js?v=20261124-review-v2'].forEach(function(name){
     const s=document.createElement('script');
     s.src='./js/'+name;s.async=false;
     document.head.appendChild(s);
