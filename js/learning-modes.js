@@ -102,10 +102,10 @@
 
 (function(){
  try{
-  const v='?v=20261124-vsm-v6';
+  const v='?v=20261125-vsm-v8';
   if(!document.getElementById('vqcVsmCss')){
    const l=document.createElement('link');
-   l.id='vqcVsmCss';l.rel='stylesheet';l.href='./css/vs-machine.css?v=20261124-vsm-v6';
+   l.id='vqcVsmCss';l.rel='stylesheet';l.href='./css/vs-machine.css?v=20261125-vsm-v8';
    document.head.appendChild(l);
   }
   ['chernev-endgames-data.js','vs-machine-engine.js','vs-machine.js','vsm-review.js'].forEach(function(name){
@@ -120,11 +120,11 @@
  try{
   if(!document.getElementById('vqcChdCss')){
    const l=document.createElement('link');
-   l.id='vqcChdCss';l.rel='stylesheet';l.href='./css/chernev-duel.css?v=20261124-duel-v20';
+   l.id='vqcChdCss';l.rel='stylesheet';l.href='./css/chernev-duel.css?v=20261125-duel-v22';
    document.head.appendChild(l);
   }
   const s=document.createElement('script');
-  s.src='./js/chernev-duel.js?v=20261124-duel-v20';s.async=false;
+  s.src='./js/chernev-duel.js?v=20261125-duel-v22';s.async=false;
   document.head.appendChild(s);
  }catch(e){}
 })();
@@ -162,7 +162,7 @@
  function start(){
   if(started)return;started=true;
   try{
-   ['move-sounds.js?v=20261124-sounds-v1','move-fx.js?v=20261124-fx-v2','net-status.js?v=20261123-net-v1','class-live.js?v=20261123-live-v1','duel-review.js?v=20261124-review-v5','pvp-review.js?v=20261124-pvr-v2'].forEach(function(name){
+   ['move-sounds.js?v=20261124-sounds-v1','move-fx.js?v=20261124-fx-v2','net-status.js?v=20261123-net-v1','class-live.js?v=20261123-live-v1','duel-review.js?v=20261125-review-v6','pvp-review.js?v=20261125-pvr-v3'].forEach(function(name){
     const s=document.createElement('script');
     s.src='./js/'+name;s.async=false;
     document.head.appendChild(s);

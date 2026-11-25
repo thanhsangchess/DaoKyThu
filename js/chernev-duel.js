@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);
-const VERSION='20261124-duel-v20';
+const VERSION='20261125-duel-v22';
 const PROTO=2;
 const FILES='abcdefgh';
 const SIDE={w:'Trắng',b:'Đen'};
@@ -13,8 +13,8 @@ const HB_LIVE=20000,HB_IDLE=300000,PEER_FRESH_LIVE=65000,PEER_FRESH_IDLE=720000;
 const HIST_CAP=300;
 
 let M=null,game=null,corrupt=false,presence={};
-let evbOn=true,evbLast=null,evbAuto='',evbKey='',evbTimer=0;
-try{evbOn=localStorage.getItem('vqc-chd-evbar')!=='0';}catch(e){}
+let evbOn=false,evbLast=null,evbAuto='',evbKey='',evbTimer=0,evbEv=null,evbEng=null,evbEpoch=0;
+try{evbOn=localStorage.getItem('vqc-chd-evbar')==='1';}catch(e){}
 let isOpen=false,tab='game',selected=null,promotion=null,pending=null,pendingTimer=0,notice='',hint=null,hintBusy=false,verdictOpen=false,confirmResign=false,confirmTimer=0;
 let setupOpen=true,review=null,roster=[],rosterAt=0,rosterBusy=false,rosterErr='';
 const settings={pick:'number',num:1,from:1,to:300,order:'seq',studentId:'',color:'w',time:'5',custom:5};
@@ -853,6 +853,7 @@ function evalShare(ev){if(!ev)return 50;if(ev.mate!==undefined)return ev.mate>0?
 function evbLabel(ev){
  if(!ev)return '';
  if(ev.mate!==undefined)return 'M'+Math.abs(ev.mate);
+ if(Math.abs(ev.cp)>=9000)return ev.cp>0?'1-0':'0-1';
  const v=Math.abs(ev.cp)/100;return v>=10?String(Math.round(v)):v.toFixed(1);
 }
 function paintEvBar(cur,teacher){
@@ -875,18 +876,40 @@ function paintEvBar(cur,teacher){
  bar.title=ev?evalText(ev):'Đang chờ máy đánh giá…';
  bar.setAttribute('aria-label',ev?'Đánh giá của máy: '+evalText(ev):'Chưa có đánh giá của máy');
 }
-function evbSchedule(cur,teacher,ctl){
- if(!teacher||!evbOn||hintBusy||cur)return;
- const g=review?reviewGame():((ctl&&M&&M.status==='running')?game:null);
- if(!g||g.game_over())return;
- const f=g.fen();if(evbAuto===f)return;
- evbAuto=f;clearTimeout(evbTimer);
- evbTimer=setTimeout(()=>{
-  if(!isOpen||!evbOn)return;
-  if(hintBusy){evbAuto='';return;}
-  const g2=review?reviewGame():game;if(!g2||g2.fen()!==f)return;
-  analyze();
- },500);
+function evbStop(){
+ evbEpoch++;clearTimeout(evbTimer);evbAuto='';
+ if(evbEng){try{evbEng.dispose();}catch(e){}evbEng=null;}
+}
+function evbRun(fen,turn){
+ const ep=++evbEpoch;
+ let eng=null;
+ try{
+  if(!evbEng){if(!window.VqcStockfish)return;evbEng=window.VqcStockfish.create({onStatus:function(){}});}
+  eng=evbEng;
+ }catch(e){return;}
+ eng.search(fen,{movetime:800,skill:20}).then(function(res){
+  if(ep!==evbEpoch||!res||res.cancelled)return;
+  evbEv={fen:fen,ev:res.valid&&!res.none?evalWhite(res.info,turn):null};
+  {const dg=displayGame();if(dg&&dg.fen()===fen)render();}
+ }).catch(function(){
+  if(ep!==evbEpoch)return;
+  if(evbEng){try{evbEng.dispose();}catch(e){}evbEng=null;}
+ });
+}
+function evbFor(fen){
+ if(!evbOn){if(evbEng)evbStop();return null;}
+ if(!fen)return null;
+ if(evbEv&&evbEv.fen===fen)return evbEv.ev;
+ let p=null;
+ try{p=new Chess();if(!p.load(fen))p=null;}catch(e){p=null;}
+ if(!p)return null;
+ if(p.game_over()){evbEv={fen:fen,ev:{cp:p.in_checkmate()?(p.turn()==='w'?-10000:10000):0}};return evbEv.ev;}
+ if(evbAuto!==fen){
+  evbAuto=fen;clearTimeout(evbTimer);
+  const turn=p.turn();
+  evbTimer=setTimeout(function(){evbRun(fen,turn);},350);
+ }
+ return null;
 }
 function analyzeReview(){
  if(!review||hintBusy||!isTeacherUser())return;
@@ -1405,7 +1428,7 @@ function render(){
   $('vqcChdHintText').textContent=(review?'🤖 Máy chọn: ':'💡 Máy gợi ý (chỉ để tham khảo): ')+(PIECE[cur.piece]||'quân')+' '+cur.from+' → '+cur.to+' ('+cur.san+')';
   $('vqcChdEvalText').textContent=evalText(cur.ev);
  }else box.hidden=true;
- paintEvBar(cur,teacher);evbSchedule(cur,teacher,ctl);
+ {const dg=displayGame(),eev=(teacher&&evbOn&&dg)?evbFor(dg.fen()):null;if(!teacher&&evbEng)evbStop();paintEvBar(eev?{ev:eev}:null,teacher);}
  {const vb=$('vqcChdVarBox');if(vb){
   const vm=review?(review.vm||[]):[];vb.hidden=!vm.length;
   if(vm.length){$('vqcChdVarLine').textContent=(teacher?(review.by==='hs'?'Nước thử của HS: ':'Nước thử: '):(review.local?'Nước thử của em: ':(review.by==='hs'?'Nước thử của HS: ':'Nước thử của GV: ')))+varText();{const bk=$('vqcChdVarBack');bk.hidden=false;bk.disabled=!teacher;bk.title=teacher?'':'Chức năng này đã bị khóa với học sinh';}}
@@ -1627,7 +1650,7 @@ function hideOverlay(byPreview){
  if(!isOpen)return;
  if(!byPreview&&!isTeacherUser()){const pv=currentPreview();if(pv)pvSuppress=pvSigOf(pv.raw);}
  pvAuto=false;duelAnnounced=false;
- isOpen=false;hintEpoch++;hintBusy=false;disposeEngine();clearPending();promotion=null;selected=null;
+ isOpen=false;hintEpoch++;hintBusy=false;disposeEngine();evbStop();clearPending();promotion=null;selected=null;
  $('vqcChdOverlay')?.classList.remove('open');
  paintChip();
 }
@@ -1649,7 +1672,7 @@ function state(){
  const now=sNow(),clocks={};
  for(const s of ['w','b'])clocks[s]=M?(M.limit?M.limit-usedMs(M,s,now):usedMs(M,s,now)):null;
  return {
-  open:isOpen,tab,review:review?{num:review.rec.num,ply:review.ply,rec:review.rec}:null,corrupt,pending:!!pending,notice,
+  open:isOpen,tab,review:review?{num:review.rec.num,ply:review.ply,rec:review.rec,vm:(review.vm||[]).length}:null,corrupt,pending:!!pending,notice,
   match:M?{id:M.id,seq:M.seq,status:M.status,num:M.num,fen0:M.fen0,fen:M.fen,turn:game?game.turn():null,moves:M.moves.slice(),sans:M.sans.slice(),limit:M.limit,used:{...M.used},run:M.run,anchorMs:M.anchorMs,
    studentId:M.studentId,studentName:M.studentName,teacherId:M.teacherId,studentColor:M.studentColor,teacherColor:M.teacherColor,goal:M.goal,goalSide:M.goalSide,result:M.result?{...M.result}:null,last:M.last}:null,
   gameFen:game?game.fen():null,boardFen:(g=>g?g.fen():null)(displayGame()),
@@ -1756,6 +1779,7 @@ function init(){
  $$('vqcChdEvToggle','change',()=>{
   evbOn=!!$('vqcChdEvToggle').checked;evbAuto='';clearTimeout(evbTimer);
   try{localStorage.setItem('vqc-chd-evbar',evbOn?'1':'0');}catch(e){}
+  if(!evbOn)evbStop();
   render();
  });
  $$('vqcChdResign','click',()=>{

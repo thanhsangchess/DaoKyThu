@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 if(window.vqcVsmReview)return;
-const VERSION='20261124-vsr-v3';
+const VERSION='20261125-vsr-v5';
 const FILES='abcdefgh',UCI_RE=/^[a-h][1-8][a-h][1-8][qrbn]?$/,BOARD_ID='vqcVsmBoard';
 const HIST_CAP=200,VW_TTL=75000,VW_REFRESH=20000,VW_DEBOUNCE=250,MAX_VM=60,MAX_MARKS=40;
 const SIDE={w:'Trắng',b:'Đen'},PIECE={k:'Vua',q:'Hậu',r:'Xe',b:'Tượng',n:'Mã',p:'Tốt'};
@@ -409,7 +409,7 @@ function paint(){
   $('vqcVsrHintText').textContent='🤖 Máy chọn: '+(PIECE[cur.piece]||'quân')+' '+cur.from+' → '+cur.to+' ('+cur.san+')';
   $('vqcVsrEvalText').textContent=evalText(cur.ev);
  }else eb.hidden=true;
- {const x=X();if(x&&x.paintEvBar)x.paintEvBar(cur?cur.ev:null,bottomSide()==='b','r'+review.rec.id);}
+ {const x=X();if(x&&x.paintEvBar){const gg=reviewGame();x.paintEvBar(x.evbFor&&gg?x.evbFor(gg.fen()):null,bottomSide()==='b','r'+review.rec.id);}}
  syncUi();
 }
 
@@ -649,7 +649,7 @@ function jump(ply){
  selected=null;promotion=null;touchReview();annReset();paint();
 }
 window.vqcVsmReview={version:VERSION,active:()=>!!review&&isOpen(),paint,onDoc,save,jump,
- info:()=>review?{rec:review.rec,ply:review.ply,teacher:isTeacher()}:null,
+ info:()=>review?{rec:review.rec,ply:review.ply,teacher:isTeacher(),vm:(review.vm||[]).length}:null,
  state:()=>({tab,review:review?{id:review.rec.id,ply:review.ply,vm:(review.vm||[]).slice(),bottom:review.bottom,marks:(review.marks||[]).slice(),by:review.by,local:review.local,n:review.rec.moves.length}:null}),
  _open:openReview,_end:endReview};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();

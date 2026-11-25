@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);
-const VERSION='20261124-vsm-v6';
+const VERSION='20261125-vsm-v7';
 const FILES='abcdefgh';
 const START_FEN='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 const LEVELS=[
@@ -29,8 +29,8 @@ const MAX_USER_MARKS=36;
 let isOpen=false,game=null,human='w',startFen=START_FEN,level=LEVELS[0];
 let preset={kind:'standard'};
 let settings={color:'w',levelId:'max',kind:'standard',chernev:0};
-let evbOn=true,evbLast=null,evbKey='';
-try{evbOn=localStorage.getItem('vqc-vsm-evbar')!=='0';}catch(e){}
+let evbOn=false,evbLast=null,evbKey='',evbAuto='',evbTimer=0,evbEv=null,evbEng=null,evbEpoch=0;
+try{evbOn=localStorage.getItem('vqc-vsm-evbar')==='1';}catch(e){}
 let selected=null,lastMove=null,over=null,promotion=null,hint=null,notice='',error=null;
 let engine=null,engineState='idle',thinking=false,analysing=false,drawBusy=false;
 let gameEpoch=0,searchEpoch=0,analysisEpoch=0,gameReady=Promise.resolve();
@@ -826,7 +826,43 @@ function evalShare(ev){
 function evbLabel(ev){
  if(!ev)return '';
  if(ev.mate!==undefined)return 'M'+Math.abs(ev.mate);
+ if(Math.abs(ev.cp)>=9000)return ev.cp>0?'1-0':'0-1';
  const v=Math.abs(ev.cp)/100;return v>=10?String(Math.round(v)):v.toFixed(1);
+}
+function evbStop(){
+ evbEpoch++;clearTimeout(evbTimer);evbAuto='';
+ if(evbEng){try{evbEng.dispose();}catch(e){}evbEng=null;}
+}
+function evbRun(fen,turn){
+ const ep=++evbEpoch;
+ let eng=null;
+ try{
+  if(!evbEng){if(!window.VqcStockfish)return;evbEng=window.VqcStockfish.create({onStatus:function(){}});}
+  eng=evbEng;
+ }catch(e){return;}
+ eng.search(fen,{movetime:800,skill:20}).then(function(res){
+  if(ep!==evbEpoch||!res||res.cancelled)return;
+  evbEv={fen:fen,ev:res.valid&&!res.none?evalWhite(res.info,turn):null};
+  render();
+ }).catch(function(){
+  if(ep!==evbEpoch)return;
+  if(evbEng){try{evbEng.dispose();}catch(e){}evbEng=null;}
+ });
+}
+function evbFor(fen){
+ if(!evbOn){if(evbEng)evbStop();return null;}
+ if(!fen)return null;
+ if(evbEv&&evbEv.fen===fen)return evbEv.ev;
+ let p=null;
+ try{p=new Chess();if(!p.load(fen))p=null;}catch(e){p=null;}
+ if(!p)return null;
+ if(p.game_over()){evbEv={fen:fen,ev:{cp:p.in_checkmate()?(p.turn()==='w'?-10000:10000):0}};return evbEv.ev;}
+ if(evbAuto!==fen){
+  evbAuto=fen;clearTimeout(evbTimer);
+  const turn=p.turn();
+  evbTimer=setTimeout(function(){evbRun(fen,turn);},350);
+ }
+ return null;
 }
 function paintEvBar(ev,flip,key){
  const bar=$('vqcVsmEvBar'),tg=$('vqcVsmEvToggle');
@@ -1026,7 +1062,7 @@ function render(){
   $('vqcVsmHintText').textContent='💡 Máy gợi ý: '+(PIECE[hint.piece]||'quân')+' '+hint.from+' → '+hint.to+' ('+hint.san+')';
   $('vqcVsmEvalText').textContent=evalText(ev);
  }else box.hidden=true;
- paintEvBar(hint&&!over?evalWhite(hint.info,hint.turn):null,flipped(),'g'+gameEpoch);
+ paintEvBar(evbFor(curFen()),flipped(),'g'+gameEpoch);
  paintSetup(lock);
  const nxt=$('vqcVsmNextProblem');
  nxt.hidden=!(over&&over.result==='win'&&chern&&preset.index<list.length-1)||(!sh&&lock);
@@ -1078,7 +1114,7 @@ function openShared(opts){
  }
 }
 function hide(){
- cancelAll();disposeEngine();isOpen=false;broadcastKey='';
+ cancelAll();disposeEngine();evbStop();isOpen=false;broadcastKey='';
  clearTimeout(pendingTimer);clearTimeout(setupTimer);clearTimeout(intentTimer);clearTimeout(confirmTimer);clearStale();
  intent=null;noticeKeep=null;
  if(sharedActive){
@@ -1240,6 +1276,7 @@ function init(){
  $('vqcVsmEvToggle')?.addEventListener('change',()=>{
   evbOn=!!$('vqcVsmEvToggle').checked;
   try{localStorage.setItem('vqc-vsm-evbar',evbOn?'1':'0');}catch(e){}
+  if(!evbOn)evbStop();
   render();
  });
  $('vqcVsmRetry')?.addEventListener('click',retry);
@@ -1260,6 +1297,6 @@ function init(){
 window.vqcVsMachineOpen=function(kind,index){open({kind:kind==='standard'?'standard':'chernev',index:Number.isInteger(index)?index:undefined});};
 window.vqcVsMachine={open,close,hide,newGame,undo,resign,offerDraw,analyze,retry,state,levels:LEVELS.map(l=>({...l})),version:VERSION,
  ext:{ref:vsmRef,uid:myUid,name:myName,room:()=>sCode||roomCode(),open:()=>isOpen,student:isStudent,shared:()=>sharedActive,render,refreshMarks,
-  paintEvBar,unregisterAdapter:()=>{if(sharedActive)unregisterAdapter();},registerAdapter:()=>{if(sharedActive)registerAdapter();}}};
+  paintEvBar,evbFor,unregisterAdapter:()=>{if(sharedActive)unregisterAdapter();},registerAdapter:()=>{if(sharedActive)registerAdapter();}}};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();

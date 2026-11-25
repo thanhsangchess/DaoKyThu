@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 if(window.vqcPvpReview)return;
-const VERSION='20261124-pvr-v1';
+const VERSION='20261125-pvr-v2';
 const FILES='abcdefgh',UCI_RE=/^[a-h][1-8][a-h][1-8][qrbn]?$/,BOARD_ID='pvpBoard',OVERLAY_ID='pvpOverlay';
 const HIST_CAP=200,VW_TTL=75000,VW_REFRESH=20000,VW_DEBOUNCE=250,MAX_VM=60,MAX_MARKS=40;
 const START_FEN='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
@@ -641,7 +641,7 @@ function init(){
  window.addEventListener('pagehide',disposeAnaEngine);
 }
 window.vqcPvpReview={version:VERSION,active:()=>!!review&&isOpen(),paint,jump,
- info:()=>review?{rec:review.rec,ply:review.ply,teacher:isTeacher()}:null,
+ info:()=>review?{rec:review.rec,ply:review.ply,teacher:isTeacher(),vm:(review.vm||[]).length}:null,
  state:()=>({tab,review:review?{id:review.rec.id,ply:review.ply,vm:(review.vm||[]).slice(),bottom:review.bottom,marks:(review.marks||[]).slice(),by:review.by,local:review.local,n:review.rec.moves.length}:null}),
  _open:openReview,_end:endReview};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
