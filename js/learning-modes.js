@@ -120,11 +120,11 @@
  try{
   if(!document.getElementById('vqcChdCss')){
    const l=document.createElement('link');
-   l.id='vqcChdCss';l.rel='stylesheet';l.href='./css/chernev-duel.css?v=20261126-duel-v24';
+   l.id='vqcChdCss';l.rel='stylesheet';l.href='./css/chernev-duel.css?v=20261126-duel-v25';
    document.head.appendChild(l);
   }
   const s=document.createElement('script');
-  s.src='./js/chernev-duel.js?v=20261126-duel-v24';s.async=false;
+  s.src='./js/chernev-duel.js?v=20261126-duel-v25';s.async=false;
   document.head.appendChild(s);
  }catch(e){}
 })();

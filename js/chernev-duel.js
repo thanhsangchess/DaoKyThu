@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);
-const VERSION='20261126-duel-v24';
+const VERSION='20261126-duel-v25';
 const PROTO=2;
 const FILES='abcdefgh';
 const SIDE={w:'Trắng',b:'Đen'};
@@ -1505,7 +1505,6 @@ const OVERLAY_HTML=`<div id="vqcChdOverlay" role="dialog" aria-modal="true" aria
      </div>
     </div>
     <div class="vqc-chd-player" id="vqcChdBottom"><span class="vqc-chd-avatar"></span><span class="vqc-chd-pname"></span><span class="vqc-chd-pside"></span><span class="vqc-chd-turn"></span><span class="vqc-chd-clock" aria-live="off"></span></div>
-    <div id="vqcChdEvToggleRow" class="vqc-chd-evtoggle" hidden><label class="vqc-chd-evsw"><span>Thanh đánh giá</span><input type="checkbox" id="vqcChdEvToggle" checked><i aria-hidden="true"></i></label></div>
     <div id="vqcChdReplayBar" class="vqc-chd-replaybar" hidden>
      <button type="button" data-step="-Infinity" aria-label="Về đầu">⏮</button><button type="button" data-step="-1" aria-label="Lùi một nước">◀</button>
      <span id="vqcChdReplayLabel"></span>
@@ -1523,6 +1522,7 @@ const OVERLAY_HTML=`<div id="vqcChdOverlay" role="dialog" aria-modal="true" aria
     <p id="vqcChdStatus" class="vqc-chd-status" role="status" aria-live="polite"></p>
     <p id="vqcChdNotice" class="vqc-chd-notice" role="status" aria-live="polite" hidden></p>
     <div id="vqcChdPanelGame" class="vqc-chd-panel">
+     <div id="vqcChdEvToggleRow" class="vqc-chd-evtoggle" hidden><label class="vqc-chd-evsw"><span>Thanh đánh giá</span><input type="checkbox" id="vqcChdEvToggle" checked><i aria-hidden="true"></i></label></div>
      <div id="vqcChdProblem" class="vqc-chd-problem" hidden></div>
      <p id="vqcChdConn" class="vqc-chd-conn" hidden></p>
      <div class="vqc-chd-controls">
