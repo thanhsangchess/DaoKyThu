@@ -1,7 +1,7 @@
 (function(){
  'use strict';
  if(window.vqcDuelReview)return;
- const VERSION='20261125-review-v6';
+ const VERSION='20261126-review-v7';
  const POLL_MS=Number(window.vqcReviewPollMs)||700;
  const BOX_ID='vqcChdReviewTools';
  let shownKey='',ctx=null,runId=0,engine=null,busy=false,lastRowId='',markPly=-1;
@@ -395,7 +395,7 @@ function css(){
   box.innerHTML='<h3>📁 Lưu & xem lại ván</h3>'+
    '<div class="vqc-rev-btns"><button type="button" data-act="pgn">📥 Tải PGN</button><button type="button" data-act="copy">📋 Sao chép PGN</button>'+
    '<button type="button" data-act="analyse">🤖 Phân tích ván</button><button type="button" data-act="stop" hidden>⏹ Dừng</button></div>'+
-   '<div class="vqc-rev-opts"><label><input type="checkbox" data-opt="arrows" checked> ➚ Mũi tên nước đi</label><label><input type="checkbox" data-opt="coords" checked> Tọa độ bàn cờ</label></div>'+
+   '<div class="vqc-rev-opts"><label><input type="checkbox" data-opt="coords" checked> Tọa độ bàn cờ</label></div>'+
    '<p class="vqc-rev-keys">Phím tắt khi xem lại: ← lùi · → tiến · Home về đầu · End đến cuối · Space phát/tạm dừng</p>'+
    '<p class="vqc-rev-msg" role="status" aria-live="polite"></p><div class="vqc-rev-out"></div>'+
    '<details class="vqc-rev-notes" open hidden><summary>📝 Ghi chú của giáo viên</summary>'+
@@ -606,8 +606,8 @@ function jump(ply){
  const HIST={chd:'#vqcChdHistory .vqc-chd-hrow > span:not(.vqc-chd-hnum)',vsm:'#vqcVsmHistory .vqc-vsm-hrow > span:not(.vqc-vsm-hnum)',pvp:'#pvpHistory .vpr-mv'};
  const BOARD={chd:'vqcChdBoard',vsm:'vqcVsmBoard',pvp:'pvpBoard'};
  let notes=null,notesKey='',stuUnsub=null,stuKey='',stuNotes=null,stuCtx=null;
- let playing=false,playTimer=0,autoClick=false,curKey='',scrollKey='',arrowsOn=true,coordsOn=true;
- try{arrowsOn=localStorage.getItem('vqc-rev-arrows')!=='0';coordsOn=localStorage.getItem('vqc-rev-coords')!=='0';}catch(e){}
+ let playing=false,playTimer=0,autoClick=false,curKey='',scrollKey='',coordsOn=true;
+ try{coordsOn=localStorage.getItem('vqc-rev-coords')!=='0';}catch(e){}
  const observed=new WeakSet();
 
  function hostOf(c){return c&&c.host?c.host:'chd';}
@@ -710,12 +710,11 @@ function jump(ply){
  function applyOpts(){
   document.documentElement.dataset.vqcRevCoords=(coordsOn||!(ctx||stuCtx))?'on':'off';
   const box=$(BOX_ID);if(!box)return;
-  const a=box.querySelector('[data-opt="arrows"]'),k=box.querySelector('[data-opt="coords"]');
-  if(a)a.checked=arrowsOn;if(k)k.checked=coordsOn;
+  const k=box.querySelector('[data-opt="coords"]');
+  if(k)k.checked=coordsOn;
  }
  function onOpt(e){
   const t=e.target;if(!t||!t.dataset||!t.dataset.opt)return;
-  if(t.dataset.opt==='arrows'){arrowsOn=!!t.checked;try{localStorage.setItem('vqc-rev-arrows',arrowsOn?'1':'0');}catch(x){}drawArrows();}
   if(t.dataset.opt==='coords'){coordsOn=!!t.checked;try{localStorage.setItem('vqc-rev-coords',coordsOn?'1':'0');}catch(x){}applyOpts();}
  }
 
@@ -877,43 +876,10 @@ function jump(ply){
   if(e.key===' '||e.code==='Space'){e.preventDefault();togglePlay();}
  });
 
- function arrowPath(a,b,color){
-  const dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy);if(len<6)return '';
-  const ux=dx/len,uy=dy/len,s=a.s,head=s*0.34,w=s*0.15,px=-uy,py=ux;
-  const x1=a.x+ux*s*0.25,y1=a.y+uy*s*0.25,bx=b.x-ux*head*0.85,by=b.y-uy*head*0.85;
-  const tipx=b.x-ux*s*0.06,tipy=b.y-uy*s*0.06;
-  return '<line x1="'+x1.toFixed(1)+'" y1="'+y1.toFixed(1)+'" x2="'+bx.toFixed(1)+'" y2="'+by.toFixed(1)+'" stroke="'+color+'" stroke-width="'+w.toFixed(1)+'" stroke-linecap="round"/>'+
-   '<polygon points="'+tipx.toFixed(1)+','+tipy.toFixed(1)+' '+(bx+px*head*0.55).toFixed(1)+','+(by+py*head*0.55).toFixed(1)+' '+(bx-px*head*0.55).toFixed(1)+','+(by-py*head*0.55).toFixed(1)+'" fill="'+color+'"/>';
- }
  function drawArrows(){
-  const c=ctx||stuCtx,svg0=$('vqcRevArrows');
-  const board=c?$(BOARD[hostOf(c)]||BOARD.chd):null;
-  if(!board||!arrowsOn){if(svg0)svg0.innerHTML='';return;}
-  const wrap=board.parentNode;
-  let svg=svg0;
-  if(!svg||svg.parentNode!==wrap){
-   if(svg&&svg.parentNode)svg.parentNode.removeChild(svg);
-   svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.id='vqcRevArrows';
-   svg.setAttribute('aria-hidden','true');
-   svg.style.cssText='position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:6;overflow:visible';
-   if(getComputedStyle(wrap).position==='static')wrap.style.position='relative';
-   wrap.appendChild(svg);
-  }
-  const wr=wrap.getBoundingClientRect();if(!wr.width){svg.innerHTML='';return;}
-  svg.setAttribute('viewBox','0 0 '+wr.width.toFixed(1)+' '+wr.height.toFixed(1));
-  const pt=function(el){if(!el)return null;const r=el.getBoundingClientRect();return {x:r.left-wr.left+r.width/2,y:r.top-wr.top+r.height/2,s:r.width};};
-  const cell=function(sq){return board.querySelector('[data-square="'+sq+'"]');};
-  let html='';
-  const lf=pt(board.querySelector('.vqc-last-from')),lt=pt(board.querySelector('.vqc-last-to'));
-  if(lf&&lt)html+='<g opacity=".78">'+arrowPath(lf,lt,'#f0a30a')+'</g>';
-  if(ctx&&ctx.inReview&&!ctx.varOn&&ctx.reviewPly!=null){
-   const res=cache[ctx.key],u=res&&res.best[ctx.reviewPly];
-   if(u){const a=pt(cell(u.slice(0,2))),b=pt(cell(u.slice(2,4)));if(a&&b)html+='<g opacity=".82">'+arrowPath(a,b,'#2f9e6e')+'</g>';}
-  }
-  svg.innerHTML=html;
+  const s=$('vqcRevArrows');
+  if(s&&s.parentNode)s.parentNode.removeChild(s);
  }
- window.addEventListener('resize',function(){requestAnimationFrame(drawArrows);});
-
  function tick(){
   const vc=vsmContext()||pvpContext();
   const host=vc?vc.host:'';

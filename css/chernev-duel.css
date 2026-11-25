@@ -192,7 +192,6 @@
 #vqcChdOverlay .vqc-chd-topbtns{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 #vqcChdOverlay .vqc-chd-topbtns button{margin:0}
 #vqcChdOverlay .vqc-chd-cell.ro{cursor:default}
-#vqcChdOverlay .vqc-chd-cell.vqc-last-from,#vqcChdOverlay .vqc-chd-cell.vqc-last-to{box-shadow:inset 0 0 0 3px #f2c94c}
 #vqcChdOverlay .vqc-chd-clock{
   flex:0 0 auto;min-width:84px;text-align:center;font-variant-numeric:tabular-nums;font-weight:850;font-size:clamp(17px,2vw,22px);line-height:1.2;
   padding:3px 10px;border-radius:10px;background:#fff;border:2px solid #cfe3f3;color:#27465e;transition:background .2s,border-color .2s,color .2s;
