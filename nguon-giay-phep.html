@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nguồn và giấy phép – Đảo Kỳ Thủ</title>
+<meta name="description" content="Danh sách phần mềm, dữ liệu và phông chữ mà Đảo Kỳ Thủ sử dụng, cùng giấy phép và liên kết đến mã nguồn.">
+<link rel="icon" type="image/png" href="./assets/favicon-rounded.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap">
+<style>
+:root{--bg:#eef6fd;--card:#fff;--ink:#27465e;--muted:#5f7a92;--line:#d9e6f1;--accent:#2878cc;--tag:#e3f2ff}
+@media(prefers-color-scheme:dark){:root{--bg:#10202e;--card:#172d40;--ink:#e3eef7;--muted:#9bb2c6;--line:#2a4358;--accent:#6db6f2;--tag:#1f3b52}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 "Be Vietnam Pro","Segoe UI",system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:28px 16px 56px}
+.back{display:inline-block;margin-bottom:14px;color:var(--accent);font-weight:700;text-decoration:none}
+.back:hover{text-decoration:underline}
+h1{margin:0 0 6px;font-size:clamp(24px,4vw,34px);line-height:1.25}
+.lead{margin:0 0 24px;color:var(--muted)}
+section{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin:0 0 16px}
+h2{margin:0 0 10px;font-size:19px}
+ul{margin:0;padding:0;list-style:none;display:grid;gap:12px}
+li{padding:12px 14px;border:1px solid var(--line);border-radius:12px}
+li strong{display:block;font-size:16px}
+.tag{display:inline-block;margin:4px 6px 4px 0;padding:2px 10px;border-radius:999px;background:var(--tag);font-size:13px;font-weight:700}
+li p{margin:4px 0 0;color:var(--muted);font-size:15px}
+a{color:var(--accent)}
+.note{color:var(--muted);font-size:14px;margin:0}
+</style>
+</head>
+<body>
+<main>
+<a class="back" href="./">← Về Đảo Kỳ Thủ</a>
+<h1>Nguồn và giấy phép</h1>
+<p class="lead">Đảo Kỳ Thủ được xây dựng trên công sức của nhiều dự án mã nguồn mở. Trang này ghi lại những gì chúng tôi sử dụng, giấy phép của từng phần và nơi bạn có thể lấy mã nguồn.</p>
+
+<section id="engine">
+<h2>Động cơ cờ vua</h2>
+<ul>
+<li>
+<strong>Stockfish 19</strong>
+<span class="tag">GNU GPL v3</span>
+<p>Dùng cho các chế độ Đấu với máy, Cờ tàn Chernev, thanh đánh giá và phân tích ván đấu. Bản dùng là stockfish.js 19.0.1 (bản lite, một luồng, WebAssembly) của Nathan Rugg, chạy ngay trong trình duyệt của người dùng và không bị chỉnh sửa. Đảo Kỳ Thủ chỉ giao tiếp với Stockfish qua giao thức UCI.</p>
+<p>Mã nguồn: <a href="https://github.com/official-stockfish/Stockfish" target="_blank" rel="noopener">official-stockfish/Stockfish</a> · <a href="https://github.com/nmrugg/stockfish.js" target="_blank" rel="noopener">nmrugg/stockfish.js</a> · <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener">Nội dung giấy phép</a></p>
+</li>
+</ul>
+</section>
+
+<section id="libs">
+<h2>Thư viện phần mềm</h2>
+<ul>
+<li>
+<strong>chess.js 0.10.3</strong>
+<span class="tag">BSD 2-Clause</span>
+<p>Kiểm tra luật đi quân, chiếu hết, hòa cờ, đọc và ghi FEN/PGN. Tác giả Jeff Hlywa. <a href="https://github.com/jhlywa/chess.js" target="_blank" rel="noopener">github.com/jhlywa/chess.js</a></p>
+</li>
+<li>
+<strong>Firebase (Google)</strong>
+<span class="tag">Apache 2.0 (bộ SDK)</span>
+<p>Đăng nhập, lưu dữ liệu lớp học và đồng bộ giữa giáo viên với học sinh. Dùng Firebase Authentication, Cloud Firestore và Cloud Functions. <a href="https://firebase.google.com/" target="_blank" rel="noopener">firebase.google.com</a></p>
+</li>
+</ul>
+</section>
+
+<section id="data">
+<h2>Dữ liệu</h2>
+<ul>
+<li>
+<strong>Cơ sở dữ liệu câu đố của Lichess</strong>
+<span class="tag">CC0 (phạm vi công cộng)</span>
+<p>Mục “Câu đố theo Elo” dùng khoảng 3.500 câu đố được chọn từ bộ dữ liệu mở của Lichess, kèm độ khó Elo do Lichess tính. <a href="https://database.lichess.org/#puzzles" target="_blank" rel="noopener">database.lichess.org</a></p>
+</li>
+</ul>
+</section>
+
+<section id="fonts">
+<h2>Phông chữ</h2>
+<ul>
+<li>
+<strong>Be Vietnam Pro</strong>
+<span class="tag">SIL Open Font License 1.1</span>
+<p>Cung cấp qua <a href="https://fonts.google.com/specimen/Be+Vietnam+Pro" target="_blank" rel="noopener">Google Fonts</a>.</p>
+</li>
+<li>
+<strong>Baloo 2</strong>
+<span class="tag">SIL Open Font License 1.1</span>
+<p>Thiết kế bởi Ek Type, cung cấp qua <a href="https://fonts.google.com/specimen/Baloo+2" target="_blank" rel="noopener">Google Fonts</a>.</p>
+</li>
+</ul>
+</section>
+
+<section id="hosting">
+<h2>Hạ tầng</h2>
+<ul>
+<li>
+<strong>GitHub Pages</strong>
+<p>Trang được lưu trữ và phát hành qua <a href="https://pages.github.com/" target="_blank" rel="noopener">GitHub Pages</a>.</p>
+</li>
+</ul>
+</section>
+
+<p class="note">Tên và nhãn hiệu của các dự án nêu trên thuộc về chủ sở hữu tương ứng. Đảo Kỳ Thủ không liên kết hay được bảo trợ bởi các dự án này.</p>
+</main>
+</body>
+</html>

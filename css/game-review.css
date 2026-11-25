@@ -442,3 +442,8 @@ section.center.vqc-review-mode>.board-shell,section.center.vqc-review-mode>.boar
 .vqc-review-evsw input:focus-visible+i{outline:2px solid #2a7bb9;outline-offset:2px}
 @media(prefers-reduced-motion:reduce){.vqc-review-evbar .evb-white,.vqc-review-evsw i,.vqc-review-evsw i::after{transition:none}}
 .vqc-review-title{margin:0 0 8px;font-size:17px;font-weight:800;color:#1e4f82;flex:0 0 auto}
+.vqc-credits-link{display:block;margin:10px 4px 2px;padding:6px 8px;color:#6a869f;font-size:12.5px;font-weight:700;text-decoration:none;text-align:center}
+.vqc-credits-link:hover{color:#2878cc;text-decoration:underline}
+.vqc-credits-foot{margin:14px 0 0;text-align:center;font-size:13px}
+.vqc-credits-foot a{color:#6a869f;font-weight:700;text-decoration:none}
+.vqc-credits-foot a:hover{color:#2878cc;text-decoration:underline}

@@ -863,6 +863,7 @@ function vqcCloseOtherViews(target){
   if(target!=='beginnerpuzzles')document.getElementById('beginnerPuzzleOverlay')?.classList.remove('open');
   if(target!=='review'&&typeof window.vqcGameReviewHide==='function')window.vqcGameReviewHide();
   if(target!=='boardeditor'&&typeof window.vqcBoardEditorHide==='function')window.vqcBoardEditorHide();
+  if(target!=='elopuzzle'&&typeof window.vqcEloPuzzlesHide==='function')window.vqcEloPuzzlesHide();
 }
 function vqcBroadcastView(view,index=0){
   if(vqcNavApplying)return;

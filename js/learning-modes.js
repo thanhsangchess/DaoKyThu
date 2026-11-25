@@ -131,6 +131,19 @@
 
 (function(){
  try{
+  if(!document.getElementById('vqcEloCss')){
+   const l=document.createElement('link');
+   l.id='vqcEloCss';l.rel='stylesheet';l.href='./css/elo-puzzles.css?v=20261126-elo-v1';
+   document.head.appendChild(l);
+  }
+  const s=document.createElement('script');
+  s.src='./js/elo-puzzles.js?v=20261126-elo-v1';s.async=false;
+  document.head.appendChild(s);
+ }catch(e){}
+})();
+
+(function(){
+ try{
   if(!document.getElementById('vqcBedCss')){
    const l=document.createElement('link');
    l.id='vqcBedCss';l.rel='stylesheet';l.href='./css/board-editor.css?v=20261126-bed-v1';
