@@ -102,10 +102,10 @@
 
 (function(){
  try{
-  const v='?v=20261124-vsm-v5';
+  const v='?v=20261124-vsm-v6';
   if(!document.getElementById('vqcVsmCss')){
    const l=document.createElement('link');
-   l.id='vqcVsmCss';l.rel='stylesheet';l.href='./css/vs-machine.css?v=20261124-vsm-v4';
+   l.id='vqcVsmCss';l.rel='stylesheet';l.href='./css/vs-machine.css?v=20261124-vsm-v6';
    document.head.appendChild(l);
   }
   ['chernev-endgames-data.js','vs-machine-engine.js','vs-machine.js','vsm-review.js'].forEach(function(name){
@@ -120,11 +120,11 @@
  try{
   if(!document.getElementById('vqcChdCss')){
    const l=document.createElement('link');
-   l.id='vqcChdCss';l.rel='stylesheet';l.href='./css/chernev-duel.css?v=20261123-duel-v6';
+   l.id='vqcChdCss';l.rel='stylesheet';l.href='./css/chernev-duel.css?v=20261124-duel-v20';
    document.head.appendChild(l);
   }
   const s=document.createElement('script');
-  s.src='./js/chernev-duel.js?v=20261124-duel-v19';s.async=false;
+  s.src='./js/chernev-duel.js?v=20261124-duel-v20';s.async=false;
   document.head.appendChild(s);
  }catch(e){}
 })();

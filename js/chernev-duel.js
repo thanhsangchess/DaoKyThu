@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);
-const VERSION='20261124-duel-v19';
+const VERSION='20261124-duel-v20';
 const PROTO=2;
 const FILES='abcdefgh';
 const SIDE={w:'Trắng',b:'Đen'};
@@ -13,6 +13,8 @@ const HB_LIVE=20000,HB_IDLE=300000,PEER_FRESH_LIVE=65000,PEER_FRESH_IDLE=720000;
 const HIST_CAP=300;
 
 let M=null,game=null,corrupt=false,presence={};
+let evbOn=true,evbLast=null,evbAuto='',evbKey='',evbTimer=0;
+try{evbOn=localStorage.getItem('vqc-chd-evbar')!=='0';}catch(e){}
 let isOpen=false,tab='game',selected=null,promotion=null,pending=null,pendingTimer=0,notice='',hint=null,hintBusy=false,verdictOpen=false,confirmResign=false,confirmTimer=0;
 let setupOpen=true,review=null,roster=[],rosterAt=0,rosterBusy=false,rosterErr='';
 const settings={pick:'number',num:1,from:1,to:300,order:'seq',studentId:'',color:'w',time:'5',custom:5};
@@ -848,6 +850,44 @@ function evalText(ev){
  const who=ev.cp>0?'Trắng':'Đen';return a<150?who+' hơi nhỉnh hơn':a<400?who+' đang hơn':who+' hơn rất nhiều';
 }
 function evalShare(ev){if(!ev)return 50;if(ev.mate!==undefined)return ev.mate>0?97:3;return Math.round(50+50*Math.tanh(ev.cp/400)*0.94);}
+function evbLabel(ev){
+ if(!ev)return '';
+ if(ev.mate!==undefined)return 'M'+Math.abs(ev.mate);
+ const v=Math.abs(ev.cp)/100;return v>=10?String(Math.round(v)):v.toFixed(1);
+}
+function paintEvBar(cur,teacher){
+ const row=$('vqcChdEvRow'),bar=$('vqcChdEvBar'),tg=$('vqcChdEvToggleRow');
+ if(!row||!bar||!tg)return;
+ const key=review?'r'+review.rec.id:(M?M.id:'');
+ if(key!==evbKey){evbKey=key;evbLast=null;evbAuto='';}
+ if(cur&&cur.ev)evbLast=cur.ev;
+ tg.hidden=!teacher;$('vqcChdEvToggle').checked=evbOn;
+ const on=teacher&&evbOn;
+ bar.hidden=!on;row.classList.toggle('has-ev',on);
+ if(!on)return;
+ const ev=cur&&cur.ev?cur.ev:evbLast,flip=bottomSide()==='b',share=evalShare(ev),whiteLead=share>=50;
+ bar.classList.toggle('flip',flip);bar.classList.toggle('stale',!(cur&&cur.ev));
+ $('vqcChdEvWhite').style.height=share+'%';
+ const lb=$('vqcChdEvLabel');
+ lb.textContent=evbLabel(ev);
+ const whiteEnd=flip?'top':'bottom',lead=whiteLead?whiteEnd:(whiteEnd==='top'?'bottom':'top');
+ lb.className='evb-label '+lead+(whiteLead?' dk':' lt');
+ bar.title=ev?evalText(ev):'Đang chờ máy đánh giá…';
+ bar.setAttribute('aria-label',ev?'Đánh giá của máy: '+evalText(ev):'Chưa có đánh giá của máy');
+}
+function evbSchedule(cur,teacher,ctl){
+ if(!teacher||!evbOn||hintBusy||cur)return;
+ const g=review?reviewGame():((ctl&&M&&M.status==='running')?game:null);
+ if(!g||g.game_over())return;
+ const f=g.fen();if(evbAuto===f)return;
+ evbAuto=f;clearTimeout(evbTimer);
+ evbTimer=setTimeout(()=>{
+  if(!isOpen||!evbOn)return;
+  if(hintBusy){evbAuto='';return;}
+  const g2=review?reviewGame():game;if(!g2||g2.fen()!==f)return;
+  analyze();
+ },500);
+}
 function analyzeReview(){
  if(!review||hintBusy||!isTeacherUser())return;
  const g=reviewGame();if(!g)return;
@@ -1363,8 +1403,9 @@ function render(){
  if(cur){
   box.hidden=false;
   $('vqcChdHintText').textContent=(review?'🤖 Máy chọn: ':'💡 Máy gợi ý (chỉ để tham khảo): ')+(PIECE[cur.piece]||'quân')+' '+cur.from+' → '+cur.to+' ('+cur.san+')';
-  $('vqcChdEvalText').textContent=evalText(cur.ev);$('vqcChdEvalFill').style.width=evalShare(cur.ev)+'%';$('vqcChdEvalBar').hidden=!cur.ev;
+  $('vqcChdEvalText').textContent=evalText(cur.ev);
  }else box.hidden=true;
+ paintEvBar(cur,teacher);evbSchedule(cur,teacher,ctl);
  {const vb=$('vqcChdVarBox');if(vb){
   const vm=review?(review.vm||[]):[];vb.hidden=!vm.length;
   if(vm.length){$('vqcChdVarLine').textContent=(teacher?(review.by==='hs'?'Nước thử của HS: ':'Nước thử: '):(review.local?'Nước thử của em: ':(review.by==='hs'?'Nước thử của HS: ':'Nước thử của GV: ')))+varText();{const bk=$('vqcChdVarBack');bk.hidden=false;bk.disabled=!teacher;bk.title=teacher?'':'Chức năng này đã bị khóa với học sinh';}}
@@ -1433,11 +1474,15 @@ const OVERLAY_HTML=`<div id="vqcChdOverlay" role="dialog" aria-modal="true" aria
   <div class="vqc-chd-layout">
    <div class="vqc-chd-boardcol">
     <div class="vqc-chd-player" id="vqcChdTop"><span class="vqc-chd-avatar"></span><span class="vqc-chd-pname"></span><span class="vqc-chd-pside"></span><span class="vqc-chd-turn"></span><span class="vqc-chd-clock" aria-live="off"></span></div>
-    <div class="vqc-chd-boardwrap">
-     <div id="vqcChdBoard" class="vqc-chd-board" aria-label="Bàn cờ đấu giáo viên – học sinh"></div>
-     <div id="vqcChdPromo" class="vqc-chd-promo" hidden></div>
+    <div id="vqcChdEvRow" class="vqc-chd-evrow">
+     <div id="vqcChdEvBar" class="vqc-chd-evbar2" role="img" hidden><span id="vqcChdEvWhite" class="evb-white"></span><i class="evb-mid"></i><b id="vqcChdEvLabel" class="evb-label"></b></div>
+     <div class="vqc-chd-boardwrap">
+      <div id="vqcChdBoard" class="vqc-chd-board" aria-label="Bàn cờ đấu giáo viên – học sinh"></div>
+      <div id="vqcChdPromo" class="vqc-chd-promo" hidden></div>
+     </div>
     </div>
     <div class="vqc-chd-player" id="vqcChdBottom"><span class="vqc-chd-avatar"></span><span class="vqc-chd-pname"></span><span class="vqc-chd-pside"></span><span class="vqc-chd-turn"></span><span class="vqc-chd-clock" aria-live="off"></span></div>
+    <div id="vqcChdEvToggleRow" class="vqc-chd-evtoggle" hidden><label class="vqc-chd-evsw"><span>Thanh đánh giá</span><input type="checkbox" id="vqcChdEvToggle" checked><i aria-hidden="true"></i></label></div>
     <div id="vqcChdReplayBar" class="vqc-chd-replaybar" hidden>
      <button type="button" data-step="-Infinity" aria-label="Về đầu">⏮</button><button type="button" data-step="-1" aria-label="Lùi một nước">◀</button>
      <span id="vqcChdReplayLabel"></span>
@@ -1480,7 +1525,6 @@ const OVERLAY_HTML=`<div id="vqcChdOverlay" role="dialog" aria-modal="true" aria
      </div>
      <div id="vqcChdEval" class="vqc-chd-eval" hidden>
       <p id="vqcChdHintText"></p>
-      <div id="vqcChdEvalBar" class="vqc-chd-evalbar" aria-hidden="true"><span id="vqcChdEvalFill"></span></div>
       <p id="vqcChdEvalText" class="vqc-chd-evaltext"></p>
      </div>
      <div class="vqc-chd-histwrap"><h3>📜 Các nước đã đi</h3><div id="vqcChdHistory" class="vqc-chd-history"></div></div>
@@ -1709,6 +1753,11 @@ function init(){
  $$('vqcChdCancel','click',()=>cancelMatch());
  $$('vqcChdSwitch','click',()=>{setupOpen=true;loadRoster(false);render();});
  $$('vqcChdHint','click',analyze);
+ $$('vqcChdEvToggle','change',()=>{
+  evbOn=!!$('vqcChdEvToggle').checked;evbAuto='';clearTimeout(evbTimer);
+  try{localStorage.setItem('vqc-chd-evbar',evbOn?'1':'0');}catch(e){}
+  render();
+ });
  $$('vqcChdResign','click',()=>{
   if(!confirmResign){confirmResign=true;clearTimeout(confirmTimer);confirmTimer=setTimeout(()=>{confirmResign=false;render();},4000);render();return;}
   clearTimeout(confirmTimer);confirmResign=false;resignMatch();

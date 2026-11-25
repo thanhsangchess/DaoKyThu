@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 if(window.vqcVsmReview)return;
-const VERSION='20261124-vsr-v2';
+const VERSION='20261124-vsr-v3';
 const FILES='abcdefgh',UCI_RE=/^[a-h][1-8][a-h][1-8][qrbn]?$/,BOARD_ID='vqcVsmBoard';
 const HIST_CAP=200,VW_TTL=75000,VW_REFRESH=20000,VW_DEBOUNCE=250,MAX_VM=60,MAX_MARKS=40;
 const SIDE={w:'Trắng',b:'Đen'},PIECE={k:'Vua',q:'Hậu',r:'Xe',b:'Tượng',n:'Mã',p:'Tốt'};
@@ -407,8 +407,9 @@ function paint(){
  if(cur){
   eb.hidden=false;
   $('vqcVsrHintText').textContent='🤖 Máy chọn: '+(PIECE[cur.piece]||'quân')+' '+cur.from+' → '+cur.to+' ('+cur.san+')';
-  $('vqcVsrEvalText').textContent=evalText(cur.ev);$('vqcVsrEvalFill').style.width=evalShare(cur.ev)+'%';$('vqcVsrEvalBar').hidden=!cur.ev;
+  $('vqcVsrEvalText').textContent=evalText(cur.ev);
  }else eb.hidden=true;
+ {const x=X();if(x&&x.paintEvBar)x.paintEvBar(cur?cur.ev:null,bottomSide()==='b','r'+review.rec.id);}
  syncUi();
 }
 
@@ -602,7 +603,7 @@ function css(){
   '.vsr-var button{background:#fff4d6;border-color:#f0c978;color:#6a4a00}'+
   '#vqcVsrBox{display:grid;gap:8px;margin:0 0 10px}#vqcVsrAna{width:100%}'+
   '#vqcVsrEval{display:grid;gap:6px;padding:10px 12px;border-radius:12px;background:#eef7ff;border:1px solid #bfdcf3;color:#264c70;font-weight:700}'+
-  '#vqcVsrEval p{margin:0}#vqcVsrEvalBar{height:12px;border-radius:7px;background:#2d3b4a;overflow:hidden}#vqcVsrEvalBar span{display:block;height:100%;background:#fff;transition:width .3s}'+
+  '#vqcVsrEval p{margin:0}'+
   '#vqcVsMachineOverlay.vsr-results-tab .vqc-vsm-side>*:not(#vqcVsrTabs):not(#vqcVsrResults){display:none!important}'+
   '#vqcVsMachineOverlay.vsr-reviewing .vqc-vsm-controls,#vqcVsMachineOverlay.vsr-reviewing .vqc-vsm-setup,#vqcVsMachineOverlay.vsr-reviewing #vqcVsmRetry,#vqcVsMachineOverlay.vsr-reviewing #vqcVsmNextProblem,#vqcVsMachineOverlay.vsr-reviewing #vqcVsmLockNote,#vqcVsMachineOverlay.vsr-reviewing #vqcVsmEval{display:none!important}';
  document.head.appendChild(s);
@@ -619,7 +620,7 @@ function mount(){
  res.innerHTML='<h3>📚 Kết quả ván đấu với máy</h3><button type="button" id="vqcVsrRefresh">↻ Làm mới</button><p id="vqcVsrErr" hidden></p><div id="vqcVsrList"></div>';
  tabs.insertAdjacentElement('afterend',res);
  const box=document.createElement('div');box.id='vqcVsrBox';box.hidden=true;
- box.innerHTML='<button type="button" id="vqcVsrAna">🤖 Máy phân tích thế cờ này</button><div id="vqcVsrEval" hidden><p id="vqcVsrHintText"></p><div id="vqcVsrEvalBar" aria-hidden="true"><span id="vqcVsrEvalFill"></span></div><p id="vqcVsrEvalText"></p></div>';
+ box.innerHTML='<button type="button" id="vqcVsrAna">🤖 Máy phân tích thế cờ này</button><div id="vqcVsrEval" hidden><p id="vqcVsrHintText"></p><p id="vqcVsrEvalText"></p></div>';
  const hw=side.querySelector('.vqc-vsm-histwrap');
  if(hw)side.insertBefore(box,hw);else side.appendChild(box);
  const bar=document.createElement('div');bar.id='vqcVsrBar';bar.className='vsr-bar';bar.hidden=true;

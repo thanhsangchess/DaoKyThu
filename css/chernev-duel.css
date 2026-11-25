@@ -134,8 +134,6 @@
 #vqcChdOverlay .vqc-chd-eval{padding:11px 13px;border-radius:14px;background:#f1faf5;border:1px solid #bfe3cf;color:#1f5e3e}
 #vqcChdOverlay .vqc-chd-eval p{margin:0 0 7px;font-size:15px;font-weight:750;line-height:1.45}
 #vqcChdOverlay .vqc-chd-eval .vqc-chd-evaltext{margin:7px 0 0;font-weight:600;font-size:14px}
-#vqcChdOverlay .vqc-chd-evalbar{height:12px;border-radius:7px;background:#2d3b4a;overflow:hidden}
-#vqcChdOverlay .vqc-chd-evalbar span{display:block;height:100%;background:#fff;transition:width .3s}
 #vqcChdOverlay .vqc-chd-histwrap{border:1px solid #dbeaf4;border-radius:14px;padding:10px 12px;background:#fafdff}
 #vqcChdOverlay .vqc-chd-history{max-height:170px;overflow-y:auto;scrollbar-width:thin;font-variant-numeric:tabular-nums}
 #vqcChdOverlay .vqc-chd-hrow{display:grid;grid-template-columns:34px 1fr 1fr;gap:4px;font-size:14px;line-height:1.7}
@@ -187,7 +185,7 @@
 }
 @media(prefers-reduced-motion:reduce){
  #vqcChdOverlay .vqc-chd-status.busy{animation:none}
- #vqcChdOverlay .vqc-chd-controls button,#vqcChdOverlay .vqc-chd-evalbar span{transition:none}
+ #vqcChdOverlay .vqc-chd-controls button
 }
 
 #vqcChdOverlay [hidden]{display:none!important}
@@ -290,3 +288,32 @@
 #vqcChdOverlay .vqc-chd-varbox[hidden]{display:none}
 #vqcChdOverlay .vqc-chd-varbox button{min-height:38px;border:1px solid #f0c978;border-radius:11px;background:#fff4d6;color:#6a4a00;font:inherit;font-weight:750;cursor:pointer;padding:4px 12px}
 #vqcChdOverlay .vqc-chd-cell:not(.ro){cursor:pointer}
+
+#vqcChdOverlay .vqc-chd-evrow{display:flex;align-items:stretch;gap:8px;min-width:0}
+#vqcChdOverlay .vqc-chd-evrow .vqc-chd-boardwrap{flex:1 1 auto}
+#vqcChdOverlay .vqc-chd-evbar2{position:relative;box-sizing:border-box;flex:0 0 28px;width:28px;border:3px solid #e2edf7;border-radius:10px;background:#2d3b4a;overflow:hidden;box-shadow:0 6px 20px #1c4b7420}
+#vqcChdOverlay .vqc-chd-evbar2 .evb-white{position:absolute;left:0;right:0;bottom:0;height:50%;background:#fff;transition:height .5s cubic-bezier(.3,.7,.3,1),opacity .3s}
+#vqcChdOverlay .vqc-chd-evbar2.flip .evb-white{bottom:auto;top:0}
+#vqcChdOverlay .vqc-chd-evbar2.stale .evb-white{opacity:.55}
+#vqcChdOverlay .vqc-chd-evbar2 .evb-mid{position:absolute;left:0;right:0;top:50%;height:2px;margin-top:-1px;background:#e8604a;opacity:.85;z-index:1}
+#vqcChdOverlay .vqc-chd-evbar2 .evb-label{position:absolute;left:0;right:0;z-index:2;text-align:center;font-weight:800;font-size:11px;line-height:1;letter-spacing:-.2px}
+#vqcChdOverlay .vqc-chd-evbar2 .evb-label.top{top:5px}
+#vqcChdOverlay .vqc-chd-evbar2 .evb-label.bottom{bottom:5px}
+#vqcChdOverlay .vqc-chd-evbar2 .evb-label.dk{color:#27465e}
+#vqcChdOverlay .vqc-chd-evbar2 .evb-label.lt{color:#fff}
+#vqcChdOverlay .vqc-chd-evtoggle{display:flex;justify-content:flex-end}
+#vqcChdOverlay .vqc-chd-evsw{position:relative;display:inline-flex;align-items:center;gap:10px;padding:6px 12px;border:1px solid #c6dfef;border-radius:12px;background:#f6fbff;color:#27465e;font-weight:750;font-size:14px;cursor:pointer;user-select:none}
+#vqcChdOverlay .vqc-chd-evsw input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+#vqcChdOverlay .vqc-chd-evsw i{position:relative;display:block;width:42px;height:24px;border-radius:12px;background:#c4d4e0;transition:background .2s}
+#vqcChdOverlay .vqc-chd-evsw i::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px #0003;transition:transform .2s}
+#vqcChdOverlay .vqc-chd-evsw input:checked+i{background:#3f9ad8}
+#vqcChdOverlay .vqc-chd-evsw input:checked+i::after{transform:translateX(18px)}
+#vqcChdOverlay .vqc-chd-evsw input:focus-visible+i{outline:2px solid #2a7bb9;outline-offset:2px}
+@media(max-width:600px){
+ #vqcChdOverlay .vqc-chd-evrow{gap:5px}
+ #vqcChdOverlay .vqc-chd-evbar2{flex-basis:22px;width:22px;border-width:2px;border-radius:8px}
+ #vqcChdOverlay .vqc-chd-evbar2 .evb-label{font-size:9px}
+}
+@media(prefers-reduced-motion:reduce){
+ #vqcChdOverlay .vqc-chd-evbar2 .evb-white,#vqcChdOverlay .vqc-chd-evsw i,#vqcChdOverlay .vqc-chd-evsw i::after{transition:none}
+}

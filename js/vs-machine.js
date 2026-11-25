@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);
-const VERSION='20261124-vsm-v4';
+const VERSION='20261124-vsm-v6';
 const FILES='abcdefgh';
 const START_FEN='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 const LEVELS=[
@@ -29,6 +29,8 @@ const MAX_USER_MARKS=36;
 let isOpen=false,game=null,human='w',startFen=START_FEN,level=LEVELS[0];
 let preset={kind:'standard'};
 let settings={color:'w',levelId:'max',kind:'standard',chernev:0};
+let evbOn=true,evbLast=null,evbKey='';
+try{evbOn=localStorage.getItem('vqc-vsm-evbar')!=='0';}catch(e){}
 let selected=null,lastMove=null,over=null,promotion=null,hint=null,notice='',error=null;
 let engine=null,engineState='idle',thinking=false,analysing=false,drawBusy=false;
 let gameEpoch=0,searchEpoch=0,analysisEpoch=0,gameReady=Promise.resolve();
@@ -821,6 +823,27 @@ function evalShare(ev){
  if(ev.mate!==undefined)return ev.mate>0?97:3;
  return Math.round(50+50*Math.tanh(ev.cp/400)*0.94);
 }
+function evbLabel(ev){
+ if(!ev)return '';
+ if(ev.mate!==undefined)return 'M'+Math.abs(ev.mate);
+ const v=Math.abs(ev.cp)/100;return v>=10?String(Math.round(v)):v.toFixed(1);
+}
+function paintEvBar(ev,flip,key){
+ const bar=$('vqcVsmEvBar'),tg=$('vqcVsmEvToggle');
+ if(!bar)return;
+ if(key!==evbKey){evbKey=key;evbLast=null;}
+ if(ev)evbLast=ev;
+ if(tg)tg.checked=evbOn;
+ bar.hidden=!evbOn;
+ if(!evbOn)return;
+ const shown=ev||evbLast,share=evalShare(shown),whiteLead=share>=50;
+ bar.classList.toggle('flip',!!flip);bar.classList.toggle('stale',!ev);
+ $('vqcVsmEvWhite').style.height=share+'%';
+ const lb=$('vqcVsmEvLabel'),whiteEnd=flip?'top':'bottom',lead=whiteLead?whiteEnd:(whiteEnd==='top'?'bottom':'top');
+ lb.textContent=evbLabel(shown);lb.className='evb-label '+lead+(whiteLead?' dk':' lt');
+ bar.title=shown?evalText(shown):'Bấm “Gợi ý” để máy đánh giá thế cờ';
+ bar.setAttribute('aria-label',shown?'Đánh giá của máy: '+evalText(shown):'Chưa có đánh giá của máy');
+}
 function kingSquare(color){
  for(const f of FILES)for(let r=1;r<=8;r++){const p=game.get(f+r);if(p&&p.type==='k'&&p.color===color)return f+r;}
  return null;
@@ -956,6 +979,7 @@ function renderEmpty(){
  if(st){st.textContent=statusText();st.className='vqc-vsm-status'+(corrupt||lErr?' error':'');}
  const nt=$('vqcVsmNotice');if(nt){const t=shownNotice();nt.textContent=t;nt.hidden=!t;}
  paintBoard();paintPromotion();paintHistory();
+ {const eb=$('vqcVsmEvBar');if(eb)eb.hidden=true;}
  $('vqcVsmTitle').textContent='🤖 Đấu với máy — Stockfish';
  $('vqcVsmSubtitle').textContent=sharedActive?'Ván cờ chung của cả lớp':'';
  $('vqcVsmEval').hidden=true;$('vqcVsmRetry').hidden=true;$('vqcVsmNextProblem').hidden=true;
@@ -1001,9 +1025,8 @@ function render(){
   box.hidden=false;
   $('vqcVsmHintText').textContent='💡 Máy gợi ý: '+(PIECE[hint.piece]||'quân')+' '+hint.from+' → '+hint.to+' ('+hint.san+')';
   $('vqcVsmEvalText').textContent=evalText(ev);
-  $('vqcVsmEvalFill').style.width=evalShare(ev)+'%';
-  $('vqcVsmEvalBar').hidden=!ev;
  }else box.hidden=true;
+ paintEvBar(hint&&!over?evalWhite(hint.info,hint.turn):null,flipped(),'g'+gameEpoch);
  paintSetup(lock);
  const nxt=$('vqcVsmNextProblem');
  nxt.hidden=!(over&&over.result==='win'&&chern&&preset.index<list.length-1)||(!sh&&lock);
@@ -1092,11 +1115,15 @@ const OVERLAY_HTML=`<div id="vqcVsMachineOverlay" role="dialog" aria-modal="true
   <div class="vqc-vsm-layout">
    <div class="vqc-vsm-boardcol">
     <div class="vqc-vsm-player" id="vqcVsmTop"><span class="vqc-vsm-avatar"></span><span class="vqc-vsm-pname"></span><span class="vqc-vsm-pside"></span><span class="vqc-vsm-turn"></span></div>
-    <div class="vqc-vsm-boardwrap">
-     <div id="vqcVsmBoard" class="vqc-vsm-board" aria-label="Bàn cờ đấu với máy"></div>
-     <div id="vqcVsmPromo" class="vqc-vsm-promo" hidden></div>
+    <div class="vqc-vsm-evrow">
+     <div id="vqcVsmEvBar" class="vqc-vsm-evbar2" role="img" hidden><span id="vqcVsmEvWhite" class="evb-white"></span><i class="evb-mid"></i><b id="vqcVsmEvLabel" class="evb-label"></b></div>
+     <div class="vqc-vsm-boardwrap">
+      <div id="vqcVsmBoard" class="vqc-vsm-board" aria-label="Bàn cờ đấu với máy"></div>
+      <div id="vqcVsmPromo" class="vqc-vsm-promo" hidden></div>
+     </div>
     </div>
     <div class="vqc-vsm-player" id="vqcVsmBottom"><span class="vqc-vsm-avatar"></span><span class="vqc-vsm-pname"></span><span class="vqc-vsm-pside"></span><span class="vqc-vsm-turn"></span></div>
+    <div class="vqc-vsm-evtoggle"><label class="vqc-vsm-evsw"><span>Thanh đánh giá</span><input type="checkbox" id="vqcVsmEvToggle" checked><i aria-hidden="true"></i></label></div>
    </div>
    <section class="vqc-vsm-side">
     <p id="vqcVsmStatus" class="vqc-vsm-status" role="status" aria-live="polite"></p>
@@ -1113,7 +1140,6 @@ const OVERLAY_HTML=`<div id="vqcVsMachineOverlay" role="dialog" aria-modal="true
     </div>
     <div id="vqcVsmEval" class="vqc-vsm-eval" hidden>
      <p id="vqcVsmHintText"></p>
-     <div id="vqcVsmEvalBar" class="vqc-vsm-evalbar" aria-hidden="true"><span id="vqcVsmEvalFill"></span></div>
      <p id="vqcVsmEvalText" class="vqc-vsm-evaltext"></p>
     </div>
     <div class="vqc-vsm-histwrap"><h3>📜 Các nước đã đi</h3><div id="vqcVsmHistory" class="vqc-vsm-history"></div></div>
@@ -1211,6 +1237,11 @@ function init(){
  $('vqcVsmDraw')?.addEventListener('click',offerDraw);
  $('vqcVsmResign')?.addEventListener('click',resign);
  $('vqcVsmHint')?.addEventListener('click',analyze);
+ $('vqcVsmEvToggle')?.addEventListener('change',()=>{
+  evbOn=!!$('vqcVsmEvToggle').checked;
+  try{localStorage.setItem('vqc-vsm-evbar',evbOn?'1':'0');}catch(e){}
+  render();
+ });
  $('vqcVsmRetry')?.addEventListener('click',retry);
  document.querySelectorAll('#vqcVsMachineOverlay [data-color]').forEach(b=>b.addEventListener('click',()=>{if(locked())return;settings.color=b.dataset.color;savePrefs();if(game)render();pushSetup();}));
  $('vqcVsmLevel')?.addEventListener('change',e=>{if(locked())return;settings.levelId=e.target.value;savePrefs();if(game)render();pushSetup();});
@@ -1229,6 +1260,6 @@ function init(){
 window.vqcVsMachineOpen=function(kind,index){open({kind:kind==='standard'?'standard':'chernev',index:Number.isInteger(index)?index:undefined});};
 window.vqcVsMachine={open,close,hide,newGame,undo,resign,offerDraw,analyze,retry,state,levels:LEVELS.map(l=>({...l})),version:VERSION,
  ext:{ref:vsmRef,uid:myUid,name:myName,room:()=>sCode||roomCode(),open:()=>isOpen,student:isStudent,shared:()=>sharedActive,render,refreshMarks,
-  unregisterAdapter:()=>{if(sharedActive)unregisterAdapter();},registerAdapter:()=>{if(sharedActive)registerAdapter();}}};
+  paintEvBar,unregisterAdapter:()=>{if(sharedActive)unregisterAdapter();},registerAdapter:()=>{if(sharedActive)registerAdapter();}}};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
