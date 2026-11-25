@@ -131,6 +131,19 @@
 
 (function(){
  try{
+  if(!document.getElementById('vqcBedCss')){
+   const l=document.createElement('link');
+   l.id='vqcBedCss';l.rel='stylesheet';l.href='./css/board-editor.css?v=20261126-bed-v1';
+   document.head.appendChild(l);
+  }
+  const s=document.createElement('script');
+  s.src='./js/board-editor.js?v=20261126-bed-v1';s.async=false;
+  document.head.appendChild(s);
+ }catch(e){}
+})();
+
+(function(){
+ try{
   ['move-smooth.js?v=20261124-smooth-v3','piece-drag.js?v=20261124-drag-v3'].forEach(function(name){
    const s=document.createElement('script');
    s.src='./js/'+name;s.async=false;

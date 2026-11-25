@@ -862,6 +862,7 @@ function vqcCloseOtherViews(target){
   if(target!=='doubleattack')document.getElementById('doubleAttackOverlay')?.classList.remove('open');
   if(target!=='beginnerpuzzles')document.getElementById('beginnerPuzzleOverlay')?.classList.remove('open');
   if(target!=='review'&&typeof window.vqcGameReviewHide==='function')window.vqcGameReviewHide();
+  if(target!=='boardeditor'&&typeof window.vqcBoardEditorHide==='function')window.vqcBoardEditorHide();
 }
 function vqcBroadcastView(view,index=0){
   if(vqcNavApplying)return;
