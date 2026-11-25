@@ -441,12 +441,14 @@
   if(isTeacher()&&connected())roomRef.update({gameReview:{open:false,stamp:Date.now()+'-closed'},gameReviewVariation:null,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}).catch(console.warn);
  };
  window.vqcGameReviewOpen=function(){
-  if(!connected()){if(typeof vqcNotify==='function')vqcNotify('Hãy tạo hoặc vào phòng học trước khi xem lại ván đấu.','warning');return;}
-  if(!isTeacher()){if(typeof vqcNotify==='function')vqcNotify('Giáo viên điều khiển chức năng xem lại ván đấu.','warning');return;}
+  if(!connected()){if(typeof vqcNotify==='function')vqcNotify('Hãy tạo hoặc vào phòng học trước khi phân tích ván đấu.','warning');return;}
+  if(!isTeacher()){if(typeof vqcNotify==='function')vqcNotify('Giáo viên điều khiển chức năng phân tích ván đấu.','warning');return;}
+  if(typeof vqcCloseOtherViews==='function')vqcCloseOtherViews('review');
   setOpen(true);$('vqcReviewTeacherTools').hidden=false;$('vqcReviewStudentHint').hidden=true;
   render();publish();
  };
  window.vqcGameReviewClose=window.vqcGameReviewShowBoard;
+ window.vqcGameReviewHide=function(){const el=workspace();if(!el||el.hidden)return;window.vqcGameReviewShowBoard();};
  window.vqcGameReviewLoad=function(){
   if(!isTeacher())return;
   try{importPgn($('vqcReviewPgn').value);}

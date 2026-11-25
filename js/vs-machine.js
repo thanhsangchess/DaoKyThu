@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);
-const VERSION='20261125-vsm-v7';
+const VERSION='20261126-vsm-v9';
 const FILES='abcdefgh';
 const START_FEN='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 const LEVELS=[
@@ -1159,9 +1159,9 @@ const OVERLAY_HTML=`<div id="vqcVsMachineOverlay" role="dialog" aria-modal="true
      </div>
     </div>
     <div class="vqc-vsm-player" id="vqcVsmBottom"><span class="vqc-vsm-avatar"></span><span class="vqc-vsm-pname"></span><span class="vqc-vsm-pside"></span><span class="vqc-vsm-turn"></span></div>
-    <div class="vqc-vsm-evtoggle"><label class="vqc-vsm-evsw"><span>Thanh đánh giá</span><input type="checkbox" id="vqcVsmEvToggle" checked><i aria-hidden="true"></i></label></div>
    </div>
    <section class="vqc-vsm-side">
+    <div class="vqc-vsm-evtoggle"><label class="vqc-vsm-evsw"><span>Thanh đánh giá</span><input type="checkbox" id="vqcVsmEvToggle" checked><i aria-hidden="true"></i></label></div>
     <p id="vqcVsmStatus" class="vqc-vsm-status" role="status" aria-live="polite"></p>
     <p id="vqcVsmNotice" class="vqc-vsm-notice" role="status" aria-live="polite" hidden></p>
     <p id="vqcVsmLockNote" class="vqc-vsm-lock-note" hidden></p>

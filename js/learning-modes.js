@@ -102,10 +102,10 @@
 
 (function(){
  try{
-  const v='?v=20261125-vsm-v8';
+  const v='?v=20261126-vsm-v9';
   if(!document.getElementById('vqcVsmCss')){
    const l=document.createElement('link');
-   l.id='vqcVsmCss';l.rel='stylesheet';l.href='./css/vs-machine.css?v=20261125-vsm-v8';
+   l.id='vqcVsmCss';l.rel='stylesheet';l.href='./css/vs-machine.css?v=20261126-vsm-v9';
    document.head.appendChild(l);
   }
   ['chernev-endgames-data.js','vs-machine-engine.js','vs-machine.js','vsm-review.js'].forEach(function(name){

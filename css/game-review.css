@@ -441,3 +441,4 @@ section.center.vqc-review-mode>.board-shell,section.center.vqc-review-mode>.boar
 .vqc-review-evsw input:checked+i::after{transform:translateX(18px)}
 .vqc-review-evsw input:focus-visible+i{outline:2px solid #2a7bb9;outline-offset:2px}
 @media(prefers-reduced-motion:reduce){.vqc-review-evbar .evb-white,.vqc-review-evsw i,.vqc-review-evsw i::after{transition:none}}
+.vqc-review-title{margin:0 0 8px;font-size:17px;font-weight:800;color:#1e4f82;flex:0 0 auto}

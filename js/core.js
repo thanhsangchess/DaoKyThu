@@ -861,6 +861,7 @@ function vqcCloseOtherViews(target){
   if(target!=='castlingpractice')document.getElementById('castlingPracticeOverlay')?.classList.remove('open');
   if(target!=='doubleattack')document.getElementById('doubleAttackOverlay')?.classList.remove('open');
   if(target!=='beginnerpuzzles')document.getElementById('beginnerPuzzleOverlay')?.classList.remove('open');
+  if(target!=='review'&&typeof window.vqcGameReviewHide==='function')window.vqcGameReviewHide();
 }
 function vqcBroadcastView(view,index=0){
   if(vqcNavApplying)return;
