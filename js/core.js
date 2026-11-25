@@ -1093,6 +1093,7 @@ function listenToRoom(){
     if(typeof window.vqcGameReviewReceive==='function')window.vqcGameReviewReceive(data.gameReview||null);
     if(typeof window.vqcGameReviewOrientationReceive==='function')window.vqcGameReviewOrientationReceive(data.gameReviewOrientation??null);
     if(typeof window.vqcGameReviewVariationReceive==='function')window.vqcGameReviewVariationReceive(data.gameReviewVariation??null);
+    if(typeof window.vqcGameReviewShareReceive==='function')window.vqcGameReviewShareReceive(data.gameReviewShare??null);
 
   },err=>{
     console.error('Firestore classroom listener error',err);

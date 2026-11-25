@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);
-const VERSION='20261126-duel-v23';
+const VERSION='20261126-duel-v24';
 const PROTO=2;
 const FILES='abcdefgh';
 const SIDE={w:'Trắng',b:'Đen'};
@@ -862,8 +862,8 @@ function paintEvBar(cur,teacher){
  const key=review?'r'+review.rec.id:(M?M.id:'');
  if(key!==evbKey){evbKey=key;evbLast=null;evbAuto='';}
  if(cur&&cur.ev)evbLast=cur.ev;
- tg.hidden=!teacher;$('vqcChdEvToggle').checked=evbOn;
- const on=teacher&&evbOn;
+ tg.hidden=false;$('vqcChdEvToggle').checked=evbOn;
+ const on=evbOn;
  bar.hidden=!on;row.classList.toggle('has-ev',on);
  if(!on)return;
  const ev=cur&&cur.ev?cur.ev:evbLast,flip=bottomSide()==='b',share=evalShare(ev),whiteLead=share>=50;
@@ -1428,7 +1428,7 @@ function render(){
   $('vqcChdHintText').textContent=(review?'🤖 Máy chọn: ':'💡 Máy gợi ý (chỉ để tham khảo): ')+(PIECE[cur.piece]||'quân')+' '+cur.from+' → '+cur.to+' ('+cur.san+')';
   $('vqcChdEvalText').textContent=evalText(cur.ev);
  }else box.hidden=true;
- {const dg=displayGame(),eev=(teacher&&evbOn&&dg)?evbFor(dg.fen()):null;if(!teacher&&evbEng)evbStop();paintEvBar(eev?{ev:eev}:null,teacher);}
+ {const dg=displayGame(),eev=(evbOn&&dg)?evbFor(dg.fen()):null;paintEvBar(eev?{ev:eev}:null,teacher);}
  {const vb=$('vqcChdVarBox');if(vb){
   const vm=review?(review.vm||[]):[];vb.hidden=!vm.length;
   if(vm.length){$('vqcChdVarLine').textContent=(teacher?(review.by==='hs'?'Nước thử của HS: ':'Nước thử: '):(review.local?'Nước thử của em: ':(review.by==='hs'?'Nước thử của HS: ':'Nước thử của GV: ')))+varText();{const bk=$('vqcChdVarBack');bk.hidden=false;bk.disabled=!teacher;bk.title=teacher?'':'Chức năng này đã bị khóa với học sinh';}}

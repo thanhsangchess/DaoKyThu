@@ -1,7 +1,7 @@
 (function(){
  'use strict';
  if(window.vqcDuelReview)return;
- const VERSION='20261126-review-v7';
+ const VERSION='20261126-review-v8';
  const POLL_MS=Number(window.vqcReviewPollMs)||700;
  const BOX_ID='vqcChdReviewTools';
  let shownKey='',ctx=null,runId=0,engine=null,busy=false,lastRowId='',markPly=-1;
@@ -81,6 +81,18 @@
   c.fen0=r.fen0;c.uci=r.moves.slice();c.sans=null;
   c.white=r.teacherColor==='w'?(r.teacherName||'Giáo viên'):'Học sinh';c.black=r.teacherColor==='w'?'Học sinh':(r.teacherName||'Giáo viên');c.studentSide=null;
   c.event='Đối kháng trực tuyến (giáo viên – học sinh)';c.fileTag='doi-khang-gv-hs';c.key='pvp:'+r.id;
+  return c;
+ }
+function pgnContext(){
+  const api=window.vqcGameReviewApi;
+  if(!api||typeof api.active!=='function'||!api.active())return null;
+  const i=api.info();if(!i||!i.sans||!i.sans.length)return null;
+  const r=i.result;
+  const rec={id:i.key,num:0,fen0:i.fen0,moves:null,kind:r==='1/2-1/2'?'stalemate':'manual',winner:r==='1-0'?'w':(r==='0-1'?'b':null),reason:'',endedAtMs:null};
+  const c={num:0,live:false,rec:rec,reviewPly:i.ply,inReview:!!i.teacher,reviewing:true,pgn:true,host:'pgn',varOn:!!i.vm};
+  c.fen0=i.fen0;c.uci=null;c.sans=i.sans.slice();c.studentSide=null;
+  c.white=String(i.white||'Trắng');c.black=String(i.black||'Đen');
+  c.event=i.event||'Xem lại ván PGN';c.fileTag='van-pgn';c.key='pgn:'+i.key;
   return c;
  }
  function context(){
@@ -384,6 +396,7 @@ function css(){
   let box=$(BOX_ID),panel,wrap;
   if(vsm==='vsm'){panel=document.querySelector('#vqcVsMachineOverlay .vqc-vsm-side');wrap=panel&&panel.querySelector('.vqc-vsm-histwrap');}
   else if(vsm==='pvp'){panel=document.querySelector('#pvpOverlay .pvp-side');wrap=panel&&panel.querySelector('#pvpHistory');}
+  else if(vsm==='pgn'){panel=document.querySelector('#vqcReviewWorkspace .vqc-review-workspace__side');wrap=panel&&panel.querySelector('.vqc-review-moves-wrap');}
   else{panel=$('vqcChdPanelGame');wrap=panel&&panel.querySelector('.vqc-chd-histwrap');}
   if(!panel)return box||null;
   if(box){
@@ -557,6 +570,7 @@ function css(){
  }
 
 function jump(ply){
+  if(ctx&&ctx.pgn){if(window.vqcGameReviewApi)window.vqcGameReviewApi.jump(ply);return;}
   if(ctx&&ctx.vsm){if(window.vqcVsmReview&&window.vqcVsmReview.jump)window.vqcVsmReview.jump(ply);return;}
   if(ctx&&ctx.pvp){if(window.vqcPvpReview&&window.vqcPvpReview.jump)window.vqcPvpReview.jump(ply);return;}
   const bar=$('vqcChdReplayBar');if(!bar||bar.hidden)return;
@@ -603,8 +617,8 @@ function jump(ply){
 
   const NOTES_COLL='reviewNotes',STU_ID='vqcRevStu';
  const BAR={chd:'vqcChdReplayBar',vsm:'vqcVsrBar',pvp:'vqcPvrBar'};
- const HIST={chd:'#vqcChdHistory .vqc-chd-hrow > span:not(.vqc-chd-hnum)',vsm:'#vqcVsmHistory .vqc-vsm-hrow > span:not(.vqc-vsm-hnum)',pvp:'#pvpHistory .vpr-mv'};
- const BOARD={chd:'vqcChdBoard',vsm:'vqcVsmBoard',pvp:'pvpBoard'};
+ const HIST={chd:'#vqcChdHistory .vqc-chd-hrow > span:not(.vqc-chd-hnum)',vsm:'#vqcVsmHistory .vqc-vsm-hrow > span:not(.vqc-vsm-hnum)',pvp:'#pvpHistory .vpr-mv',pgn:'#vqcReviewMoves .vqc-review-move:not(.is-empty)'};
+ const BOARD={chd:'vqcChdBoard',vsm:'vqcVsmBoard',pvp:'pvpBoard',pgn:'vqcReviewBoard'};
  let notes=null,notesKey='',stuUnsub=null,stuKey='',stuNotes=null,stuCtx=null;
  let playing=false,playTimer=0,autoClick=false,curKey='',scrollKey='',coordsOn=true;
  try{coordsOn=localStorage.getItem('vqc-rev-coords')!=='0';}catch(e){}
@@ -636,18 +650,29 @@ function jump(ply){
   const id=noteId(c);notesKey=id;
   notes=cleanNotes(readLocal(id)||{});
   paintNotes(true);
-  if(typeof db==='undefined'||!uidNow())return;
+  if(hostOf(c)==='pgn'||typeof db==='undefined'||!uidNow())return;
   try{
    const s=await db.collection(NOTES_COLL).doc(id).get();
    if(notesKey!==id)return;
    if(s.exists){notes=cleanNotes(s.data());writeLocal(id,notes);paintNotes(true);}
   }catch(e){}
  }
+ async function sharePgn(c,clean){
+  const res=cache[c.key];
+  const payload=clean.shared?{key:c.key,general:clean.general,marks:clean.marks,analysis:res?shareAnalysis(res):null,stamp:Date.now()}:null;
+  if(typeof roomRef==='undefined'||!roomRef){setNoteStatus('Đã lưu ghi chú trên máy này (chưa vào phòng học nên chưa chia sẻ được).');return;}
+  setNoteStatus('Đang lưu…');
+  try{
+   await roomRef.update({gameReviewShare:payload,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+   setNoteStatus(clean.shared?(res?'Đã lưu và chia sẻ với học sinh.':'Đã lưu và chia sẻ ghi chú. Hãy bấm “Phân tích ván” rồi lưu lại để học sinh thấy cả kết quả phân tích.'):'Đã lưu ghi chú (chỉ giáo viên thấy).');
+  }catch(e){setNoteStatus('Chưa chia sẻ được với lớp. Ghi chú được giữ trên máy này.',true);}
+ }
  async function saveNotes(c){
   if(!notes)return;
   const id=noteId(c);
   const clean=cleanNotes(notes);notes=clean;
   writeLocal(id,clean);
+  if(hostOf(c)==='pgn'){await sharePgn(c,clean);return;}
   if(typeof db==='undefined'||!uidNow()){setNoteStatus('Đã lưu ghi chú trên máy này.');return;}
   const res=cache[c.key];
   const data={id:id,mode:hostOf(c),teacherId:uidNow(),gameId:String((c.rec&&c.rec.id)||c.key).slice(0,120),
@@ -790,14 +815,14 @@ function jump(ply){
  }
  function decorate(c,student){
   if(!c)return;
-  const host=hostOf(c),spans=histSpans(host),q=qChars(c,student),click=!student&&!!c.inReview;
+  const host=hostOf(c),spans=histSpans(host),q=qChars(c,student),click=!student&&!!c.inReview&&host!=='pgn';
   spans.forEach(function(s,i){
    const k=CLS_CH[q[i]];
    if(k){s.dataset.q=k.ch;s.dataset.qi=k.icon;s.style.setProperty('--qc',k.color);s.title=k.label;}
    else if(s.dataset.q){delete s.dataset.q;delete s.dataset.qi;s.style.removeProperty('--qc');s.removeAttribute('title');}
    s.classList.toggle('vqc-rev-click',click);
   });
-  const cur=spans.find(function(s){return s.classList.contains('cur');});
+  const cur=spans.find(function(s){return s.classList.contains('cur')||s.classList.contains('is-current');});
   const box=cur&&cur.closest?cur.closest('#vqcChdHistory,#vqcVsmHistory,#pvpHistory'):null;
   const key=c.key+'|'+(c.reviewPly==null?'':c.reviewPly)+'|'+spans.length;
   if(box&&key!==scrollKey&&box.scrollHeight>box.clientHeight){
@@ -828,11 +853,15 @@ function jump(ply){
    if(i>=0){stopPlay();jump(i+1);}
    return;
   }
-  if(!autoClick&&t.closest('[data-step]')&&t.closest('#vqcChdReplayBar,#vqcVsrBar,#vqcPvrBar'))stopPlay();
+  if(!autoClick&&((t.closest('[data-step]')&&t.closest('#vqcChdReplayBar,#vqcVsrBar,#vqcPvrBar'))||t.closest('#vqcReviewFirst,#vqcReviewPrev,#vqcReviewNext,#vqcReviewLast')))stopPlay();
  },true);
 
+ const PGN_STEP={'-Infinity':'vqcReviewFirst','-1':'vqcReviewPrev','1':'vqcReviewNext','Infinity':'vqcReviewLast'};
+ function barEl(host){return host==='pgn'?document.querySelector('#vqcReviewWorkspace .vqc-review-controls'):$(BAR[host]);}
  function stepBtn(k){
-  const bar=ctx&&$(BAR[hostOf(ctx)]),b=bar&&bar.querySelector('[data-step="'+k+'"]');
+  if(!ctx)return false;
+  const host=hostOf(ctx);
+  const bar=host==='pgn'?null:$(BAR[host]),b=host==='pgn'?$(PGN_STEP[k]):(bar&&bar.querySelector('[data-step="'+k+'"]'));
   if(b&&!b.disabled){autoClick=true;try{b.click();}finally{autoClick=false;}return true;}
   return false;
  }
@@ -854,17 +883,21 @@ function jump(ply){
  }
  function togglePlay(){if(playing)stopPlay();else startPlay();}
  function ensurePlay(host,on){
-  const bar=$(BAR[host]);if(!bar)return;
+  const bar=barEl(host);if(!bar)return;
   let b=bar.querySelector('[data-play]');
   if(!on){if(b)b.remove();return;}
   if(!b){
    b=document.createElement('button');b.type='button';b.dataset.play='1';
    b.addEventListener('click',function(){if(ctx&&ctx.inReview)togglePlay();});
-   const prev=bar.querySelector('[data-step="-1"]');
+   const prev=bar.querySelector('[data-step="-1"],#vqcReviewPrev');
    if(prev&&prev.nextSibling)bar.insertBefore(b,prev.nextSibling);else bar.appendChild(b);
   }
   const txt=playing?'⏸ Tạm dừng':'▶ Phát';
-  if(b.textContent!==txt){b.textContent=txt;b.setAttribute('aria-label',playing?'Tạm dừng phát lại':'Phát lại ván đấu');}
+  if(b.dataset.t!==txt){
+   b.dataset.t=txt;
+   if(host==='pgn')b.innerHTML='<span>'+(playing?'⏸':'▶')+'</span><small>'+(playing?'Dừng':'Phát')+'</small>';else b.textContent=txt;
+   b.setAttribute('aria-label',playing?'Tạm dừng phát lại':'Phát lại ván đấu');
+  }
  }
  document.addEventListener('keydown',function(e){
   if(!ctx||!ctx.inReview||e.ctrlKey||e.metaKey||e.altKey)return;
@@ -872,7 +905,10 @@ function jump(ply){
   if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'||(t&&t.isContentEditable))return;
   let k=null;
   if(e.key==='ArrowLeft')k='-1';else if(e.key==='ArrowRight')k='1';else if(e.key==='Home')k='-Infinity';else if(e.key==='End')k='Infinity';
-  if(k!==null){e.preventDefault();stopPlay();stepBtn(k);return;}
+  if(k!==null){
+   if(hostOf(ctx)==='pgn'){stopPlay();return;}
+   e.preventDefault();stopPlay();stepBtn(k);return;
+  }
   if(e.key===' '||e.code==='Space'){e.preventDefault();togglePlay();}
  });
 
@@ -881,9 +917,10 @@ function jump(ply){
   if(s&&s.parentNode)s.parentNode.removeChild(s);
  }
  function tick(){
-  const vc=vsmContext()||pvpContext();
+  const vc=vsmContext()||pvpContext()||pgnContext();
   const host=vc?vc.host:'';
   const box=makeBox(host);if(!box)return;
+  box.querySelectorAll('[data-act="pgn"],[data-act="copy"]').forEach(function(b){b.hidden=host==='pgn';});
   const any=vc||context();
   const student=isStudentNow();
   const c=student?null:any;
@@ -910,7 +947,12 @@ function jump(ply){
    paintNotes(false);updateMark();updateCur();
   }
   stuCtx=(student&&any&&any.reviewing&&any.fen0)?any:null;
-  if(stuCtx){
+  if(stuCtx&&stuCtx.host==='pgn'){
+   stopStu();
+   const sd=window.vqcGameReviewShareData;
+   stuNotes=sd&&sd.key===stuCtx.key?sd:null;
+   paintStu();
+  }else if(stuCtx){
    if(stuKey!==noteId(stuCtx))stuListen(stuCtx);
    paintStu();
   }else{stopStu();paintStu();}

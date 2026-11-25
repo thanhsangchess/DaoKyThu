@@ -420,3 +420,24 @@ section.center.vqc-review-mode>.board-shell,section.center.vqc-review-mode>.boar
  .app.vqc-review-expanded #vqcReviewBoard.board{width:min(100%,calc(100vh - 145px))!important}
  .app.vqc-review-expanded .vqc-review-controls button{min-height:32px!important;padding:3px 7px!important}
 }
+
+.vqc-review-evbar{position:absolute;box-sizing:border-box;width:26px;border:3px solid #e2edf7;border-radius:10px;background:#2d3b4a;overflow:hidden;box-shadow:0 6px 20px #1c4b7420;z-index:4;pointer-events:none}
+.vqc-review-evbar[hidden]{display:none}
+.vqc-review-evbar .evb-white{position:absolute;left:0;right:0;bottom:0;height:50%;background:#fff;transition:height .5s cubic-bezier(.3,.7,.3,1),opacity .3s}
+.vqc-review-evbar.flip .evb-white{bottom:auto;top:0}
+.vqc-review-evbar.stale .evb-white{opacity:.55}
+.vqc-review-evbar .evb-mid{position:absolute;left:0;right:0;top:50%;height:2px;margin-top:-1px;background:#e8604a;opacity:.85;z-index:1}
+.vqc-review-evbar .evb-label{position:absolute;left:0;right:0;z-index:2;text-align:center;font-weight:800;font-size:11px;line-height:1;letter-spacing:-.2px}
+.vqc-review-evbar .evb-label.top{top:5px}
+.vqc-review-evbar .evb-label.bottom{bottom:5px}
+.vqc-review-evbar .evb-label.dk{color:#27465e}
+.vqc-review-evbar .evb-label.lt{color:#fff}
+.vqc-review-evsw{position:relative;display:inline-flex;align-items:center;gap:10px;padding:6px 12px;border:1px solid #c6dfef;border-radius:12px;background:#f6fbff;color:#27465e;font-weight:750;font-size:14px;cursor:pointer;user-select:none}
+.vqc-review-evsw[hidden]{display:none}
+.vqc-review-evsw input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.vqc-review-evsw i{position:relative;display:block;width:42px;height:24px;border-radius:12px;background:#c4d4e0;transition:background .2s}
+.vqc-review-evsw i::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px #0003;transition:transform .2s}
+.vqc-review-evsw input:checked+i{background:#3f9ad8}
+.vqc-review-evsw input:checked+i::after{transform:translateX(18px)}
+.vqc-review-evsw input:focus-visible+i{outline:2px solid #2a7bb9;outline-offset:2px}
+@media(prefers-reduced-motion:reduce){.vqc-review-evbar .evb-white,.vqc-review-evsw i,.vqc-review-evsw i::after{transition:none}}
