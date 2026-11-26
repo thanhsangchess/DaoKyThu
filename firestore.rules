@@ -547,6 +547,20 @@ service cloud.firestore {
      && request.resource.data.updatedAt==request.time;
    allow delete: if false;
   }
+  match /eloStats/{uid} {
+   allow get: if active() && (request.auth.uid==uid || (teacher() && resource.data.teacherId==request.auth.uid));
+   allow list: if teacher() && resource.data.teacherId==request.auth.uid;
+   allow write: if false;
+  }
+  match /eloAttempts/{id} {allow read,write: if false;}
+  match /eloSessions/{sid} {
+   allow get, list: if teacher() && resource.data.teacherId==request.auth.uid;
+   allow write: if false;
+   match /players/{pid} {
+    allow get, list: if teacher() && resource.data.teacherId==request.auth.uid;
+    allow write: if false;
+   }
+  }
   match /{document=**} {allow read,write: if false;}
  }
 }

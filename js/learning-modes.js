@@ -133,12 +133,15 @@
  try{
   if(!document.getElementById('vqcEloCss')){
    const l=document.createElement('link');
-   l.id='vqcEloCss';l.rel='stylesheet';l.href='./css/elo-puzzles.css?v=20261126-elo-v1';
+   l.id='vqcEloCss';l.rel='stylesheet';l.href='./css/elo-puzzles.css?v=20261126-elo-v2';
    document.head.appendChild(l);
   }
   const s=document.createElement('script');
-  s.src='./js/elo-puzzles.js?v=20261126-elo-v1';s.async=false;
+  s.src='./js/elo-puzzles.js?v=20261126-elo-v2';s.async=false;
   document.head.appendChild(s);
+  const s2=document.createElement('script');
+  s2.src='./js/elo-class.js?v=20261126-elo-v2';s2.async=false;
+  document.head.appendChild(s2);
  }catch(e){}
 })();
 

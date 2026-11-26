@@ -62,3 +62,5 @@ exports.membershipAdminCheck=region.https.onCall(async(data,context)=>{
  const actor=requireAdmin(context);
  return {admin:true,uid:actor};
 });
+
+Object.assign(exports,require('./elo-exports')({functions,region,db}));
