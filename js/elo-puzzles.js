@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 if(window.vqcEloPuzzles)return;
-const VERSION='20261126-elo-v5';
+const VERSION='20261126-elo-v6';
 const FILES='abcdefgh';
 const THEME_VI={
  mateIn1:'Chiếu hết 1 nước',mateIn2:'Chiếu hết 2 nước',mateIn3:'Chiếu hết 3 nước',fork:'Đòn đánh đôi',pin:'Ghim quân',skewer:'Đòn xiên',
@@ -210,7 +210,9 @@ function paintPanel(){
  const finished=status==='solved'||status==='failed'||status==='expired'||status==='ended';
  const nb=$('vqcEloNext');
  nb.disabled=!(finished||status==='nodata');
- nb.textContent=status==='nodata'?'Thử tải lại':(mode==='session'?'Luyện thêm câu khác →':'Câu tiếp theo →');
+ nb.textContent=status==='nodata'?'Thử tải lại':'Câu tiếp theo →';
+ /* Trong phiên “Cả lớp cùng một câu” em không được luyện thêm câu khác. */
+ nb.hidden=mode==='session'&&status!=='nodata';
  const side=$('vqcEloSide');
  side.textContent=P&&game&&status!=='loading'&&status!=='nodata'?('Em cầm quân '+(P.color==='w'?'Trắng ⚪':'Đen ⚫')):'';
  paintSession();
@@ -530,7 +532,7 @@ function bind(){
  $('vqcEloClose').addEventListener('click',close);
  $('vqcEloHint').addEventListener('click',giveHint);
  $('vqcEloAnswer').addEventListener('click',revealAnswer);
- $('vqcEloNext').addEventListener('click',function(){nextPuzzle();});
+ $('vqcEloNext').addEventListener('click',function(){if(mode==='session'&&status!=='nodata')return;nextPuzzle();});
  $('vqcEloTable').addEventListener('click',function(){if(window.vqcEloClass)window.vqcEloClass.openTable();});
  $('vqcEloLive').addEventListener('click',function(){if(window.vqcEloClass)window.vqcEloClass.openSession();});
  $('vqcEloBoard').addEventListener('click',function(e){

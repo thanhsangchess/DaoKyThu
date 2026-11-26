@@ -356,7 +356,7 @@ async function renderSetup(box){
  const fl=el('label','vqc-elo-field');fl.append(el('span','','Thời gian'));const sl=el('select');
  LIMITS.forEach(function(l){const o=el('option','',l[1]);o.value=String(l[0]);sl.append(o);});
  sl.value=String(cfg.limit);sl.addEventListener('change',function(){cfg.limit=+sl.value;});fl.append(sl);
- r3.append(hl,fl,classSelect(function(){}));
+ r3.append(hl,fl);
  form.append(r3);
  const go=el('button','vqc-elo-btn primary','▶ Bắt đầu cho cả lớp');go.type='button';
  go.disabled=!code;
@@ -392,14 +392,19 @@ function playerLabel(p){
 function paintLive(){
  if(!live||view!=='session')return;
  const c=live.refs;
- const rows=filtered();
  const players=live.players;
+ /* Chỉ tính các em đang ở trong lớp, tức là đã nhận câu đố của phiên này. */
+ const rows=[];
+ players.forEach(function(p,uid){
+  const r=roster.find(function(x){return x.uid===uid;});
+  rows.push(r||{uid:uid,name:String(p.name||'Học sinh'),classCode:String(p.classCode||''),code:''});
+ });
  let done=0,working=0,none=0;
  rows.forEach(function(r){
   const p=players.get(r.uid);
-  if(!p)none++;else if(p.status==='active')working++;else done++;
+  if(p.status==='active')working++;else done++;
  });
- c.counts.textContent='Đã xong '+done+'/'+rows.length+' • đang làm '+working+' • chưa mở '+none;
+ c.counts.textContent=rows.length?'Đã xong '+done+'/'+rows.length+' • đang làm '+working:'Chưa có học sinh nào nhận câu đố. Học sinh vào phòng lớp sẽ tự nhận.';
  c.body.replaceChildren();
  const list=rows.map(function(r){return {r:r,p:players.get(r.uid)};});
  list.sort(function(a,b){return playerLabel(a.p).o-playerLabel(b.p).o||a.r.name.localeCompare(b.r.name,'vi');});
@@ -415,6 +420,7 @@ function paintLive(){
   tr.append(wt);
   c.body.append(tr);
  });
+ if(!list.length){const tr=el('tr');const td=el('td','vqc-elo-empty','Chưa có học sinh nào trong lớp nhận câu đố.');td.colSpan=7;tr.append(td);c.body.append(tr);}
  pushCounts(done,rows.length);
  paintExtra(list,done,working,none,rows.length);
 }
@@ -502,7 +508,7 @@ function setMode(m){
 }
 function openWatch(uid){
  if(!live)return;
- live.watch={uid:uid||null,target:uid?'one':'all',tool:'arrow',color:0,sid:live.sid,pending:{one:null,all:null},timers:{},cur:{one:'',all:''},ed:null,refs:null,key:''};
+ live.watch={uid:uid||null,target:uid?'one':'all',sid:live.sid,pending:{one:null,all:null},timers:{},cur:{one:'',all:''},ed:null,refs:null,key:''};
  setMode('detail');
 }
 function inkError(e){
@@ -581,7 +587,7 @@ function buildDetail(){
  stage.append(bh,base,edit);
  const side=el('div','vqc-elo-drawside');
  w.refs={bh:bh,stat:stat,base:base,edit:edit};
- w.ed=I.editor(edit,{initial:w.cur[w.target],flip:flip,tool:w.tool,color:w.color,onChange:function(str){queueInk(w,w.target,str);}});
+ w.ed=I.editor(edit,{initial:w.cur[w.target],flip:flip,onChange:function(str){queueInk(w,w.target,str);}});
  if(w.uid){
   const tg=el('div','vqc-elo-drawrow');
   const one=el('button','vqc-elo-btn tgl','👤 Chỉ em này'),all=el('button','vqc-elo-btn tgl','👥 Cả lớp');
@@ -593,30 +599,7 @@ function buildDetail(){
   sync();tg.append(one,all);
   side.append(el('p','vqc-elo-drawlabel','Vẽ cho:'),tg);
  }
- side.append(el('p','vqc-elo-drawlabel','Công cụ:'));
- const tr=el('div','vqc-elo-drawrow');
- const tArrow=el('button','vqc-elo-btn tgl','➡️ Mũi tên / khoanh ô'),tPen=el('button','vqc-elo-btn tgl','✏️ Bút vẽ');
- [tArrow,tPen].forEach(function(b){b.type='button';});
- const syncTool=function(){tArrow.classList.toggle('on',w.tool==='arrow');tPen.classList.toggle('on',w.tool==='pen');};
- tArrow.addEventListener('click',function(){w.tool='arrow';w.ed.setTool('arrow');syncTool();});
- tPen.addEventListener('click',function(){w.tool='pen';w.ed.setTool('pen');syncTool();});
- syncTool();tr.append(tArrow,tPen);side.append(tr);
- const cr=el('div','vqc-elo-drawrow');
- const sw=[];
- I.COLORS.forEach(function(c,i){
-  const b=el('button','vqc-elo-swatch');b.type='button';b.style.background=c;b.title=I.COLOR_NAMES[i];b.setAttribute('aria-label','Màu '+I.COLOR_NAMES[i]);
-  b.addEventListener('click',function(){w.color=i;w.ed.setColor(i);sw.forEach(function(x,j){x.classList.toggle('on',j===i);});});
-  sw.push(b);cr.append(b);
- });
- sw[w.color].classList.add('on');
- side.append(cr);
- const ar=el('div','vqc-elo-drawrow');
- const undo=el('button','vqc-elo-btn','↩ Hoàn tác'),clr=el('button','vqc-elo-btn','🧹 Xoá hết');
- [undo,clr].forEach(function(b){b.type='button';});
- undo.addEventListener('click',function(){w.ed.undo();});
- clr.addEventListener('click',function(){w.ed.clear();});
- ar.append(undo,clr);side.append(ar);
- side.append(el('p','vqc-elo-drawhelp','Kéo từ ô này sang ô khác để vẽ mũi tên, bấm một ô để khoanh tròn (bấm lại để bỏ). Học sinh thấy nét vẽ ngay trên bàn cờ của mình nhưng không vẽ lại được.'));
+ side.append(el('p','vqc-elo-drawhelp','Vẽ bằng chuột phải như các chế độ khác: kéo từ ô này sang ô khác để vẽ mũi tên, bấm một ô để khoanh tròn (bấm lại để bỏ). Màu mặc định là vàng; giữ Shift = đỏ, Ctrl = xanh dương, Alt = xanh lá. Bấm chuột trái vào bàn cờ để xoá hết. Học sinh thấy nét vẽ ngay trên bàn cờ của mình nhưng không vẽ lại được.'));
  body.append(stage,side);
  det.append(head,body);
  paintBase(w);
@@ -656,7 +639,6 @@ function renderLive(info){
  left.append(tg,sol);
  const right=el('div','vqc-elo-liveright');
  const toolbar=el('div','vqc-elo-toolbar');
- toolbar.append(classSelect(function(){paintLive();}));
  const counts=el('span','vqc-elo-livecounts');toolbar.append(counts);
  right.append(toolbar);
  const wrap=el('div','vqc-elo-tablewrap');
@@ -668,7 +650,6 @@ function renderLive(info){
  grid.append(left,right);box.append(grid);
  const gal=el('div','vqc-elo-gallery');gal.hidden=true;
  const galBar=el('div','vqc-elo-toolbar');
- galBar.append(classSelect(function(){paintLive();}));
  const galCounts=el('span','vqc-elo-livecounts');galBar.append(galCounts);
  const galGrid=el('div','vqc-elo-galgrid');
  gal.append(galBar,galGrid);box.append(gal);

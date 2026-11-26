@@ -2,8 +2,8 @@
 'use strict';
 if(window.vqcEloInk)return;
 const NS='http://www.w3.org/2000/svg';
-const COLORS=['#e63946','#1f9d63','#f2a000','#2f6fe0'];
-const COLOR_NAMES=['Đỏ','Xanh lá','Vàng','Xanh dương'];
+const COLORS=['#f2b52a','#df4848','#357edb','#31985f'];
+const COLOR_NAMES=['Vàng','Đỏ','Xanh dương','Xanh lá'];
 const MAX_SHAPES=40,MAX_PTS=60,MAX_LEN=3800;
 const FILES='abcdefgh';
 
@@ -83,84 +83,87 @@ function thin(p){
  return out;
 }
 
-/* Trình vẽ cho giáo viên: kéo ô→ô = mũi tên, bấm một ô = khoanh tròn, bút = nét tự do. */
+/* Trình vẽ cho giáo viên, giống các chế độ khác:
+   chuột phải kéo từ ô này sang ô khác = mũi tên, chuột phải bấm một ô = khoanh tròn (bấm lại để bỏ).
+   Màu: mặc định vàng; giữ Shift = đỏ, Ctrl = xanh dương, Alt = xanh lá. Chuột trái bấm vào bàn cờ = xoá hết.
+   Màn hình cảm ứng: chạm kéo để vẽ. */
 function editor(svg,opt){
  let shapes=parse(opt.initial||'');
- let tool=opt.tool||'arrow',color=opt.color||0,flip=!!opt.flip;
+ let flip=!!opt.flip;
  let drag=null;
  svg.style.touchAction='none';
  function point(e){
   const r=svg.getBoundingClientRect();
   return [clamp((e.clientX-r.left)/Math.max(1,r.width)*800,0,800),clamp((e.clientY-r.top)/Math.max(1,r.height)*800,0,800)];
  }
+ function colorOf(e){
+  if(e.shiftKey)return 1;
+  if(e.ctrlKey||e.metaKey)return 2;
+  if(e.altKey)return 3;
+  return 0;
+ }
  function ghost(){
   if(!drag)return null;
-  if(drag.kind==='p')return drag.pts.length>=4?{k:'p',c:color,p:drag.pts.map(Math.round)}:null;
-  if(drag.from!==drag.to)return {k:'a',c:color,f:drag.from,t:drag.to};
-  return {k:'c',c:color,s:drag.from};
+  if(drag.from!==drag.to)return {k:'a',c:drag.c,f:drag.from,t:drag.to};
+  return {k:'c',c:drag.c,s:drag.from};
  }
  function paint(){render(svg,shapes,flip,ghost());}
  function commit(){if(opt.onChange)opt.onChange(serialize(shapes),shapes.slice());}
  function down(e){
-  if(e.button!=null&&e.button>0)return;
+  const mouse=e.pointerType==='mouse';
+  if(mouse&&e.button===0){
+   e.preventDefault();
+   if(shapes.length){shapes=[];paint();commit();}
+   return;
+  }
+  if(mouse&&e.button!==2)return;
   e.preventDefault();
   try{svg.setPointerCapture(e.pointerId);}catch(x){}
-  const p=point(e);
-  if(tool==='pen')drag={kind:'p',pts:[p[0],p[1]],id:e.pointerId};
-  else{const s=xySq(p[0],p[1],flip);drag={kind:'a',from:s,to:s,id:e.pointerId};}
+  const p=point(e),sq=xySq(p[0],p[1],flip);
+  drag={from:sq,to:sq,c:colorOf(e),id:e.pointerId};
   paint();
  }
  function move(e){
   if(!drag||e.pointerId!==drag.id)return;
   const p=point(e);
-  if(drag.kind==='p'){
-   const n=drag.pts.length;
-   if(Math.hypot(p[0]-drag.pts[n-2],p[1]-drag.pts[n-1])>=10&&n<MAX_PTS*4)drag.pts.push(p[0],p[1]);
-  }else drag.to=xySq(p[0],p[1],flip);
+  drag.to=xySq(p[0],p[1],flip);
   paint();
  }
  function up(e){
   if(!drag||e.pointerId!==drag.id)return;
   const d=drag;drag=null;
   try{svg.releasePointerCapture(e.pointerId);}catch(x){}
-  let s=null;
-  if(d.kind==='p'){
-   if(d.pts.length>=4)s={k:'p',c:color,p:thin(d.pts.map(Math.round))};
-  }else if(d.from!==d.to)s={k:'a',c:color,f:d.from,t:d.to};
-  else{
-   const i=shapes.findIndex(function(x){return x.k==='c'&&x.s===d.from&&x.c===color;});
-   if(i>=0){shapes.splice(i,1);paint();commit();return;}
-   s={k:'c',c:color,s:d.from};
-  }
-  if(s){
-   if(s.k==='a'){
-    const i=shapes.findIndex(function(x){return x.k==='a'&&x.f===s.f&&x.t===s.t&&x.c===s.c;});
-    if(i>=0)shapes.splice(i,1);else shapes.push(s);
-   }else shapes.push(s);
-   if(shapes.length>MAX_SHAPES)shapes=shapes.slice(-MAX_SHAPES);
-  }
+  e.preventDefault();
+  let s;
+  if(d.from!==d.to)s={k:'a',c:d.c,f:d.from,t:d.to};
+  else s={k:'c',c:d.c,s:d.from};
+  const i=shapes.findIndex(function(x){
+   return s.k==='a'?(x.k==='a'&&x.f===s.f&&x.t===s.t):(x.k==='c'&&x.s===s.s);
+  });
+  if(i>=0)shapes.splice(i,1);
+  else{shapes.push(s);if(shapes.length>MAX_SHAPES)shapes=shapes.slice(-MAX_SHAPES);}
   paint();commit();
  }
  function cancel(){drag=null;paint();}
+ function noMenu(e){e.preventDefault();}
  svg.addEventListener('pointerdown',down);
  svg.addEventListener('pointermove',move);
  svg.addEventListener('pointerup',up);
  svg.addEventListener('pointercancel',cancel);
+ svg.addEventListener('contextmenu',noMenu);
  paint();
  return {
-  setTool:function(t){tool=t;},
-  setColor:function(c){color=clamp(c|0,0,COLORS.length-1);},
   setFlip:function(f){flip=!!f;paint();},
   setShapes:function(str){shapes=parse(str);paint();},
-  undo:function(){if(shapes.length){shapes.pop();paint();commit();}},
   clear:function(){if(shapes.length){shapes=[];paint();commit();}},
   count:function(){return shapes.length;},
   destroy:function(){
    svg.removeEventListener('pointerdown',down);svg.removeEventListener('pointermove',move);
    svg.removeEventListener('pointerup',up);svg.removeEventListener('pointercancel',cancel);
+   svg.removeEventListener('contextmenu',noMenu);
   }
  };
 }
 
-window.vqcEloInk={COLORS:COLORS,COLOR_NAMES:COLOR_NAMES,MAX_LEN:MAX_LEN,parse:parse,serialize:serialize,render:render,editor:editor,sqXY:sqXY,xySq:xySq,valid:valid,version:'20261126-ink-v1'};
+window.vqcEloInk={COLORS:COLORS,COLOR_NAMES:COLOR_NAMES,MAX_LEN:MAX_LEN,parse:parse,serialize:serialize,render:render,editor:editor,sqXY:sqXY,xySq:xySq,valid:valid,version:'20261126-ink-v2'};
 })();
