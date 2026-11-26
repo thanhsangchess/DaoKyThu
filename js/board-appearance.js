@@ -34,7 +34,8 @@ function el(tag,attrs={},text){
 }
 function init(){
  if(document.getElementById('vqcAppearanceDialog'))return;
- const btn=el('button',{type:'button',class:'btn btn-soft vqc-appearance-open',title:'Thay đổi giao diện bàn cờ'},'🎨 Bàn cờ');
+ const btn=el('button',{type:'button',class:'btn btn-soft vqc-appearance-open',title:'Thay đổi giao diện bàn cờ'});
+ btn.innerHTML='<svg class="dkt-hico" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 12h18M12 3v18"/><path d="M3 3h9v9H3zM12 12h9v9h-9z" fill="currentColor" stroke="none" opacity=".35"/></svg><span class="dkt-hlabel">Bàn cờ</span>';
  const header=document.querySelector('.header');
  if(header)header.appendChild(btn);
  else document.body.prepend(btn);
