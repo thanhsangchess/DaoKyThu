@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 if(window.vqcBoardEditor)return;
-const VERSION='20261126-bed-v3';
+const VERSION='20261126-bed-v4';
 const FILES='abcdefgh';
 const START='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
 const PALETTE=['K','Q','R','B','N','P','k','q','r','b','n','p',''];
@@ -15,6 +15,7 @@ let evbOn=true;
 try{const v=localStorage.getItem(LS_KEY);if(v!==null)evbOn=v==='1';}catch(e){}
 let evbEng=null,evbEpoch=0,evbTimer=0,evbEv=null,evbAuto='';
 let isOpen=false,msgText='',msgKind='';
+let inkEd=null,inkStr='',lastPos='';
 
 function $(id){return document.getElementById(id);}
 function el(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!=null)n.textContent=text;return n;}
@@ -302,7 +303,7 @@ function paint(){
  }
  $('vqcBedBoardWrap').classList.toggle('editing',!analyze);
  paintBoard();paintPromo();paintEv();
- paintShare();syncOut();
+ paintInk();paintShare();syncOut();
 }
 
 function onCell(sq,idx,alt){
@@ -390,6 +391,7 @@ const OVERLAY_HTML=`<div id="vqcBedOverlay" role="dialog" aria-modal="true" aria
      <div id="vqcBedEvBar" class="vqc-bed-evbar" role="img"><span id="vqcBedEvWhite" class="evb-white"></span><i class="evb-mid"></i><b id="vqcBedEvLabel" class="evb-label"></b></div>
      <div id="vqcBedBoardWrap" class="vqc-bed-boardwrap">
       <div id="vqcBedBoard" class="vqc-bed-board" aria-label="Bàn cờ chỉnh sửa"></div>
+      <svg id="vqcBedInk" class="vqc-bed-ink" viewBox="0 0 800 800" aria-hidden="true"></svg>
       <div id="vqcBedPromo" class="vqc-bed-promo" hidden></div>
      </div>
     </div>
@@ -412,6 +414,7 @@ const OVERLAY_HTML=`<div id="vqcBedOverlay" role="dialog" aria-modal="true" aria
     </div>
     <div id="vqcBedPlayPane" class="vqc-bed-pane" hidden>
      <p id="vqcBedStatus" class="vqc-bed-status" role="status"></p>
+     <p class="vqc-bed-hint">Vẽ lên bàn cờ: kéo chuột phải từ ô này sang ô khác để vẽ mũi tên, bấm chuột phải một ô để khoanh tròn. Giữ Shift = đỏ, Ctrl = xanh dương, Alt = xanh lá. Bấm chuột trái để xóa nét vẽ.</p>
      <div class="vqc-bed-btns"><button type="button" id="vqcBedUndo" class="vqc-bed-btn">↩ Đi lại</button></div>
      <div class="vqc-bed-movehead">Các nước đã đi thử</div>
      <div id="vqcBedMoves" class="vqc-bed-moves"></div>
@@ -472,8 +475,9 @@ function movesOf(){
  if(mode!=='analyze'||!game)return [];
  return game.history({verbose:true}).map(function(m){return m.from+m.to+(m.promotion||'');});
 }
-function stateSig(){return placementOf(cells)+'|'+turn+'|'+(mode==='analyze'&&game?'a':'e')+'|'+movesOf().join(',');}
-function stateOut(){return {p:placementOf(cells),t:turn,m:mode==='analyze'&&game?'a':'e',mv:movesOf()};}
+function posKey(){return placementOf(cells)+'|'+turn+'|'+(mode==='analyze'&&game?'a':'e')+'|'+movesOf().join(',');}
+function stateSig(){return posKey()+'|'+(flipped?'1':'0')+'|'+inkStr;}
+function stateOut(){return {p:placementOf(cells),t:turn,m:mode==='analyze'&&game?'a':'e',mv:movesOf(),f:!!flipped,ink:inkStr};}
 function bedFresh(b){return !!(b&&b.active&&b.sid&&Math.abs(Date.now()-Number(b.hb||b.rev||0))<HB_FRESH);}
 function syncOut(){
  if(applying)return;
@@ -484,7 +488,7 @@ function syncOut(){
  const ref=roomRefNow();if(!ref)return;
  const o=stateOut(),now=Date.now();
  try{
-  const pr=ref.update({'bedShare.p':o.p,'bedShare.t':o.t,'bedShare.m':o.m,'bedShare.mv':o.mv,'bedShare.by':myId(),'bedShare.rev':now,'bedShare.hb':now});
+  const pr=ref.update({'bedShare.p':o.p,'bedShare.t':o.t,'bedShare.m':o.m,'bedShare.mv':o.mv,'bedShare.f':o.f,'bedShare.ink':o.ink,'bedShare.by':myId(),'bedShare.rev':now,'bedShare.hb':now});
   if(pr&&pr.catch)pr.catch(function(){notify('Chưa đồng bộ được bàn cờ. Kiểm tra kết nối phòng.');});
  }catch(e){}
 }
@@ -515,6 +519,8 @@ function applyRemote(b){
    game=g;mode='analyze';
    const parts=fenOf().split(' ');startNo=parseInt(parts[5],10)||1;startTurn=parts[1]==='b'?'b':'w';
   }else{game=null;mode='edit';lastMove=null;}
+  flipped=!!b.f;
+  inkStr=String(b.ink||'');lastPos=posKey();
   setMsg('');
   if(isOpen)paint();
   lastSig=stateSig();
@@ -611,7 +617,7 @@ function onRoomData(data){
  }
 }
 function sigOfRemote(b){
- return String(b.p||'')+'|'+(b.t==='b'?'b':'w')+'|'+(b.m==='a'?'a':'e')+'|'+(Array.isArray(b.mv)?b.mv.join(','):'');
+ return String(b.p||'')+'|'+(b.t==='b'?'b':'w')+'|'+(b.m==='a'?'a':'e')+'|'+(Array.isArray(b.mv)?b.mv.join(','):'')+'|'+(b.f?'1':'0')+'|'+String(b.ink||'');
 }
 function watchRoom(){
  setInterval(function(){
@@ -626,6 +632,19 @@ function watchRoom(){
  },1000);
  clearInterval(lockTimer);
  lockTimer=setInterval(paintShare,15000);
+}
+/* Vẽ mũi tên/khoanh tròn khi phân tích: chuột phải; mọi nét vẽ cũng được đồng bộ với bàn cờ chung. */
+function paintInk(){
+ const svg=$('vqcBedInk'),I=window.vqcEloInk;
+ if(!svg||!I)return;
+ const analyze=mode==='analyze'&&!!game;
+ const pk=posKey();
+ if(pk!==lastPos){lastPos=pk;inkStr='';}
+ if(!inkEd){
+  inkEd=I.editor(svg,{host:$('vqcBedBoard'),flip:false,enabled:function(){return isOpen&&mode==='analyze'&&!!game;},onChange:function(str){inkStr=str;syncOut();}});
+ }
+ inkEd.setFlip(flipped);
+ inkEd.setShapes(analyze?inkStr:'');
 }
 function ensureOverlay(){
  if($('vqcBedOverlay'))return;

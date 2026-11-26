@@ -155,11 +155,11 @@
  try{
   if(!document.getElementById('vqcBedCss')){
    const l=document.createElement('link');
-   l.id='vqcBedCss';l.rel='stylesheet';l.href='./css/board-editor.css?v=20261126-bed-v2';
+   l.id='vqcBedCss';l.rel='stylesheet';l.href='./css/board-editor.css?v=20261126-bed-v3';
    document.head.appendChild(l);
   }
   const s=document.createElement('script');
-  s.src='./js/board-editor.js?v=20261126-bed-v3';s.async=false;
+  s.src='./js/board-editor.js?v=20261126-bed-v4';s.async=false;
   document.head.appendChild(s);
  }catch(e){}
 })();
