@@ -203,21 +203,17 @@
 #vqcEloOverlay .vqc-elo-lb small.mine{color:#2878cc;font-weight:800}
 
 /* Bảng xếp hạng: cột đều, thẳng hàng */
-#vqcEloOverlay .vqc-elo-lb{table-layout:fixed;min-width:760px}
-#vqcEloOverlay .vqc-elo-lb th,#vqcEloOverlay .vqc-elo-lb td{vertical-align:middle}
-#vqcEloOverlay .vqc-elo-lb .c-rank{width:112px;text-align:left}
-#vqcEloOverlay .vqc-elo-lb .c-name{width:auto;text-align:left;overflow:hidden;text-overflow:ellipsis}
-#vqcEloOverlay .vqc-elo-lb .c-num{width:82px;text-align:center}
-#vqcEloOverlay .vqc-elo-lb th.c-spark,#vqcEloOverlay .vqc-elo-lb td.c-spark{width:116px;text-align:center}
+#vqcEloOverlay .vqc-elo-table.vqc-elo-lb{table-layout:fixed;min-width:760px}
+#vqcEloOverlay .vqc-elo-lb th,#vqcEloOverlay .vqc-elo-lb td{vertical-align:middle;padding-left:8px;padding-right:8px}
+#vqcEloOverlay .vqc-elo-lb th.c-rank,#vqcEloOverlay .vqc-elo-lb td.c-rank{width:124px;text-align:center;white-space:nowrap}
+#vqcEloOverlay .vqc-elo-lb th.c-name,#vqcEloOverlay .vqc-elo-lb td.c-name{text-align:left;overflow:hidden;text-overflow:ellipsis;padding-left:14px}
+#vqcEloOverlay .vqc-elo-table.vqc-elo-lb th.c-num,#vqcEloOverlay .vqc-elo-table.vqc-elo-lb td.num.c-num{width:100px;text-align:center}
+#vqcEloOverlay .vqc-elo-lb th.c-spark,#vqcEloOverlay .vqc-elo-lb td.c-spark{width:120px;text-align:center;padding-left:0;padding-right:0}
 #vqcEloOverlay .vqc-elo-lb td.c-spark svg{vertical-align:middle}
-#vqcEloOverlay .vqc-elo-lb .c-last{width:104px;text-align:center}
-#vqcEloOverlay .vqc-elo-lb td.rank{display:table-cell;white-space:nowrap}
-#vqcEloOverlay .vqc-elo-lb td.rank .medal{display:inline-block;width:28px;margin-right:4px;text-align:center}
+#vqcEloOverlay .vqc-elo-lb th.c-last,#vqcEloOverlay .vqc-elo-lb td.c-last{width:116px;text-align:center}
+#vqcEloOverlay .vqc-elo-lb td.rank .medal{display:inline-block;width:28px;margin-right:4px;text-align:center;font-size:20px;vertical-align:-2px}
+#vqcEloOverlay .vqc-elo-lb td.rank:not(:has(.medal))::before{content:'';display:inline-block;width:32px}
+#vqcEloOverlay .vqc-elo-lb th.c-rank{padding-left:30px}
 #vqcEloOverlay .vqc-elo-lb td.rank .rk{display:inline-block}
-#vqcEloOverlay .vqc-elo-lb td.rank:not(:has(.medal)) .rk{margin-left:32px}
-#vqcEloOverlay .vqc-elo-lb td.c-rank:empty,#vqcEloOverlay .vqc-elo-lb tr.idle td.rank{padding-left:42px}
 #vqcEloOverlay .vqc-elo-lb th{padding-top:10px;padding-bottom:10px}
-#vqcEloOverlay .vqc-elo-lb th.c-rank{padding-left:46px}
 #vqcEloOverlay .vqc-elo-lb tbody tr:nth-child(even):not(.top1):not(.top2):not(.top3) td{background:#fafcfe}
-#vqcEloOverlay .vqc-elo-table.vqc-elo-lb td.num.c-num,#vqcEloOverlay .vqc-elo-table.vqc-elo-lb th.c-num{text-align:center}
-#vqcEloOverlay .vqc-elo-table.vqc-elo-lb td.c-spark{padding-left:0;padding-right:0}

@@ -139,8 +139,8 @@ function tableRows(){
  return rows;
 }
 function csvDownload(rows){
- const head=['Hạng','Họ và tên','Elo','Số câu','Đúng ngay','Chính xác %','Chuỗi'];
- const lines=[head].concat(rows.map(function(r){return [r.rank==null?'':r.rank,r.name,r.elo==null?'':r.elo,r.games,r.solved,r.acc==null?'':r.acc,r.streak];}));
+ const head=['Hạng','Họ và tên','Elo','Số câu','Chính xác %','Chuỗi'];
+ const lines=[head].concat(rows.map(function(r){return [r.rank==null?'':r.rank,r.name,r.elo==null?'':r.elo,r.games,r.acc==null?'':r.acc,r.streak];}));
  const csv='﻿'+lines.map(function(l){return l.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"';}).join(',');}).join('\r\n');
  const a=document.createElement('a');
  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
@@ -175,7 +175,7 @@ function paintTable(box){
  if(!rows.length){box.append(el('p','vqc-elo-empty',isT?'Thầy/cô chưa có học sinh nào trong danh sách lớp.':'Chưa có bạn nào luyện câu đố. Em hãy là người đầu tiên nhé!'));return;}
  const wrap=el('div','vqc-elo-tablewrap');
  const table=el('table','vqc-elo-table vqc-elo-lb');
- const cols=[['rank','Hạng','c-rank'],['name','Họ và tên','c-name'],['elo','Elo','c-num'],['games','Số câu','c-num'],['solved','Đúng ngay','c-num'],['acc','Chính xác','c-num'],['streak','Chuỗi','c-num'],['trend','Xu hướng','c-spark'],['last','Gần nhất','c-last']];
+ const cols=[['rank','Hạng','c-rank'],['name','Họ và tên','c-name'],['elo','Elo','c-num'],['games','Số câu','c-num'],['acc','Chính xác','c-num'],['streak','Chuỗi','c-num'],['trend','Xu hướng','c-spark'],['last','Gần nhất','c-last']];
  const thead=el('thead'),tr=el('tr');
  cols.forEach(function(c){tr.append(el('th',c[2],c[1]));});
  thead.append(tr);table.append(thead);
@@ -191,7 +191,7 @@ function paintTable(box){
   }else rk.textContent='—';
   const nm=el('td','name c-name',r.name);
   if(!isT&&r.uid===myUid())nm.append(el('small','mine',' (em)'));
-  row.append(rk,nm,el('td','num c-num',r.played?String(r.elo):'—'),el('td','num c-num',String(r.games)),el('td','num c-num',String(r.solved)),el('td','num c-num',r.acc==null?'—':r.acc+'%'),el('td','num c-num',r.played?String(r.streak):'—'));
+  row.append(rk,nm,el('td','num c-num',r.played?String(r.elo):'—'),el('td','num c-num',String(r.games)),el('td','num c-num',r.acc==null?'—':r.acc+'%'),el('td','num c-num',r.played?String(r.streak):'—'));
   const t=el('td','spark c-spark');t.innerHTML=r.played?spark(r.history):'';row.append(t);
   row.append(el('td','c-last',agoText(r.last)));
   tbody.append(row);
