@@ -166,10 +166,14 @@ function makeApi(deps){
   return p;
  }
 
+ const userCache=new Map();
  async function loadUser(uid){
+  const c=userCache.get(uid);
+  if(c&&now()-c.at<5*60000)return c.u;
   const snap=await db.collection('users').doc(uid).get();
   const u=snap.exists?snap.data():null;
-  if(!u||u.active!==true||(u.role!=='student'&&u.role!=='teacher'))throw denied('Tài khoản chưa được kích hoạt.');
+  if(!u||u.active!==true||(u.role!=='student'&&u.role!=='teacher')){userCache.delete(uid);throw denied('Tài khoản chưa được kích hoạt.');}
+  userCache.set(uid,{u:u,at:now()});
   return u;
  }
 
@@ -227,8 +231,8 @@ function makeApi(deps){
   return db.runTransaction(async function(tx){
    const t=now();
    const id=uid+'_'+nonce;
-   const stSnap=await tx.get(statsRef(uid));
-   const idSnap=await tx.get(attemptRef(id));
+   const both=await Promise.all([tx.get(statsRef(uid)),tx.get(attemptRef(id))]);
+   const stSnap=both[0],idSnap=both[1];
    let st=stSnap.exists?stSnap.data():freshStats(uid,user,t);
    if(idSnap.exists){
     const a=idSnap.data();

@@ -137,13 +137,13 @@
    document.head.appendChild(l);
   }
   const s0=document.createElement('script');
-  s0.src='./js/elo-local.js?v=20261126-elo-v4';s0.async=false;
+  s0.src='./js/elo-local.js?v=20261126-elo-v9';s0.async=false;
   document.head.appendChild(s0);
   const sInk=document.createElement('script');
   sInk.src='./js/elo-ink.js?v=20261126-elo-v6';sInk.async=false;
   document.head.appendChild(sInk);
   const s=document.createElement('script');
-  s.src='./js/elo-puzzles.js?v=20261126-elo-v8';s.async=false;
+  s.src='./js/elo-puzzles.js?v=20261126-elo-v9';s.async=false;
   document.head.appendChild(s);
   const s2=document.createElement('script');
   s2.src='./js/elo-class.js?v=20261126-elo-v7';s2.async=false;

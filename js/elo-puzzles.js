@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 if(window.vqcEloPuzzles)return;
-const VERSION='20261126-elo-v6';
+const VERSION='20261126-elo-v7';
 const FILES='abcdefgh';
 const THEME_VI={
  mateIn1:'Chiếu hết 1 nước',mateIn2:'Chiếu hết 2 nước',mateIn3:'Chiếu hết 3 nước',fork:'Đòn đánh đôi',pin:'Ghim quân',skewer:'Đòn xiên',
@@ -20,6 +20,7 @@ let token=0,timers=[],isOpen=false,lastDelta=null;
 let mode='solo',sess=null,offset=0,clockTimer=0;
 let ptr=null,lastPtrSid=null,dismissedSid=null,roomSub=null,roomOff=null;
 let inkSid='',inkOffs=[],inkAll='',inkMine='';
+let pre=null;
 
 function $(id){return document.getElementById(id);}
 function el(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!=null)n.textContent=text;return n;}
@@ -279,6 +280,14 @@ function onCell(sq){
  paint();
 }
 
+/* Tải trước câu kế tiếp (tự luyện) ngay khi em làm xong câu này, để bấm “Câu tiếp theo” là có ngay. */
+function prefetchNext(){
+ if(mode!=='solo'||pre)return;
+ const nonce=newNonce();
+ const promise=call('eloPuzzleStart',{nonce:nonce});
+ promise.catch(function(){});
+ pre={nonce:nonce,promise:promise,at:Date.now()};
+}
 function finishFrom(r){
  clearTimeout(wrongTimer);
  result=r.result||null;
@@ -287,6 +296,7 @@ function finishFrom(r){
  const st=r.status;
  status=st==='solved'?'solved':st==='failed'?'failed':'expired';
  selected=null;promo=null;
+ if(mode==='solo')prefetchNext();
 }
 function expireNow(){
  clearTimeout(wrongTimer);
@@ -457,7 +467,9 @@ async function nextPuzzle(){
  const my=token;
  paint();
  try{
-  const v=await call('eloPuzzleStart',{nonce:newNonce()});
+  const use=pre&&Date.now()-pre.at<4*60000?pre:null;
+  pre=null;
+  const v=use?await use.promise.catch(function(){return call('eloPuzzleStart',{nonce:use.nonce});}):await call('eloPuzzleStart',{nonce:newNonce()});
   if(my!==token||!isOpen)return;
   loadView(v);
  }catch(e){
@@ -466,6 +478,7 @@ async function nextPuzzle(){
  }
 }
 async function sessionPuzzle(sid){
+ pre=null;
  resetView();
  mode='session';
  const my=token;
