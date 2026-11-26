@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 if(window.vqcEloPuzzles)return;
-const VERSION='20261126-elo-v4';
+const VERSION='20261126-elo-v5';
 const FILES='abcdefgh';
 const THEME_VI={
  mateIn1:'Chiếu hết 1 nước',mateIn2:'Chiếu hết 2 nước',mateIn3:'Chiếu hết 3 nước',fork:'Đòn đánh đôi',pin:'Ghim quân',skewer:'Đòn xiên',
@@ -519,7 +519,7 @@ const OVERLAY_HTML=`<div id="vqcEloOverlay" role="dialog" aria-modal="true" aria
     <div class="vqc-elo-foot">
      <button type="button" id="vqcEloNext" class="vqc-elo-btn primary">Câu tiếp theo →</button>
     </div>
-    <p class="vqc-elo-credit">Câu đố từ <a href="https://database.lichess.org/#puzzles" target="_blank" rel="noopener">cơ sở dữ liệu câu đố của Lichess</a> (CC0). Elo của em được tính và lưu theo tài khoản.</p>
+    <p class="vqc-elo-credit">Elo của em được tính và lưu theo tài khoản.</p>
    </section>
   </div>
   <div id="vqcEloTeacherHost" class="vqc-elo-teacherhost" hidden></div>
