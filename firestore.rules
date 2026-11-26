@@ -588,7 +588,7 @@ service cloud.firestore {
   }
   match /eloSessions/{sid} {
    function eloSessKeys(d){return d.keys().hasOnly(['id','teacherId','teacherName','room','minElo','maxElo','themes','puzzleId','puzzleRating','hints','timeLimitSec','status','startedAt','endsAt','endedAt','createdAt']);}
-   allow get: if active() && ((teacher() && resource.data.teacherId==request.auth.uid) || (student() && resource.data.teacherId==me().data.teacherId));
+   allow get: if active() && (resource==null || (teacher() && resource.data.teacherId==request.auth.uid) || (student() && resource.data.teacherId==me().data.teacherId));
    allow list: if teacher() && resource.data.teacherId==request.auth.uid;
    allow create: if teacher() && request.resource.data.teacherId==request.auth.uid && request.resource.data.id==sid && request.resource.data.status=='active' && eloSessKeys(request.resource.data);
    allow update: if teacher() && resource.data.teacherId==request.auth.uid && request.resource.data.teacherId==request.auth.uid && eloSessKeys(request.resource.data);
