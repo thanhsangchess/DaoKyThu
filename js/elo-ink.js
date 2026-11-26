@@ -91,7 +91,8 @@ function editor(svg,opt){
  let shapes=parse(opt.initial||'');
  let flip=!!opt.flip;
  let drag=null;
- svg.style.touchAction='none';
+ const host=opt.host||svg;
+ if(!opt.host)svg.style.touchAction='none';
  function point(e){
   const r=svg.getBoundingClientRect();
   return [clamp((e.clientX-r.left)/Math.max(1,r.width)*800,0,800),clamp((e.clientY-r.top)/Math.max(1,r.height)*800,0,800)];
@@ -110,15 +111,22 @@ function editor(svg,opt){
  function paint(){render(svg,shapes,flip,ghost());}
  function commit(){if(opt.onChange)opt.onChange(serialize(shapes),shapes.slice());}
  function down(e){
+  if(opt.enabled&&!opt.enabled())return;
   const mouse=e.pointerType==='mouse';
-  if(mouse&&e.button===0){
-   e.preventDefault();
-   if(shapes.length){shapes=[];paint();commit();}
-   return;
+  if(opt.host){
+   /* Vẽ ngay trên bàn cờ đang chơi: chỉ chuột phải để vẽ; chuột trái vẫn đi quân bình thường (và xoá nét vẽ); cảm ứng dành cho đi quân. */
+   if(mouse&&e.button===0){if(shapes.length){shapes=[];paint();commit();}return;}
+   if(!(mouse&&e.button===2))return;
+  }else{
+   if(mouse&&e.button===0){
+    e.preventDefault();
+    if(shapes.length){shapes=[];paint();commit();}
+    return;
+   }
+   if(mouse&&e.button!==2)return;
   }
-  if(mouse&&e.button!==2)return;
   e.preventDefault();
-  try{svg.setPointerCapture(e.pointerId);}catch(x){}
+  try{host.setPointerCapture(e.pointerId);}catch(x){}
   const p=point(e),sq=xySq(p[0],p[1],flip);
   drag={from:sq,to:sq,c:colorOf(e),id:e.pointerId};
   paint();
@@ -132,7 +140,7 @@ function editor(svg,opt){
  function up(e){
   if(!drag||e.pointerId!==drag.id)return;
   const d=drag;drag=null;
-  try{svg.releasePointerCapture(e.pointerId);}catch(x){}
+  try{host.releasePointerCapture(e.pointerId);}catch(x){}
   e.preventDefault();
   let s;
   if(d.from!==d.to)s={k:'a',c:d.c,f:d.from,t:d.to};
@@ -146,11 +154,11 @@ function editor(svg,opt){
  }
  function cancel(){drag=null;paint();}
  function noMenu(e){e.preventDefault();}
- svg.addEventListener('pointerdown',down);
- svg.addEventListener('pointermove',move);
- svg.addEventListener('pointerup',up);
- svg.addEventListener('pointercancel',cancel);
- svg.addEventListener('contextmenu',noMenu);
+ host.addEventListener('pointerdown',down);
+ host.addEventListener('pointermove',move);
+ host.addEventListener('pointerup',up);
+ host.addEventListener('pointercancel',cancel);
+ host.addEventListener('contextmenu',noMenu);
  paint();
  return {
   setFlip:function(f){flip=!!f;paint();},
@@ -158,12 +166,12 @@ function editor(svg,opt){
   clear:function(){if(shapes.length){shapes=[];paint();commit();}},
   count:function(){return shapes.length;},
   destroy:function(){
-   svg.removeEventListener('pointerdown',down);svg.removeEventListener('pointermove',move);
-   svg.removeEventListener('pointerup',up);svg.removeEventListener('pointercancel',cancel);
-   svg.removeEventListener('contextmenu',noMenu);
+   host.removeEventListener('pointerdown',down);host.removeEventListener('pointermove',move);
+   host.removeEventListener('pointerup',up);host.removeEventListener('pointercancel',cancel);
+   host.removeEventListener('contextmenu',noMenu);
   }
  };
 }
 
-window.vqcEloInk={COLORS:COLORS,COLOR_NAMES:COLOR_NAMES,MAX_LEN:MAX_LEN,parse:parse,serialize:serialize,render:render,editor:editor,sqXY:sqXY,xySq:xySq,valid:valid,version:'20261126-ink-v2'};
+window.vqcEloInk={COLORS:COLORS,COLOR_NAMES:COLOR_NAMES,MAX_LEN:MAX_LEN,parse:parse,serialize:serialize,render:render,editor:editor,sqXY:sqXY,xySq:xySq,valid:valid,version:'20261126-ink-v3'};
 })();

@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 if(window.vqcBoardEditor)return;
-const VERSION='20261126-bed-v1';
+const VERSION='20261126-bed-v2';
 const FILES='abcdefgh';
 const START='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
 const PALETTE=['K','Q','R','B','N','P','k','q','r','b','n','p',''];
@@ -301,6 +301,7 @@ function paint(){
  }
  $('vqcBedBoardWrap').classList.toggle('editing',!analyze);
  paintBoard();paintPromo();paintEv();
+ paintShare();syncOut();
 }
 
 function onCell(sq,idx,alt){
@@ -381,6 +382,7 @@ const OVERLAY_HTML=`<div id="vqcBedOverlay" role="dialog" aria-modal="true" aria
    <div><h2 id="vqcBedTitle">✏️ Chỉnh sửa bàn cờ</h2><p>Đặt quân tự do, nhập FEN rồi nhờ Stockfish phân tích thế cờ.</p></div>
    <button type="button" id="vqcBedClose" aria-label="Đóng">✕ Đóng</button>
   </div>
+  <p id="vqcBedShare" class="vqc-bed-share" hidden></p>
   <div class="vqc-bed-layout">
    <div class="vqc-bed-boardcol">
     <div class="vqc-bed-evrow">
@@ -423,7 +425,7 @@ const OVERLAY_HTML=`<div id="vqcBedOverlay" role="dialog" aria-modal="true" aria
 </div>`;
 
 function bind(){
- $('vqcBedClose').addEventListener('click',close);
+ $('vqcBedClose').addEventListener('click',requestClose);
  $('vqcBedFlip').addEventListener('click',function(){flipped=!flipped;paint();});
  $('vqcBedEvToggle').addEventListener('change',function(){
   evbOn=!!$('vqcBedEvToggle').checked;evbAuto='';clearTimeout(evbTimer);
@@ -451,8 +453,178 @@ function bind(){
   if(mode==='edit')onCell(c.dataset.square,Number(c.dataset.idx),true);
  });
  $('vqcBedOverlay').addEventListener('keydown',function(e){
-  if(e.key==='Escape'){e.stopPropagation();close();}
+  if(e.key==='Escape'){e.stopPropagation();requestClose();}
  });
+}
+
+/* ===== Bàn cờ dùng chung trong phòng lớp =====
+   Giáo viên mở “Chỉnh sửa bàn cờ” khi đang ở trong phòng → máy học sinh tự mở đúng bàn cờ đó; giáo viên và học sinh cùng chỉnh
+   (đặt/xóa quân, bên đi trước, thế ban đầu, FEN, phân tích và đi thử), mọi thay đổi hiện ngay ở các máy khác.
+   Học sinh không tự đóng được; máy học sinh tự đóng khi giáo viên đóng. Trạng thái nằm ở rooms/{phòng}.bedShare. */
+const HB_EVERY=60000,HB_FRESH=10*60000,HB_DEAD=4*60000;
+let share=null,lastBed=null,hbTimer=0,lockTimer=0,roomSub=null,roomOff=null,applying=false,lastSig='',dismissedSid='',hbSeen={k:'',at:0};
+function curRole(){return window.accountProfile&&window.accountProfile.role||'';}
+function myId(){try{return auth.currentUser.uid;}catch(e){return '';}}
+function roomRefNow(){try{return typeof roomRef!=='undefined'&&roomRef?roomRef:null;}catch(e){return null;}}
+function newSid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8);}
+function movesOf(){
+ if(mode!=='analyze'||!game)return [];
+ return game.history({verbose:true}).map(function(m){return m.from+m.to+(m.promotion||'');});
+}
+function stateSig(){return placementOf(cells)+'|'+turn+'|'+(mode==='analyze'&&game?'a':'e')+'|'+movesOf().join(',');}
+function stateOut(){return {p:placementOf(cells),t:turn,m:mode==='analyze'&&game?'a':'e',mv:movesOf()};}
+function bedFresh(b){return !!(b&&b.active&&b.sid&&Math.abs(Date.now()-Number(b.hb||b.rev||0))<HB_FRESH);}
+function syncOut(){
+ if(applying)return;
+ const sg=stateSig();
+ if(sg===lastSig)return;
+ lastSig=sg;
+ if(!share)return;
+ const ref=roomRefNow();if(!ref)return;
+ const o=stateOut(),now=Date.now();
+ try{
+  const pr=ref.update({'bedShare.p':o.p,'bedShare.t':o.t,'bedShare.m':o.m,'bedShare.mv':o.mv,'bedShare.by':myId(),'bedShare.rev':now,'bedShare.hb':now});
+  if(pr&&pr.catch)pr.catch(function(){notify('Chưa đồng bộ được bàn cờ. Kiểm tra kết nối phòng.');});
+ }catch(e){}
+}
+function applyRemote(b){
+ const arr=parsePlacement(String(b.p||''));
+ if(!arr)return;
+ applying=true;
+ try{
+  cells=arr;turn=b.t==='b'?'b':'w';
+  selected=null;promo=null;lastMove=null;
+  let g=null;
+  if(b.m==='a'){
+   const fen=fenOf();
+   g=new Chess();
+   if(!g.load(fen))g=null;
+   if(g){
+    const mv=Array.isArray(b.mv)?b.mv:[];
+    for(let i=0;i<mv.length&&g;i++){
+     const u=String(mv[i]||'');
+     if(!UCI.test(u)){g=null;break;}
+     let m=null;try{m=g.move({from:u.slice(0,2),to:u.slice(2,4),promotion:u[4]});}catch(e){m=null;}
+     if(!m){g=null;break;}
+     lastMove={from:m.from,to:m.to};
+    }
+   }
+  }
+  if(g){
+   game=g;mode='analyze';
+   const parts=fenOf().split(' ');startNo=parseInt(parts[5],10)||1;startTurn=parts[1]==='b'?'b':'w';
+  }else{game=null;mode='edit';lastMove=null;}
+  setMsg('');
+  if(isOpen)paint();
+  lastSig=stateSig();
+ }finally{applying=false;}
+}
+function bedLocked(){
+ if(curRole()!=='student'||!share||!lastBed||!lastBed.active||lastBed.sid!==share.sid)return false;
+ return Date.now()-hbSeen.at<HB_DEAD;
+}
+const BED_LOCK_TIP='Cả lớp đang cùng chỉnh bàn cờ. Máy em sẽ tự đóng khi giáo viên đóng.';
+function paintShare(){
+ const n=$('vqcBedShare'),c=$('vqcBedClose');
+ if(n){
+  if(share){
+   n.hidden=false;
+   n.textContent=curRole()==='teacher'?'🔗 Bàn cờ này đang chia sẻ với cả lớp: học sinh cùng chỉnh được và thấy ngay mọi thay đổi.':'🔗 Em đang cùng chỉnh bàn cờ với giáo viên. Mọi thay đổi hiện ngay trên máy các bạn.';
+  }else n.hidden=true;
+ }
+ if(c){
+  const on=bedLocked();
+  c.disabled=on;
+  if(on)c.title=BED_LOCK_TIP;else c.removeAttribute('title');
+ }
+}
+function startHeartbeat(){
+ clearInterval(hbTimer);
+ hbTimer=setInterval(function(){
+  const ref=roomRefNow();if(!ref||!share||curRole()!=='teacher')return;
+  try{const pr=ref.update({'bedShare.hb':Date.now()});if(pr&&pr.catch)pr.catch(function(){});}catch(e){}
+ },HB_EVERY);
+}
+function joinShare(){
+ const ref=roomRefNow();
+ if(!ref){share=null;return;}
+ const r=curRole();
+ if(r==='teacher'){
+  if(lastBed&&bedFresh(lastBed)){
+   share={sid:lastBed.sid,ref:ref};
+   applyRemote(lastBed);
+  }else{
+   const sid=newSid(),now=Date.now(),o=stateOut();
+   share={sid:sid,ref:ref};
+   lastBed=Object.assign({active:true,sid:sid,by:myId(),rev:now,hb:now},o);
+   try{const pr=ref.update({bedShare:Object.assign({active:true,sid:sid,by:myId(),rev:now,hb:now},o)});if(pr&&pr.catch)pr.catch(function(){notify('Chưa chia sẻ được bàn cờ cho lớp. Kiểm tra kết nối phòng.');});}catch(e){}
+  }
+  hbSeen={k:'',at:Date.now()};
+  startHeartbeat();
+ }else if(r==='student'){
+  if(lastBed&&bedFresh(lastBed)&&lastBed.sid!==dismissedSid){
+   share={sid:lastBed.sid,ref:ref};
+   hbSeen={k:String(lastBed.hb||'')+'|'+String(lastBed.rev||''),at:Date.now()};
+   applyRemote(lastBed);
+  }else share=null;
+ }
+ lastSig=stateSig();
+}
+function leaveShare(){
+ const was=share;share=null;
+ clearInterval(hbTimer);hbTimer=0;
+ if(!was)return;
+ if(curRole()==='teacher'){
+  const ref=roomRefNow();
+  if(ref){try{const pr=ref.update({'bedShare.active':false,'bedShare.rev':Date.now()});if(pr&&pr.catch)pr.catch(function(){});}catch(e){}}
+  if(lastBed)lastBed.active=false;
+ }else dismissedSid=was.sid;
+}
+function onRoomData(data){
+ const b=data&&data.bedShare||null;
+ lastBed=b&&b.sid?b:null;
+ if(!lastBed)return;
+ const r=curRole();
+ const key=String(b.hb||'')+'|'+String(b.rev||'');
+ if(key!==hbSeen.k){hbSeen={k:key,at:Date.now()};}
+ if(r==='student'){
+  if(b.active&&bedFresh(b)){
+   if(!share||share.sid!==b.sid){
+    if(b.sid===dismissedSid)return;
+    if(!isOpen)openEditor(true);
+    else joinShare();
+    if(share)notify('Giáo viên đang chỉnh bàn cờ chung. Em cùng chỉnh với thầy/cô nhé!','success');
+   }else if(b.by!==myId()&&stateSig()!==sigOfRemote(b)){
+    applyRemote(b);
+   }
+  }else if(share&&share.sid===b.sid&&!b.active){
+   notify('Giáo viên đã đóng bàn cờ chung.','warning');
+   share=null;dismissedSid=b.sid;
+   if(isOpen)closeEditor();
+  }
+  paintShare();
+ }else if(r==='teacher'&&share&&share.sid===b.sid){
+  if(!b.active){share=null;clearInterval(hbTimer);if(isOpen)closeEditor();}
+  else if(b.by!==myId()&&stateSig()!==sigOfRemote(b))applyRemote(b);
+  paintShare();
+ }
+}
+function sigOfRemote(b){
+ return String(b.p||'')+'|'+(b.t==='b'?'b':'w')+'|'+(b.m==='a'?'a':'e')+'|'+(Array.isArray(b.mv)?b.mv.join(','):'');
+}
+function watchRoom(){
+ setInterval(function(){
+  const ref=roomRefNow();
+  if(ref===roomSub)return;
+  if(roomOff){try{roomOff();}catch(e){}roomOff=null;}
+  roomSub=ref;dismissedSid='';
+  if(!share||share.ref!==ref){lastBed=null;if(share){clearInterval(hbTimer);hbTimer=0;}share=null;}
+  if(ref&&typeof ref.onSnapshot==='function'){
+   roomOff=ref.onSnapshot(function(sn){if(sn&&sn.exists)try{onRoomData(sn.data());}catch(e){console.error("bed",e);}},function(){});
+  }
+ },1000);
+ clearInterval(lockTimer);
+ lockTimer=setInterval(paintShare,15000);
 }
 function ensureOverlay(){
  if($('vqcBedOverlay'))return;
@@ -460,19 +632,30 @@ function ensureOverlay(){
  document.body.append(holder.firstElementChild);
  bind();
 }
-function open(){
+function requestClose(){
+ if(bedLocked()){notify(BED_LOCK_TIP);return;}
+ close();
+}
+function openEditor(fromShare){
  if(typeof Chess!=='function'){notify('Chưa thể mở: thư viện luật cờ vua chưa được tải.');return;}
  ensureOverlay();
  if(typeof window.vqcCloseOtherViews==='function')window.vqcCloseOtherViews('boardeditor');
  isOpen=true;
  $('vqcBedOverlay').classList.add('open');
+ joinShare();
  paint();
  setTimeout(function(){const b=$('vqcBedClose');if(b)b.focus();},0);
 }
-function close(){
+function open(){openEditor(false);}
+function closeEditor(){
  if(!isOpen)return;
  isOpen=false;evbStop();
  const o=$('vqcBedOverlay');if(o)o.classList.remove('open');
+}
+function close(){
+ if(!isOpen)return;
+ leaveShare();
+ closeEditor();
 }
 function ensureMenu(){
  if($('vqcBedMenu'))return;
@@ -488,6 +671,7 @@ function ensureMenu(){
 
 window.vqcBoardEditor={open:open,close:close,version:VERSION,_fen:fenOf};
 window.vqcBoardEditorHide=close;
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ensureMenu,{once:true});
-else ensureMenu();
+function init(){ensureMenu();watchRoom();}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
+else init();
 })();

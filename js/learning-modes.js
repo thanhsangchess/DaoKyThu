@@ -133,20 +133,20 @@
  try{
   if(!document.getElementById('vqcEloCss')){
    const l=document.createElement('link');
-   l.id='vqcEloCss';l.rel='stylesheet';l.href='./css/elo-puzzles.css?v=20261126-elo-v6';
+   l.id='vqcEloCss';l.rel='stylesheet';l.href='./css/elo-puzzles.css?v=20261126-elo-v7';
    document.head.appendChild(l);
   }
   const s0=document.createElement('script');
   s0.src='./js/elo-local.js?v=20261126-elo-v10';s0.async=false;
   document.head.appendChild(s0);
   const sInk=document.createElement('script');
-  sInk.src='./js/elo-ink.js?v=20261126-elo-v6';sInk.async=false;
+  sInk.src='./js/elo-ink.js?v=20261126-elo-v7';sInk.async=false;
   document.head.appendChild(sInk);
   const s=document.createElement('script');
-  s.src='./js/elo-puzzles.js?v=20261126-elo-v11';s.async=false;
+  s.src='./js/elo-puzzles.js?v=20261126-elo-v13';s.async=false;
   document.head.appendChild(s);
   const s2=document.createElement('script');
-  s2.src='./js/elo-class.js?v=20261126-elo-v10';s2.async=false;
+  s2.src='./js/elo-class.js?v=20261126-elo-v11';s2.async=false;
   document.head.appendChild(s2);
  }catch(e){}
 })();
@@ -155,11 +155,11 @@
  try{
   if(!document.getElementById('vqcBedCss')){
    const l=document.createElement('link');
-   l.id='vqcBedCss';l.rel='stylesheet';l.href='./css/board-editor.css?v=20261126-bed-v1';
+   l.id='vqcBedCss';l.rel='stylesheet';l.href='./css/board-editor.css?v=20261126-bed-v2';
    document.head.appendChild(l);
   }
   const s=document.createElement('script');
-  s.src='./js/board-editor.js?v=20261126-bed-v1';s.async=false;
+  s.src='./js/board-editor.js?v=20261126-bed-v2';s.async=false;
   document.head.appendChild(s);
  }catch(e){}
 })();

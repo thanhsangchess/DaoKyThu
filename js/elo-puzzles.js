@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 if(window.vqcEloPuzzles)return;
-const VERSION='20261126-elo-v9';
+const VERSION='20261126-elo-v11';
 const FILES='abcdefgh';
 const THEME_VI={
  mateIn1:'Chiếu hết 1 nước',mateIn2:'Chiếu hết 2 nước',mateIn3:'Chiếu hết 3 nước',fork:'Đòn đánh đôi',pin:'Ghim quân',skewer:'Đòn xiên',
@@ -200,6 +200,7 @@ function paintPanel(){
  $('vqcEloSpark').innerHTML=sparkSvg(st.history);
  $('vqcEloPuzzleRating').textContent=P&&status!=='loading'&&status!=='nodata'?String(P.rating):'—';
  const m=msgFor(),box=$('vqcEloMsg');box.textContent=m.t;box.className='vqc-elo-msg'+(m.k?' '+m.k:'');
+ if(locked()&&(status==='solved'||status==='failed'||status==='expired'))box.textContent=m.t+' Em hãy chờ giáo viên kết thúc câu đố cả lớp nhé.';
  const chips=$('vqcEloThemes');chips.replaceChildren();
  if(P&&status!=='loading'&&status!=='nodata')chipThemes().forEach(function(t){chips.append(el('span','vqc-elo-chip',t));});
  const active=status==='play'||status==='wrong';
@@ -218,9 +219,42 @@ function paintPanel(){
  side.textContent=P&&game&&status!=='loading'&&status!=='nodata'?('Em cầm quân '+(P.color==='w'?'Trắng ⚪':'Đen ⚫')):'';
  paintSession();
 }
+/* Học sinh trong phiên “Cả lớp cùng một câu”: không tự đóng được; chỉ đóng khi giáo viên kết thúc (máy em tự đóng).
+   Lối thoát phòng khi giáo viên mất kết nối: quá hạn giờ 2 phút, hoặc phiên không hạn giờ mở quá 3 giờ. */
+function locked(){
+ if(!(role()==='student'&&mode==='session'&&sess))return false;
+ if(status==='nodata'||status==='idle')return false;
+ if(sess.open===false)return false;
+ if(ptr&&ptr.sid===sess.id&&ptr.active===false)return false;
+ const now=Date.now()+offset;
+ if(sess.endsAt!=null&&now>sess.endsAt+120000)return false;
+ if(sess.endsAt==null&&Number(sess.startedAt)&&now>Number(sess.startedAt)+3*3600000)return false;
+ return true;
+}
+const LOCK_TIP='Cả lớp đang cùng làm câu đố. Máy em sẽ tự đóng khi giáo viên kết thúc.';
+function paintLock(){
+ const on=locked();
+ ['vqcEloClose','vqcEloTable'].forEach(function(id){
+  const b=$(id);if(!b)return;
+  b.disabled=on;
+  if(on)b.title=LOCK_TIP;else b.removeAttribute('title');
+ });
+}
+/* Em tự vẽ mũi tên/khoanh tròn bằng chuột phải khi luyện ngoài lớp (chỉ máy em thấy). */
+let mineEd=null;
+function syncMine(){
+ const svg=$('vqcEloMine');if(!svg||!window.vqcEloInk)return;
+ if(!mineEd){
+  mineEd=window.vqcEloInk.editor(svg,{host:$('vqcEloBoard'),flip:false,enabled:function(){return isOpen&&mode==='solo'&&status!=='loading'&&status!=='nodata'&&status!=='intro';}});
+ }
+ svg.hidden=mode!=='solo';
+ if(mode!=='solo')mineEd.clear();
+ mineEd.setFlip(!!(P&&P.color==='b'));
+}
+function clearMine(){if(mineEd)mineEd.clear();}
 function paint(){
  if(!isOpen)return;
- paintBoard();paintPromo();paintPanel();syncInk();
+ paintBoard();paintPromo();paintPanel();syncInk();paintLock();syncMine();
 }
 
 /* Nét vẽ của giáo viên: chỉ đọc, hiện phía trên bàn cờ (cho riêng em này và/hoặc cho cả lớp). */
@@ -315,6 +349,7 @@ async function resync(my){
 }
 async function tryMove(from,to,pr){
  if(!canPlay()||!game)return;
+ clearMine();
  const prev=lastMove;
  let m=null;
  try{m=game.move({from:from,to:to,promotion:pr});}catch(e){m=null;}
@@ -460,6 +495,7 @@ function startClock(){
 function resetView(){
  token++;clearTimers();clearTimeout(giveTimer);clearInterval(clockTimer);
  status='loading';P=null;game=null;selected=null;promo=null;result=null;lastMove=null;applied=0;confirmGive=false;busy=false;errorText='';
+ clearMine();
 }
 async function nextPuzzle(){
  resetView();
@@ -509,6 +545,7 @@ const OVERLAY_HTML=`<div id="vqcEloOverlay" role="dialog" aria-modal="true" aria
     <div class="vqc-elo-boardwrap">
      <div id="vqcEloBoard" class="vqc-elo-board" aria-label="Bàn cờ câu đố"></div>
      <svg id="vqcEloInk" class="vqc-elo-ink" viewBox="0 0 800 800" aria-hidden="true"></svg>
+     <svg id="vqcEloMine" class="vqc-elo-ink mine" viewBox="0 0 800 800" aria-hidden="true"></svg>
      <div id="vqcEloPromo" class="vqc-elo-promo" hidden></div>
     </div>
    </div>
@@ -541,19 +578,37 @@ const OVERLAY_HTML=`<div id="vqcEloOverlay" role="dialog" aria-modal="true" aria
  </div>
 </div>`;
 
+let closeArm=0;
+function classLive(){return role()==='teacher'&&window.vqcEloClass&&typeof window.vqcEloClass.activeLive==='function'&&window.vqcEloClass.activeLive();}
+function disarmClose(){
+ clearTimeout(closeArm);closeArm=0;
+ const b=$('vqcEloClose');if(b)b.textContent='✕ Đóng';
+}
+/* Học sinh bị khoá khi đang trong phiên; giáo viên đóng khi phiên còn mở thì hỏi lại (đóng = kết thúc cho cả lớp). */
+function requestClose(){
+ if(locked()){notify(LOCK_TIP);return;}
+ if(classLive()&&!closeArm){
+  const b=$('vqcEloClose');if(b)b.textContent='Bấm lần nữa: kết thúc cho cả lớp';
+  notify('Đóng bây giờ sẽ kết thúc câu đố của cả lớp. Bấm Đóng lần nữa để xác nhận.','warning');
+  closeArm=setTimeout(disarmClose,4000);
+  return;
+ }
+ disarmClose();
+ close();
+}
 function bind(){
- $('vqcEloClose').addEventListener('click',close);
+ $('vqcEloClose').addEventListener('click',requestClose);
  $('vqcEloHint').addEventListener('click',giveHint);
  $('vqcEloAnswer').addEventListener('click',revealAnswer);
  $('vqcEloNext').addEventListener('click',function(){if(mode==='session'&&status!=='nodata')return;nextPuzzle();});
- $('vqcEloTable').addEventListener('click',function(){if(window.vqcEloClass)window.vqcEloClass.openTable();});
+ $('vqcEloTable').addEventListener('click',function(){if(locked()){notify(LOCK_TIP);return;}if(window.vqcEloClass)window.vqcEloClass.openTable();});
  $('vqcEloLive').addEventListener('click',function(){if(window.vqcEloClass)window.vqcEloClass.openSession();});
  $('vqcEloBoard').addEventListener('click',function(e){
   const c=e.target.closest('.vqc-elo-cell');if(!c)return;
   onCell(c.dataset.square);
  });
  $('vqcEloOverlay').addEventListener('keydown',function(e){
-  if(e.key==='Escape'){e.stopPropagation();close();}
+  if(e.key==='Escape'){e.stopPropagation();requestClose();}
  });
 }
 function ensureOverlay(){
@@ -595,8 +650,10 @@ async function autoOpenSession(sid){
 }
 function close(){
  if(!isOpen)return;
+ disarmClose();
+ if(role()==='teacher'&&window.vqcEloClass&&typeof window.vqcEloClass.endActive==='function')window.vqcEloClass.endActive();
  if(mode==='session'&&sess)dismissedSid=sess.id;
- isOpen=false;token++;clearTimers();clearTimeout(giveTimer);clearInterval(clockTimer);confirmGive=false;busy=false;stopInk();
+ isOpen=false;token++;clearTimers();clearTimeout(giveTimer);clearInterval(clockTimer);confirmGive=false;busy=false;stopInk();clearMine();
  const o=$('vqcEloOverlay');if(o)o.classList.remove('open');
  if(window.vqcEloClass&&window.vqcEloClass.hide)window.vqcEloClass.hide();
 }
@@ -610,8 +667,10 @@ function onPointer(data){
    lastPtrSid=ptr.sid;
    if(ptr.sid!==dismissedSid)autoOpenSession(ptr.sid);
   }
-  if(ptr.active===false&&isOpen&&mode==='session'&&sess&&sess.id===ptr.sid&&(status==='play'||status==='wrong'||status==='intro'||status==='opp')&&!busy){
-   status='ended';paint();notify('Giáo viên đã kết thúc câu đố cho cả lớp.','warning');
+  if(ptr.active===false&&isOpen&&mode==='session'&&sess&&sess.id===ptr.sid){
+   notify('Giáo viên đã kết thúc câu đố cho cả lớp.','warning');
+   close();
+   return;
   }
  }
  paintSession();

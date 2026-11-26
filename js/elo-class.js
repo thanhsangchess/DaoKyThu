@@ -741,5 +741,13 @@ async function openSession(){
  await renderSetup(box);
 }
 
-window.vqcEloClass={openTable:openTable,openSession:openSession,hide:hide,version:'20261126-elo-v4'};
+/* Giáo viên đóng cửa sổ khi phiên còn mở: kết thúc luôn cho cả lớp để máy học sinh tự đóng. */
+function activeLive(){return !!(live&&!live.ended&&view==='session');}
+function endActive(){
+ if(!live||live.ended||ending||view!=='session')return Promise.resolve(false);
+ const sid=live.sid;
+ ending=true;
+ return S().call('eloSessionEnd',{sid:sid}).then(function(){S().notify('Đã kết thúc câu đố của cả lớp.','success');return true;},function(e){S().notify(S().errText(e));return false;}).then(function(r){ending=false;return r;});
+}
+window.vqcEloClass={openTable:openTable,openSession:openSession,hide:hide,activeLive:activeLive,endActive:endActive,version:'20261126-elo-v5'};
 })();
