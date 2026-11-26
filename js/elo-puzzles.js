@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 if(window.vqcEloPuzzles)return;
-const VERSION='20261126-elo-v8';
+const VERSION='20261126-elo-v9';
 const FILES='abcdefgh';
 const THEME_VI={
  mateIn1:'Chiếu hết 1 nước',mateIn2:'Chiếu hết 2 nước',mateIn3:'Chiếu hết 3 nước',fork:'Đòn đánh đôi',pin:'Ghim quân',skewer:'Đòn xiên',
@@ -499,7 +499,7 @@ const OVERLAY_HTML=`<div id="vqcEloOverlay" role="dialog" aria-modal="true" aria
   <div class="vqc-elo-top">
    <div><h2 id="vqcEloTitle">🧩 Câu đố theo Elo</h2><p>Câu đố tự tăng hoặc giảm độ khó theo trình độ của em.</p></div>
    <div class="vqc-elo-topbtns">
-    <button type="button" id="vqcEloTable" class="vqc-elo-teacher" hidden>📊 Bảng Elo lớp</button>
+    <button type="button" id="vqcEloTable" class="vqc-elo-teacher">🏆 Bảng xếp hạng</button>
     <button type="button" id="vqcEloLive" class="vqc-elo-teacher" hidden>🎯 Cả lớp cùng một câu</button>
     <button type="button" id="vqcEloClose" aria-label="Đóng">✕ Đóng</button>
    </div>
@@ -568,7 +568,7 @@ function showOverlay(){
  isOpen=true;
  $('vqcEloOverlay').classList.add('open');
  const t=role()==='teacher';
- $('vqcEloTable').hidden=!t;$('vqcEloLive').hidden=!t;
+ $('vqcEloTable').hidden=false;$('vqcEloLive').hidden=!t;
  if(window.vqcEloClass&&window.vqcEloClass.hide)window.vqcEloClass.hide();
  setTimeout(function(){const b=$('vqcEloClose');if(b)b.focus();},0);
 }

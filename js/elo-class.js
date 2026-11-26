@@ -9,7 +9,7 @@ const DONE=['solved','failed'];
 let view='';
 let unsubs=[];
 let timers=[];
-let sortKey='elo',sortDir=-1,classFilter='';
+let sortKey='rank',sortDir=1;
 let roster=[],statsMap=new Map(),rosterLoaded=false;
 let cfg={min:600,max:1000,themes:new Set(),pick:null,pickMode:'random',hints:true,limit:180,list:null,listTotal:0};
 let live=null;
@@ -37,14 +37,15 @@ function showHost(v){
  const dlg=h.closest('.vqc-elo-dialog');if(dlg)dlg.classList.add('vqc-elo-teachermode');
  h.replaceChildren();
  const bar=el('div','vqc-elo-tabs');
- const t1=el('button','vqc-elo-tab'+(v==='table'?' on':''),'📊 Bảng Elo lớp');
+ const isT=S().role()==='teacher';
+ const t1=el('button','vqc-elo-tab'+(v==='table'?' on':''),'🏆 Bảng xếp hạng');
  const t2=el('button','vqc-elo-tab'+(v==='session'?' on':''),'🎯 Cả lớp cùng một câu');
  const back=el('button','vqc-elo-tab back','← Về luyện tập');
  [t1,t2,back].forEach(function(b){b.type='button';});
  t1.addEventListener('click',openTable);
  t2.addEventListener('click',openSession);
  back.addEventListener('click',hide);
- bar.append(t1,t2,back);
+ if(isT)bar.append(t1,t2,back);else bar.append(t1,back);
  h.append(bar);
  const body=el('div','vqc-elo-tbody');
  h.append(body);
@@ -66,23 +67,7 @@ async function loadStatsOnce(){
  statsMap=new Map();
  snap.docs.forEach(function(d){statsMap.set(d.id,d.data());});
 }
-function classList(){
- const set=new Set();
- roster.forEach(function(r){if(r.classCode)set.add(r.classCode);});
- return Array.from(set).sort();
-}
-function filtered(){return roster.filter(function(r){return !classFilter||r.classCode===classFilter;});}
-function classSelect(onChange){
- const wrap=el('label','vqc-elo-field');
- wrap.append(el('span','','Lớp'));
- const sel=el('select');
- const all=el('option','','Tất cả học sinh');all.value='';sel.append(all);
- classList().forEach(function(c){const o=el('option','','Lớp '+c);o.value=c;sel.append(o);});
- sel.value=classFilter;
- sel.addEventListener('change',function(){classFilter=sel.value;onChange();});
- wrap.append(sel);
- return wrap;
-}
+function filtered(){return roster;}
 function agoText(ms){
  if(!ms)return 'Chưa luyện';
  const d=Math.floor((Date.now()-ms)/86400000);
@@ -100,66 +85,87 @@ function spark(values){
 }
 
 function tableRows(){
- return filtered().map(function(r){
-  const st=statsMap.get(r.uid);
+ let base;
+ if(S().role()==='teacher'){
+  base=filtered().map(function(r){return {uid:r.uid,name:r.name,st:statsMap.get(r.uid)};});
+ }else{
+  base=[];
+  statsMap.forEach(function(st,uid){
+   if(st&&st.role==='student'&&(st.games|0)>0)base.push({uid:uid,name:String(st.name||st.code||'Học sinh'),st:st});
+  });
+ }
+ const rows=base.map(function(r){
+  const st=r.st;
   const games=st?st.games|0:0;
   return {
-   uid:r.uid,name:r.name,classCode:r.classCode,played:games>0,
+   uid:r.uid,name:r.name,played:games>0,rank:null,
    elo:st?st.elo:null,games:games,solved:st?st.solved|0:0,
    acc:games>0?Math.round(100*(st.solved|0)/games):null,
    streak:st?st.streak|0:0,best:st?st.best:null,last:st?st.lastAt||0:0,history:st?st.history:null
   };
  });
+ const ranked=rows.filter(function(r){return r.played;});
+ ranked.forEach(function(r){r.rank=1+ranked.filter(function(o){return o.elo>r.elo;}).length;});
+ return rows;
 }
 function sortRows(rows){
  const k=sortKey,d=sortDir;
  rows.sort(function(a,b){
   let x=a[k],y=b[k];
-  if(k==='name'||k==='classCode'){return d*String(x).localeCompare(String(y),'vi');}
+  if(k==='name'){return d*String(x).localeCompare(String(y),'vi');}
   if(x==null&&y==null)return a.name.localeCompare(b.name,'vi');
   if(x==null)return 1;
   if(y==null)return -1;
+  if(k==='rank')return d*(x-y)||b.solved-a.solved||a.name.localeCompare(b.name,'vi');
   return d*(x-y)||a.name.localeCompare(b.name,'vi');
  });
  return rows;
 }
 function csvDownload(rows){
- const head=['Học sinh','Lớp','Elo','Số câu','Đúng ngay','Chính xác %','Chuỗi','Cao nhất'];
- const lines=[head].concat(rows.map(function(r){return [r.name,r.classCode,r.elo==null?'':r.elo,r.games,r.solved,r.acc==null?'':r.acc,r.streak,r.best==null?'':r.best];}));
+ const head=['Hạng','Học sinh','Elo','Số câu','Đúng ngay','Chính xác %','Chuỗi','Cao nhất'];
+ const lines=[head].concat(rows.map(function(r){return [r.rank==null?'':r.rank,r.name,r.elo==null?'':r.elo,r.games,r.solved,r.acc==null?'':r.acc,r.streak,r.best==null?'':r.best];}));
  const csv='﻿'+lines.map(function(l){return l.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"';}).join(',');}).join('\r\n');
  const a=document.createElement('a');
  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
- a.download='bang-elo-lop.csv';
+ a.download='bang-xep-hang.csv';
  document.body.append(a);a.click();
  setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},500);
 }
+const MEDALS={1:'🥇',2:'🥈',3:'🥉'};
 function paintTable(box){
  box.replaceChildren();
+ const isT=S().role()==='teacher';
  const rows=sortRows(tableRows());
  const played=rows.filter(function(r){return r.played;});
  const avg=played.length?Math.round(played.reduce(function(s,r){return s+r.elo;},0)/played.length):null;
  const top=el('div','vqc-elo-toolbar');
- top.append(classSelect(function(){paintTable(box);}));
  const sum=el('div','vqc-elo-summary');
- [['Học sinh',rows.length],['Đã luyện',played.length],['Elo trung bình',avg==null?'—':avg]].forEach(function(p){
+ const cards=isT?[['Học sinh',rows.length],['Đã luyện',played.length],['Elo trung bình',avg==null?'—':avg]]:[['Số bạn có hạng',played.length],['Elo trung bình',avg==null?'—':avg]];
+ if(!isT){
+  const mine=rows.filter(function(r){return r.uid===myUid();})[0];
+  cards.unshift(['Hạng của em',mine&&mine.rank!=null?'Hạng '+mine.rank+'/'+played.length:'Chưa có']);
+ }
+ cards.forEach(function(p){
   const c=el('div','vqc-elo-sumcard');c.append(el('span','',p[0]),el('b','',String(p[1])));sum.append(c);
  });
  top.append(sum);
- const csv=el('button','vqc-elo-btn','⬇ Tải CSV');csv.type='button';
- csv.addEventListener('click',function(){csvDownload(rows);});
- top.append(csv);
+ if(isT){
+  const csv=el('button','vqc-elo-btn','⬇ Tải CSV');csv.type='button';
+  csv.addEventListener('click',function(){csvDownload(rows);});
+  top.append(csv);
+ }
  box.append(top);
- if(!rows.length){box.append(el('p','vqc-elo-empty','Thầy/cô chưa có học sinh nào trong danh sách lớp.'));return;}
+ if(!rows.length){box.append(el('p','vqc-elo-empty',isT?'Thầy/cô chưa có học sinh nào trong danh sách lớp.':'Chưa có bạn nào luyện câu đố. Em hãy là người đầu tiên nhé!'));return;}
  const wrap=el('div','vqc-elo-tablewrap');
- const table=el('table','vqc-elo-table');
- const cols=[['name','Học sinh'],['classCode','Lớp'],['elo','Elo'],['games','Số câu'],['solved','Đúng ngay'],['acc','Chính xác'],['streak','Chuỗi'],['best','Cao nhất'],['trend','Xu hướng'],['last','Gần nhất']];
+ const table=el('table','vqc-elo-table vqc-elo-lb');
+ const cols=[['rank','Hạng'],['name','Học sinh'],['elo','Elo'],['games','Số câu'],['solved','Đúng ngay'],['acc','Chính xác'],['streak','Chuỗi'],['best','Cao nhất'],['trend','Xu hướng'],['last','Gần nhất']];
  const thead=el('thead'),tr=el('tr');
  cols.forEach(function(c){
   const th=el('th');
   if(c[0]==='trend'){th.textContent=c[1];}
   else{
    const b=el('button','vqc-elo-sort'+(sortKey===c[0]?' on':''),c[1]+(sortKey===c[0]?(sortDir<0?' ▼':' ▲'):''));b.type='button';
-   b.addEventListener('click',function(){if(sortKey===c[0])sortDir=-sortDir;else{sortKey=c[0];sortDir=(c[0]==='name'||c[0]==='classCode')?1:-1;}paintTable(box);});
+   b.addEventListener('click',function(){if(sortKey===c[0])sortDir=-sortDir;else{sortKey=c[0];sortDir=(c[0]==='name'||c[0]==='rank')?1:-1;}paintTable(box);});
    th.append(b);
   }
   tr.append(th);
@@ -167,35 +173,57 @@ function paintTable(box){
  thead.append(tr);table.append(thead);
  const tbody=el('tbody');
  rows.forEach(function(r){
-  const row=el('tr',r.played?'':'idle');
-  row.append(el('td','name',r.name),el('td','',r.classCode||'—'),el('td','num',r.played?String(r.elo):'—'),el('td','num',String(r.games)),el('td','num',String(r.solved)),el('td','num',r.acc==null?'—':r.acc+'%'),el('td','num',r.played?String(r.streak):'—'),el('td','num',r.best==null?'—':String(r.best)));
+  const cls=(r.played?'':'idle')+(r.rank&&r.rank<=3?' top'+r.rank:'')+(!isT&&r.uid===myUid()?' me':'');
+  const row=el('tr',cls.trim());
+  const rk=el('td','rank');
+  if(r.rank!=null){
+   const m=MEDALS[r.rank];
+   if(m)rk.append(el('span','medal',m));
+   rk.append(el('span','rk','Hạng '+r.rank));
+  }else rk.textContent='—';
+  const nm=el('td','name',r.name);
+  if(!isT&&r.uid===myUid())nm.append(el('small','mine',' (em)'));
+  row.append(rk,nm,el('td','num',r.played?String(r.elo):'—'),el('td','num',String(r.games)),el('td','num',String(r.solved)),el('td','num',r.acc==null?'—':r.acc+'%'),el('td','num',r.played?String(r.streak):'—'),el('td','num',r.best==null?'—':String(r.best)));
   const t=el('td','spark');t.innerHTML=r.played?spark(r.history):'';row.append(t);
   row.append(el('td','',agoText(r.last)));
   tbody.append(row);
  });
  table.append(tbody);wrap.append(table);box.append(wrap);
- box.append(el('p','vqc-elo-note','Chỉ giáo viên thấy bảng này. Học sinh chỉ thấy Elo và tiến bộ của chính mình; không có bảng xếp hạng công khai.'));
+ box.append(el('p','vqc-elo-note',isT?'Bảng xếp hạng xếp theo Elo; các bạn bằng Elo cùng hạng. Học sinh cũng xem được bảng này.':'Bảng xếp hạng xếp theo Elo; các bạn bằng Elo cùng hạng. Chỉ hiện các bạn trong lớp đã luyện câu đố.'));
+}
+function myTeacherId(){
+ try{return String(window.accountProfile.teacherId||'');}catch(e){return '';}
 }
 async function openTable(){
  const box=showHost('table');if(!box)return;
- box.append(el('p','vqc-elo-empty','Đang tải bảng Elo…'));
+ box.append(el('p','vqc-elo-empty','Đang tải bảng xếp hạng…'));
  const my=view;
- try{
-  await loadRoster();
-  await loadStatsOnce();
- }catch(e){
+ const isT=S().role()==='teacher';
+ const owner=isT?myUid():myTeacherId();
+ if(!owner){box.replaceChildren(el('p','vqc-elo-empty','Tài khoản của em chưa thuộc lớp nào nên chưa có bảng xếp hạng.'));return;}
+ if(isT){
+  try{
+   await loadRoster();
+   await loadStatsOnce();
+  }catch(e){
+   if(view!==my)return;
+   box.replaceChildren(el('p','vqc-elo-empty vqc-elo-err','Không tải được bảng xếp hạng: '+S().errText(e)));
+   return;
+  }
   if(view!==my)return;
-  box.replaceChildren(el('p','vqc-elo-empty vqc-elo-err','Không tải được bảng Elo: '+S().errText(e)));
-  return;
+  paintTable(box);
  }
- if(view!==my)return;
- paintTable(box);
  try{
-  const off=db.collection('eloStats').where('teacherId','==',myUid()).limit(500).onSnapshot(function(snap){
+  let q=db.collection('eloStats').where('teacherId','==',owner);
+  if(!isT)q=q.where('role','==','student');
+  const off=q.limit(500).onSnapshot(function(snap){
    if(view!=='table')return;
    statsMap=new Map();snap.docs.forEach(function(d){statsMap.set(d.id,d.data());});
    paintTable(box);
-  },function(){});
+  },function(e){
+   if(view!=='table'||isT)return;
+   box.replaceChildren(el('p','vqc-elo-empty vqc-elo-err','Không tải được bảng xếp hạng: '+S().errText(e)));
+  });
   unsubs.push(off);
  }catch(e){}
 }
@@ -703,5 +731,5 @@ async function openSession(){
  await renderSetup(box);
 }
 
-window.vqcEloClass={openTable:openTable,openSession:openSession,hide:hide,version:'20261126-elo-v3'};
+window.vqcEloClass={openTable:openTable,openSession:openSession,hide:hide,version:'20261126-elo-v4'};
 })();
