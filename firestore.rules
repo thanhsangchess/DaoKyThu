@@ -577,6 +577,18 @@ service cloud.firestore {
       && request.time>resource.data.lastAtTs+duration.value(2,'s')));
    allow delete: if false;
   }
+  // Danh sách tên học sinh của một giáo viên, để học sinh thấy cả các bạn chưa luyện trên bảng xếp hạng.
+  // Chỉ giáo viên đó ghi; học sinh của giáo viên đó chỉ đọc được từng tài liệu, không liệt kê được.
+  match /eloRosters/{tid} {
+   allow get: if active() && (request.auth.uid==tid || (student() && me().data.teacherId==tid));
+   allow list: if false;
+   allow create, update: if teacher() && request.auth.uid==tid
+    && request.resource.data.keys().hasOnly(['teacherId','students','updatedAt'])
+    && request.resource.data.teacherId==tid
+    && request.resource.data.students is list && request.resource.data.students.size()<=500
+    && request.resource.data.updatedAt is number;
+   allow delete: if false;
+  }
   match /eloAttempts/{id} {
    function eloAttKeys(d){return d.keys().hasOnly(['id','uid','teacherId','classCode','sessionId','puzzleId','idx','mistakes','hintLevel','lastN','lastReq','status','startedAt','updatedAt','result']);}
    function eloAttMine(d){return d.uid==request.auth.uid && d.id==id && d.teacherId==(teacher()?request.auth.uid:me().data.teacherId);}

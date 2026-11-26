@@ -9,7 +9,7 @@ const DONE=['solved','failed'];
 let view='';
 let unsubs=[];
 let timers=[];
-let sortKey='rank',sortDir=1;
+let rosterDoc=[];
 let roster=[],statsMap=new Map(),rosterLoaded=false;
 let cfg={min:600,max:1000,themes:new Set(),pick:null,pickMode:'random',hints:true,limit:180,list:null,listTotal:0};
 let live=null;
@@ -61,6 +61,26 @@ async function loadRoster(){
  const snap=await db.collection('users').where('role','==','student').where('teacherId','==',myUid()).limit(300).get();
  roster=snap.docs.map(function(d){const x=d.data()||{};return {uid:d.id,name:String(x.name||x.code||'Học sinh'),classCode:String(x.classCode||''),code:String(x.code||'')};});
  rosterLoaded=true;
+ syncRosterDoc();
+}
+function syncRosterDoc(){
+ try{
+  const me=myUid();if(!me)return;
+  const list=roster.map(function(r){return {u:r.uid,n:r.name.slice(0,60)};}).slice(0,500);
+  const key=JSON.stringify(list);
+  const ref=db.collection('eloRosters').doc(me);
+  ref.get().then(function(d){
+   const cur=d.exists&&Array.isArray(d.data().students)?JSON.stringify(d.data().students):'';
+   if(cur===key)return null;
+   return ref.set({teacherId:me,students:list,updatedAt:Date.now()});
+  }).catch(function(){});
+ }catch(e){}
+}
+async function loadRosterDoc(owner){
+ try{
+  const d=await db.collection('eloRosters').doc(owner).get();
+  rosterDoc=d.exists&&Array.isArray(d.data().students)?d.data().students.filter(function(x){return x&&typeof x.u==='string';}):[];
+ }catch(e){rosterDoc=[];}
 }
 async function loadStatsOnce(){
  const snap=await db.collection('eloStats').where('teacherId','==',myUid()).limit(500).get();
@@ -89,9 +109,13 @@ function tableRows(){
  if(S().role()==='teacher'){
   base=filtered().map(function(r){return {uid:r.uid,name:r.name,st:statsMap.get(r.uid)};});
  }else{
+  const seen=new Set();
   base=[];
   statsMap.forEach(function(st,uid){
-   if(st&&st.role==='student'&&(st.games|0)>0)base.push({uid:uid,name:String(st.name||st.code||'Học sinh'),st:st});
+   if(st&&st.role==='student'){seen.add(uid);base.push({uid:uid,name:String(st.name||st.code||'Học sinh'),st:st});}
+  });
+  rosterDoc.forEach(function(x){
+   if(!seen.has(x.u)){seen.add(x.u);base.push({uid:x.u,name:String(x.n||'Học sinh'),st:null});}
   });
  }
  const rows=base.map(function(r){
@@ -101,29 +125,22 @@ function tableRows(){
    uid:r.uid,name:r.name,played:games>0,rank:null,
    elo:st?st.elo:null,games:games,solved:st?st.solved|0:0,
    acc:games>0?Math.round(100*(st.solved|0)/games):null,
-   streak:st?st.streak|0:0,best:st?st.best:null,last:st?st.lastAt||0:0,history:st?st.history:null
+   streak:st?st.streak|0:0,last:st?st.lastAt||0:0,history:st?st.history:null
   };
  });
  const ranked=rows.filter(function(r){return r.played;});
- ranked.forEach(function(r){r.rank=1+ranked.filter(function(o){return o.elo>r.elo;}).length;});
- return rows;
-}
-function sortRows(rows){
- const k=sortKey,d=sortDir;
+ const cmp=function(a,b){return b.elo-a.elo||b.acc-a.acc;};
+ ranked.forEach(function(r){r.rank=1+ranked.filter(function(o){return cmp(o,r)<0;}).length;});
  rows.sort(function(a,b){
-  let x=a[k],y=b[k];
-  if(k==='name'){return d*String(x).localeCompare(String(y),'vi');}
-  if(x==null&&y==null)return a.name.localeCompare(b.name,'vi');
-  if(x==null)return 1;
-  if(y==null)return -1;
-  if(k==='rank')return d*(x-y)||b.solved-a.solved||a.name.localeCompare(b.name,'vi');
-  return d*(x-y)||a.name.localeCompare(b.name,'vi');
+  if(a.played!==b.played)return a.played?-1:1;
+  if(a.played)return cmp(a,b)||a.name.localeCompare(b.name,'vi');
+  return a.name.localeCompare(b.name,'vi');
  });
  return rows;
 }
 function csvDownload(rows){
- const head=['Hạng','Học sinh','Elo','Số câu','Đúng ngay','Chính xác %','Chuỗi','Cao nhất'];
- const lines=[head].concat(rows.map(function(r){return [r.rank==null?'':r.rank,r.name,r.elo==null?'':r.elo,r.games,r.solved,r.acc==null?'':r.acc,r.streak,r.best==null?'':r.best];}));
+ const head=['Hạng','Họ và tên','Elo','Số câu','Đúng ngay','Chính xác %','Chuỗi'];
+ const lines=[head].concat(rows.map(function(r){return [r.rank==null?'':r.rank,r.name,r.elo==null?'':r.elo,r.games,r.solved,r.acc==null?'':r.acc,r.streak];}));
  const csv='﻿'+lines.map(function(l){return l.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"';}).join(',');}).join('\r\n');
  const a=document.createElement('a');
  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
@@ -135,7 +152,7 @@ const MEDALS={1:'🥇',2:'🥈',3:'🥉'};
 function paintTable(box){
  box.replaceChildren();
  const isT=S().role()==='teacher';
- const rows=sortRows(tableRows());
+ const rows=tableRows();
  const played=rows.filter(function(r){return r.played;});
  const avg=played.length?Math.round(played.reduce(function(s,r){return s+r.elo;},0)/played.length):null;
  const top=el('div','vqc-elo-toolbar');
@@ -158,38 +175,29 @@ function paintTable(box){
  if(!rows.length){box.append(el('p','vqc-elo-empty',isT?'Thầy/cô chưa có học sinh nào trong danh sách lớp.':'Chưa có bạn nào luyện câu đố. Em hãy là người đầu tiên nhé!'));return;}
  const wrap=el('div','vqc-elo-tablewrap');
  const table=el('table','vqc-elo-table vqc-elo-lb');
- const cols=[['rank','Hạng'],['name','Học sinh'],['elo','Elo'],['games','Số câu'],['solved','Đúng ngay'],['acc','Chính xác'],['streak','Chuỗi'],['best','Cao nhất'],['trend','Xu hướng'],['last','Gần nhất']];
+ const cols=[['rank','Hạng','c-rank'],['name','Họ và tên','c-name'],['elo','Elo','c-num'],['games','Số câu','c-num'],['solved','Đúng ngay','c-num'],['acc','Chính xác','c-num'],['streak','Chuỗi','c-num'],['trend','Xu hướng','c-spark'],['last','Gần nhất','c-last']];
  const thead=el('thead'),tr=el('tr');
- cols.forEach(function(c){
-  const th=el('th');
-  if(c[0]==='trend'){th.textContent=c[1];}
-  else{
-   const b=el('button','vqc-elo-sort'+(sortKey===c[0]?' on':''),c[1]+(sortKey===c[0]?(sortDir<0?' ▼':' ▲'):''));b.type='button';
-   b.addEventListener('click',function(){if(sortKey===c[0])sortDir=-sortDir;else{sortKey=c[0];sortDir=(c[0]==='name'||c[0]==='rank')?1:-1;}paintTable(box);});
-   th.append(b);
-  }
-  tr.append(th);
- });
+ cols.forEach(function(c){tr.append(el('th',c[2],c[1]));});
  thead.append(tr);table.append(thead);
  const tbody=el('tbody');
  rows.forEach(function(r){
   const cls=(r.played?'':'idle')+(r.rank&&r.rank<=3?' top'+r.rank:'')+(!isT&&r.uid===myUid()?' me':'');
   const row=el('tr',cls.trim());
-  const rk=el('td','rank');
+  const rk=el('td','rank c-rank');
   if(r.rank!=null){
    const m=MEDALS[r.rank];
    if(m)rk.append(el('span','medal',m));
    rk.append(el('span','rk','Hạng '+r.rank));
   }else rk.textContent='—';
-  const nm=el('td','name',r.name);
+  const nm=el('td','name c-name',r.name);
   if(!isT&&r.uid===myUid())nm.append(el('small','mine',' (em)'));
-  row.append(rk,nm,el('td','num',r.played?String(r.elo):'—'),el('td','num',String(r.games)),el('td','num',String(r.solved)),el('td','num',r.acc==null?'—':r.acc+'%'),el('td','num',r.played?String(r.streak):'—'),el('td','num',r.best==null?'—':String(r.best)));
-  const t=el('td','spark');t.innerHTML=r.played?spark(r.history):'';row.append(t);
-  row.append(el('td','',agoText(r.last)));
+  row.append(rk,nm,el('td','num c-num',r.played?String(r.elo):'—'),el('td','num c-num',String(r.games)),el('td','num c-num',String(r.solved)),el('td','num c-num',r.acc==null?'—':r.acc+'%'),el('td','num c-num',r.played?String(r.streak):'—'));
+  const t=el('td','spark c-spark');t.innerHTML=r.played?spark(r.history):'';row.append(t);
+  row.append(el('td','c-last',agoText(r.last)));
   tbody.append(row);
  });
  table.append(tbody);wrap.append(table);box.append(wrap);
- box.append(el('p','vqc-elo-note',isT?'Bảng xếp hạng xếp theo Elo; các bạn bằng Elo cùng hạng. Học sinh cũng xem được bảng này.':'Bảng xếp hạng xếp theo Elo; các bạn bằng Elo cùng hạng. Chỉ hiện các bạn trong lớp đã luyện câu đố.'));
+ box.append(el('p','vqc-elo-note','Xếp hạng theo điểm Elo; nếu bằng Elo thì xét độ chính xác. Các bạn chưa luyện câu đố chưa có hạng.'));
 }
 function myTeacherId(){
  try{return String(window.accountProfile.teacherId||'');}catch(e){return '';}
@@ -216,6 +224,8 @@ async function openTable(){
  try{
   let q=db.collection('eloStats').where('teacherId','==',owner);
   if(!isT)q=q.where('role','==','student');
+  if(!isT)await loadRosterDoc(owner);
+  if(view!==my)return;
   const off=q.limit(500).onSnapshot(function(snap){
    if(view!=='table')return;
    statsMap=new Map();snap.docs.forEach(function(d){statsMap.set(d.id,d.data());});
