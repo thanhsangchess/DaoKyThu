@@ -23,6 +23,7 @@ function myUid(){try{return auth.currentUser.uid;}catch(e){return '';}}
 function host(){return $('vqcEloTeacherHost');}
 function themeName(t){const m=S().THEME_VI;return m[t]||t;}
 function stopAll(){
+ if(live&&live.watch)closeDetail();
  unsubs.forEach(function(u){try{u();}catch(e){}});unsubs=[];
  timers.forEach(clearInterval);timers=[];
 }
@@ -199,17 +200,15 @@ async function openTable(){
  }catch(e){}
 }
 
-function miniBoard(fen,firstMove,color){
- const g=new Chess();
- g.load(fen);
- if(firstMove)g.move({from:firstMove.slice(0,2),to:firstMove.slice(2,4),promotion:firstMove.length>4?firstMove[4]:undefined});
+function boardOf(g,color,hl,bad){
  const flip=color==='b';
  const ranks=flip?[1,2,3,4,5,6,7,8]:[8,7,6,5,4,3,2,1],files=flip?FILES.split('').reverse():FILES.split('');
  const b=el('div','vqc-elo-mini');
  for(let ri=0;ri<8;ri++)for(let fi=0;fi<8;fi++){
   const sq=files[fi]+ranks[ri],p=g.get(sq);
   const c=el('div','vqc-elo-minicell '+((ri+fi)%2?'dark':'light'));
-  if(firstMove&&(sq===firstMove.slice(0,2)||sq===firstMove.slice(2,4)))c.classList.add('last');
+  if(hl&&hl.indexOf(sq)>=0)c.classList.add('last');
+  if(bad&&bad.indexOf(sq)>=0)c.classList.add('bad');
   if(p){
    const code=p.color==='w'?p.type.toUpperCase():p.type;
    const s=el('span','vqc-elo-minipiece');
@@ -220,6 +219,32 @@ function miniBoard(fen,firstMove,color){
   b.append(c);
  }
  return b;
+}
+function miniBoard(fen,firstMove,color){
+ const g=new Chess();
+ g.load(fen);
+ if(firstMove)g.move({from:firstMove.slice(0,2),to:firstMove.slice(2,4),promotion:firstMove.length>4?firstMove[4]:undefined});
+ return boardOf(g,color,firstMove?[firstMove.slice(0,2),firstMove.slice(2,4)]:null,null);
+}
+/* Thế cờ hiện tại trên màn hình học sinh (dựng lại từ số nước idx trong dữ liệu phiên). */
+function positionOf(puzzle,pl){
+ const g=new Chess();
+ g.load(puzzle.fen);
+ const total=puzzle.moves.length;
+ let n=1;
+ if(pl)n=(pl.status==='solved'||pl.status==='failed')?total:Math.max(1,Math.min(total,pl.idx||1));
+ let lastU=null;
+ for(let i=0;i<n;i++){
+  const u=puzzle.moves[i];
+  if(!g.move({from:u.slice(0,2),to:u.slice(2,4),promotion:u.length>4?u[4]:undefined}))break;
+  lastU=u;
+ }
+ const bad=pl&&pl.status==='active'&&pl.last&&pl.last.ok===false&&pl.last.f&&pl.last.t?[pl.last.f,pl.last.t]:null;
+ return {g:g,last:lastU?[lastU.slice(0,2),lastU.slice(2,4)]:null,bad:bad};
+}
+function positionBoard(puzzle,pl){
+ const pos=positionOf(puzzle,pl);
+ return boardOf(pos.g,puzzle.color,pos.last,pos.bad);
 }
 function solutionText(puzzle){
  const g=new Chess();
@@ -385,9 +410,13 @@ function paintLive(){
   tr.append(el('td','num',x.p?String(x.p.mistakes||0):'—'),el('td','num',x.p?String(x.p.hintLevel||0):'—'));
   const secs=x.p&&x.p.doneAt&&x.p.startedAt&&x.p.status!=='expired'?Math.max(0,Math.round((x.p.doneAt-x.p.startedAt)/1000))+' giây':'—';
   tr.append(el('td','num',secs));
+  const wt=el('td','');
+  if(x.p){const vb=el('button','vqc-elo-btn mini','👁 Xem');vb.type='button';vb.addEventListener('click',function(){openWatch(x.r.uid);});wt.append(vb);}
+  tr.append(wt);
   c.body.append(tr);
  });
  pushCounts(done,rows.length);
+ paintExtra(list,done,working,none,rows.length);
 }
 function pushCounts(done,total){
  if(!live||live.ended)return;
@@ -422,10 +451,183 @@ async function endSession(auto){
  ending=false;
  if(live&&view==='session'){live.refs.clock.textContent=clockLabel();live.refs.end.disabled=true;live.refs.again.hidden=false;}
 }
+/* ===== Theo dõi màn hình học sinh + giáo viên vẽ lên bàn cờ ===== */
+function svgNode(cls){
+ const n=document.createElementNS('http://www.w3.org/2000/svg','svg');
+ n.setAttribute('viewBox','0 0 800 800');n.setAttribute('class','vqc-elo-ink '+cls);n.setAttribute('aria-hidden','true');
+ return n;
+}
+function cardKey(p){return p?[p.status,p.idx,p.mistakes,p.hintLevel,p.last?p.last.f+p.last.t+p.last.ok:''].join('|'):'none';}
+function paintExtra(list){
+ if(!live)return;
+ if(live.mode==='gallery')paintGallery(list);
+ else if(live.mode==='detail')paintDetail();
+}
+function paintGallery(list){
+ const box=live.refs.galGrid;
+ live.refs.galCounts.textContent=live.refs.counts.textContent;
+ const keep=new Set(),nodes=[];
+ list.forEach(function(x){
+  const uid=x.r.uid;keep.add(uid);
+  const key=cardKey(x.p)+'|'+x.r.name+'|'+(x.r.classCode||'');
+  let c=live.cards.get(uid);
+  if(!c||c.key!==key){
+   const l=playerLabel(x.p);
+   const card=el('button','vqc-elo-card2 st-'+l.k);card.type='button';
+   const head=el('div','vqc-elo-card2head');
+   head.append(el('b','',x.r.name),el('span','',x.r.classCode||''));
+   card.append(head);
+   if(x.p)card.append(positionBoard(live.puzzle,x.p));
+   else card.append(el('div','vqc-elo-card2empty','Chưa mở câu đố'));
+   card.append(el('div','vqc-elo-card2foot',l.t+(x.p?' • sai '+(x.p.mistakes||0)+' • gợi ý '+(x.p.hintLevel||0):'')));
+   if(x.p)card.addEventListener('click',function(){openWatch(uid);});else card.disabled=true;
+   c={key:key,node:card};live.cards.set(uid,c);
+  }
+  nodes.push(c.node);
+ });
+ Array.from(live.cards.keys()).forEach(function(k){if(!keep.has(k))live.cards.delete(k);});
+ box.replaceChildren.apply(box,nodes);
+}
+function setMode(m){
+ if(!live)return;
+ if(live.mode==='detail'&&m!=='detail')closeDetail();
+ live.mode=m;
+ const r=live.refs,w=live.watch;
+ r.grid.hidden=m!=='table';r.gal.hidden=m!=='gallery';r.det.hidden=m!=='detail';
+ r.tabs.table.classList.toggle('on',m==='table');
+ r.tabs.gallery.classList.toggle('on',m==='gallery'||(m==='detail'&&!!w&&!!w.uid));
+ r.tabs.all.classList.toggle('on',m==='detail'&&!!w&&!w.uid);
+ if(m==='detail')buildDetail();
+ paintLive();
+}
+function openWatch(uid){
+ if(!live)return;
+ live.watch={uid:uid||null,target:uid?'one':'all',tool:'arrow',color:0,sid:live.sid,pending:{one:null,all:null},timers:{},cur:{one:'',all:''},ed:null,refs:null,key:''};
+ setMode('detail');
+}
+function inkError(e){
+ if(e&&e.code==='not-found')return 'Em này chưa mở câu đố nên chưa vẽ riêng được. Hãy chọn "Cả lớp".';
+ if(e&&e.code==='permission-denied')return 'Chưa có quyền ghi nét vẽ. Cần cập nhật luật Firestore (Rules) mới nhất.';
+ return 'Chưa gửi được nét vẽ. Hãy kiểm tra mạng rồi vẽ lại.';
+}
+function writeInk(w,target){
+ const str=w.pending[target];
+ if(str==null)return;
+ w.pending[target]=null;
+ clearTimeout(w.timers[target]);
+ const sdoc=db.collection('eloSessions').doc(w.sid);
+ const ref=target==='one'?sdoc.collection('players').doc(w.uid):sdoc;
+ Promise.resolve(ref.update({ink:str})).catch(function(e){S().notify(inkError(e));});
+}
+function queueInk(w,target,str){
+ w.cur[target]=str;
+ if(target==='all'&&live&&live.sid===w.sid)live.classInk=str;
+ w.pending[target]=str;
+ clearTimeout(w.timers[target]);
+ w.timers[target]=setTimeout(function(){writeInk(w,target);},180);
+ paintBase(w);
+}
+function paintBase(w){
+ if(!w.refs||!window.vqcEloInk)return;
+ const other=w.target==='one'?'all':'one';
+ window.vqcEloInk.render(w.refs.base,window.vqcEloInk.parse(w.cur[other]),live&&live.puzzle.color==='b');
+}
+function closeDetail(){
+ const w=live&&live.watch;
+ if(!w)return;
+ try{writeInk(w,'one');writeInk(w,'all');}catch(e){}
+ if(w.ed){try{w.ed.destroy();}catch(e){}w.ed=null;}
+ w.refs=null;
+ live.watch=null;
+}
+function detailStatus(w){
+ if(!w.uid)return 'Đây là thế cờ ban đầu của câu đố. Nét vẽ hiện trên bàn cờ của mọi học sinh trong phiên này.';
+ const pl=live.players.get(w.uid);
+ if(!pl)return 'Em này chưa mở câu đố.';
+ const l=playerLabel(pl);
+ let t=l.t+' • sai '+(pl.mistakes||0)+' • gợi ý '+(pl.hintLevel||0);
+ if(pl.last&&pl.status==='active')t+=' • nước vừa chọn '+pl.last.f+'→'+pl.last.t+(pl.last.ok?' (đúng)':' (sai)');
+ return t;
+}
+function paintDetail(){
+ const w=live&&live.watch;
+ if(!w||live.mode!=='detail'||!w.refs)return;
+ const pl=w.uid?live.players.get(w.uid):null;
+ const key=cardKey(pl);
+ if(key!==w.key){
+  w.key=key;
+  w.refs.bh.replaceChildren(positionBoard(live.puzzle,pl));
+ }
+ w.refs.stat.textContent=detailStatus(w);
+}
+function buildDetail(){
+ const w=live.watch,det=live.refs.det;
+ det.replaceChildren();
+ const I=window.vqcEloInk;
+ if(!w)return;
+ if(!I){det.append(el('p','vqc-elo-empty','Chưa tải được công cụ vẽ. Hãy tải lại trang (Ctrl+F5).'));return;}
+ const r=w.uid?roster.find(function(x){return x.uid===w.uid;}):null;
+ const flip=live.puzzle.color==='b';
+ w.cur={one:w.uid?String((live.players.get(w.uid)||{}).ink||''):'',all:String(live.classInk||'')};
+ const head=el('div','vqc-elo-detailhead');
+ const back=el('button','vqc-elo-btn','← Danh sách');back.type='button';
+ back.addEventListener('click',function(){setMode(w.uid?'gallery':'table');});
+ const stat=el('span','vqc-elo-detailstat');
+ head.append(back,el('b','vqc-elo-detailtitle',w.uid?'Màn hình của '+(r?r.name:'học sinh'):'Vẽ lên màn hình cả lớp'),stat);
+ const body=el('div','vqc-elo-detailbody');
+ const stage=el('div','vqc-elo-stage');
+ const bh=el('div','vqc-elo-stageboard');
+ const base=svgNode('base'),edit=svgNode('edit');
+ stage.append(bh,base,edit);
+ const side=el('div','vqc-elo-drawside');
+ w.refs={bh:bh,stat:stat,base:base,edit:edit};
+ w.ed=I.editor(edit,{initial:w.cur[w.target],flip:flip,tool:w.tool,color:w.color,onChange:function(str){queueInk(w,w.target,str);}});
+ if(w.uid){
+  const tg=el('div','vqc-elo-drawrow');
+  const one=el('button','vqc-elo-btn tgl','👤 Chỉ em này'),all=el('button','vqc-elo-btn tgl','👥 Cả lớp');
+  [one,all].forEach(function(b){b.type='button';});
+  const sync=function(){one.classList.toggle('on',w.target==='one');all.classList.toggle('on',w.target==='all');};
+  const pick=function(t){w.target=t;w.ed.setShapes(w.cur[t]);paintBase(w);sync();};
+  one.addEventListener('click',function(){pick('one');});
+  all.addEventListener('click',function(){pick('all');});
+  sync();tg.append(one,all);
+  side.append(el('p','vqc-elo-drawlabel','Vẽ cho:'),tg);
+ }
+ side.append(el('p','vqc-elo-drawlabel','Công cụ:'));
+ const tr=el('div','vqc-elo-drawrow');
+ const tArrow=el('button','vqc-elo-btn tgl','➡️ Mũi tên / khoanh ô'),tPen=el('button','vqc-elo-btn tgl','✏️ Bút vẽ');
+ [tArrow,tPen].forEach(function(b){b.type='button';});
+ const syncTool=function(){tArrow.classList.toggle('on',w.tool==='arrow');tPen.classList.toggle('on',w.tool==='pen');};
+ tArrow.addEventListener('click',function(){w.tool='arrow';w.ed.setTool('arrow');syncTool();});
+ tPen.addEventListener('click',function(){w.tool='pen';w.ed.setTool('pen');syncTool();});
+ syncTool();tr.append(tArrow,tPen);side.append(tr);
+ const cr=el('div','vqc-elo-drawrow');
+ const sw=[];
+ I.COLORS.forEach(function(c,i){
+  const b=el('button','vqc-elo-swatch');b.type='button';b.style.background=c;b.title=I.COLOR_NAMES[i];b.setAttribute('aria-label','Màu '+I.COLOR_NAMES[i]);
+  b.addEventListener('click',function(){w.color=i;w.ed.setColor(i);sw.forEach(function(x,j){x.classList.toggle('on',j===i);});});
+  sw.push(b);cr.append(b);
+ });
+ sw[w.color].classList.add('on');
+ side.append(cr);
+ const ar=el('div','vqc-elo-drawrow');
+ const undo=el('button','vqc-elo-btn','↩ Hoàn tác'),clr=el('button','vqc-elo-btn','🧹 Xoá hết');
+ [undo,clr].forEach(function(b){b.type='button';});
+ undo.addEventListener('click',function(){w.ed.undo();});
+ clr.addEventListener('click',function(){w.ed.clear();});
+ ar.append(undo,clr);side.append(ar);
+ side.append(el('p','vqc-elo-drawhelp','Kéo từ ô này sang ô khác để vẽ mũi tên, bấm một ô để khoanh tròn (bấm lại để bỏ). Học sinh thấy nét vẽ ngay trên bàn cờ của mình nhưng không vẽ lại được.'));
+ body.append(stage,side);
+ det.append(head,body);
+ paintBase(w);
+ w.key='';
+ paintDetail();
+}
+
 function renderLive(info){
  const box=showHost('session');if(!box)return;
  const sid=info.sid,s=info.session,p=info.puzzle;
- live={sid:sid,session:s,puzzle:p,offset:(Number(info.serverNow)||Date.now())-Date.now(),players:new Map(),ended:s.status!=='active',refs:null,pt:0};
+ live={sid:sid,session:s,puzzle:p,offset:(Number(info.serverNow)||Date.now())-Date.now(),players:new Map(),ended:s.status!=='active',refs:null,pt:0,mode:'table',watch:null,classInk:String(s.ink||''),cards:new Map()};
  lastPointer='';
  const top=el('div','vqc-elo-livetop');
  const info1=el('div','vqc-elo-liveinfo');
@@ -434,9 +636,17 @@ function renderLive(info){
  const end=el('button','vqc-elo-btn','⏹ Kết thúc');end.type='button';
  end.addEventListener('click',function(){endSession(false);});
  const again=el('button','vqc-elo-btn primary','🎯 Câu đố mới');again.type='button';again.hidden=!live.ended;
- again.addEventListener('click',function(){live=null;stopAll();showSetup();});
+ again.addEventListener('click',function(){closeDetail();live=null;stopAll();showSetup();});
  top.append(info1,clock,end,again);
  box.append(top);
+ const modes=el('div','vqc-elo-modes');
+ const mTable=el('button','vqc-elo-btn tgl on','📋 Bảng kết quả'),mGal=el('button','vqc-elo-btn tgl','🖥 Màn hình học sinh'),mAll=el('button','vqc-elo-btn tgl','✏️ Vẽ cho cả lớp');
+ [mTable,mGal,mAll].forEach(function(b){b.type='button';});
+ mTable.addEventListener('click',function(){setMode('table');});
+ mGal.addEventListener('click',function(){setMode('gallery');});
+ mAll.addEventListener('click',function(){openWatch(null);});
+ modes.append(mTable,mGal,mAll);
+ box.append(modes);
  const grid=el('div','vqc-elo-livegrid');
  const left=el('div','vqc-elo-liveleft');
  left.append(miniBoard(p.fen,p.moves[0],p.color));
@@ -452,11 +662,18 @@ function renderLive(info){
  const wrap=el('div','vqc-elo-tablewrap');
  const table=el('table','vqc-elo-table');
  const thead=el('thead'),tr=el('tr');
- ['Học sinh','Lớp','Trạng thái','Sai','Gợi ý','Thời gian'].forEach(function(h){tr.append(el('th','',h));});
+ ['Học sinh','Lớp','Trạng thái','Sai','Gợi ý','Thời gian','Màn hình'].forEach(function(h){tr.append(el('th','',h));});
  thead.append(tr);table.append(thead);
  const body=el('tbody');table.append(body);wrap.append(table);right.append(wrap);
  grid.append(left,right);box.append(grid);
- live.refs={clock:clock,end:end,again:again,counts:counts,body:body};
+ const gal=el('div','vqc-elo-gallery');gal.hidden=true;
+ const galBar=el('div','vqc-elo-toolbar');
+ galBar.append(classSelect(function(){paintLive();}));
+ const galCounts=el('span','vqc-elo-livecounts');galBar.append(galCounts);
+ const galGrid=el('div','vqc-elo-galgrid');
+ gal.append(galBar,galGrid);box.append(gal);
+ const det=el('div','vqc-elo-detail');det.hidden=true;box.append(det);
+ live.refs={clock:clock,end:end,again:again,counts:counts,body:body,grid:grid,gal:gal,det:det,galGrid:galGrid,galCounts:galCounts,tabs:{table:mTable,gallery:mGal,all:mAll}};
  end.disabled=live.ended;
  (async function(){
   if(!rosterLoaded){try{await loadRoster();}catch(e){}}
@@ -470,6 +687,7 @@ function renderLive(info){
    },function(){}));
    unsubs.push(db.collection('eloSessions').doc(sid).onSnapshot(function(snap){
     if(!live||live.sid!==sid||!snap.exists)return;
+    if(!(live.watch&&live.watch.pending&&live.watch.pending.all!=null))live.classInk=String(snap.data().ink||'');
     if(snap.data().status!=='active'&&!live.ended){live.ended=true;live.refs.end.disabled=true;live.refs.again.hidden=false;}
     live.refs.clock.textContent=clockLabel();
    },function(){}));
@@ -504,5 +722,5 @@ async function openSession(){
  await renderSetup(box);
 }
 
-window.vqcEloClass={openTable:openTable,openSession:openSession,hide:hide,version:'20261126-elo-v2'};
+window.vqcEloClass={openTable:openTable,openSession:openSession,hide:hide,version:'20261126-elo-v3'};
 })();

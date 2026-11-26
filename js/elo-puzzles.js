@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 if(window.vqcEloPuzzles)return;
-const VERSION='20261126-elo-v3';
+const VERSION='20261126-elo-v4';
 const FILES='abcdefgh';
 const THEME_VI={
  mateIn1:'Chiếu hết 1 nước',mateIn2:'Chiếu hết 2 nước',mateIn3:'Chiếu hết 3 nước',fork:'Đòn đánh đôi',pin:'Ghim quân',skewer:'Đòn xiên',
@@ -19,6 +19,7 @@ let status='idle',result=null,wrongTimer=0,giveTimer=0,confirmGive=false,busy=fa
 let token=0,timers=[],isOpen=false,lastDelta=null;
 let mode='solo',sess=null,offset=0,clockTimer=0;
 let ptr=null,lastPtrSid=null,dismissedSid=null,roomSub=null,roomOff=null;
+let inkSid='',inkOffs=[],inkAll='',inkMine='';
 
 function $(id){return document.getElementById(id);}
 function el(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!=null)n.textContent=text;return n;}
@@ -216,7 +217,50 @@ function paintPanel(){
 }
 function paint(){
  if(!isOpen)return;
- paintBoard();paintPromo();paintPanel();
+ paintBoard();paintPromo();paintPanel();syncInk();
+}
+
+/* Nét vẽ của giáo viên: chỉ đọc, hiện phía trên bàn cờ (cho riêng em này và/hoặc cho cả lớp). */
+function myUid(){try{return auth.currentUser.uid;}catch(e){return '';}}
+function paintInk(){
+ const svg=$('vqcEloInk');if(!svg)return;
+ const I=window.vqcEloInk;
+ if(!I||!inkSid||!isOpen){svg.replaceChildren();return;}
+ I.render(svg,I.parse(inkAll).concat(I.parse(inkMine)),!!(P&&P.color==='b'));
+}
+function stopInk(){
+ inkOffs.forEach(function(u){try{u();}catch(e){}});
+ inkOffs=[];inkSid='';inkAll='';inkMine='';
+ paintInk();
+}
+function inkChanged(prev,next){
+ if(!prev&&next)notify('Giáo viên vừa vẽ lên bàn cờ của em. Hãy nhìn kỹ nhé!','success');
+}
+function syncInk(){
+ const want=isOpen&&mode==='session'&&sess&&sess.id?String(sess.id):'';
+ if(!want){if(inkSid)stopInk();else paintInk();return;}
+ if(inkSid!==want){
+  stopInk();
+  const uid=myUid();
+  let dbRef=null;
+  try{dbRef=typeof db!=='undefined'&&db?db:null;}catch(e){dbRef=null;}
+  if(!uid||!dbRef)return;
+  inkSid=want;
+  try{
+   const sref=dbRef.collection('eloSessions').doc(want);
+   inkOffs.push(sref.onSnapshot(function(sn){
+    if(inkSid!==want)return;
+    const v=sn&&sn.exists?String((sn.data()||{}).ink||''):'';
+    inkChanged(inkAll,v);inkAll=v;paintInk();
+   },function(){}));
+   inkOffs.push(sref.collection('players').doc(uid).onSnapshot(function(sn){
+    if(inkSid!==want)return;
+    const v=sn&&sn.exists?String((sn.data()||{}).ink||''):'';
+    inkChanged(inkMine,v);inkMine=v;paintInk();
+   },function(){}));
+  }catch(e){}
+ }
+ paintInk();
 }
 
 function onCell(sq){
@@ -449,6 +493,7 @@ const OVERLAY_HTML=`<div id="vqcEloOverlay" role="dialog" aria-modal="true" aria
    <div class="vqc-elo-boardcol">
     <div class="vqc-elo-boardwrap">
      <div id="vqcEloBoard" class="vqc-elo-board" aria-label="Bàn cờ câu đố"></div>
+     <svg id="vqcEloInk" class="vqc-elo-ink" viewBox="0 0 800 800" aria-hidden="true"></svg>
      <div id="vqcEloPromo" class="vqc-elo-promo" hidden></div>
     </div>
    </div>
@@ -535,7 +580,7 @@ async function autoOpenSession(sid){
 function close(){
  if(!isOpen)return;
  if(mode==='session'&&sess)dismissedSid=sess.id;
- isOpen=false;token++;clearTimers();clearTimeout(giveTimer);clearInterval(clockTimer);confirmGive=false;busy=false;
+ isOpen=false;token++;clearTimers();clearTimeout(giveTimer);clearInterval(clockTimer);confirmGive=false;busy=false;stopInk();
  const o=$('vqcEloOverlay');if(o)o.classList.remove('open');
  if(window.vqcEloClass&&window.vqcEloClass.hide)window.vqcEloClass.hide();
 }

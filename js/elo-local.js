@@ -318,7 +318,7 @@ function makeApi(deps){
   return resp;
  }
 
- function finalize(tx,uid,ctx,outcome,n,t,extra){
+ function finalize(tx,uid,ctx,outcome,n,t,extra,last){
   const a=ctx.a,p=ctx.p,st=ctx.st;
   const solved=outcome==='solved';
   const isClean=solved&&a.mistakes===0&&(a.hintLevel||0)===0;
@@ -334,7 +334,7 @@ function makeApi(deps){
   const resp=Object.assign({done:true,status:outcome,result:result,stats:publicStats(next)},extra||{});
   patch(tx,attemptRef(a.id),{status:outcome,result:result,idx:extra&&extra.idx!=null?extra.idx:a.idx,lastN:n,lastReq:{n:n,resp:resp},updatedAt:t});
   put(tx,statsRef(uid),next);
-  if(a.sessionId)patch(tx,playerRef(a.sessionId,uid),{status:outcome,clean:isClean,delta:delta,mistakes:a.mistakes,hintLevel:a.hintLevel||0,doneAt:t,updatedAt:t});
+  if(a.sessionId)patch(tx,playerRef(a.sessionId,uid),Object.assign({status:outcome,clean:isClean,delta:delta,mistakes:a.mistakes,hintLevel:a.hintLevel||0,doneAt:t,updatedAt:t},last?{last:last}:{}));
   return resp;
  }
 
@@ -364,15 +364,15 @@ function makeApi(deps){
     const mistakes=a.mistakes+1;
     const resp={correct:false,mistakes:mistakes};
     patch(tx,attemptRef(a.id),{mistakes:mistakes,lastN:step.n,lastReq:{n:step.n,resp:resp},updatedAt:t});
-    if(a.sessionId)patch(tx,playerRef(a.sessionId,uid),{mistakes:mistakes,updatedAt:t});
+    if(a.sessionId)patch(tx,playerRef(a.sessionId,uid),{mistakes:mistakes,last:{f:from,t:to,ok:false},updatedAt:t});
     return resp;
    }
    if(j.done){
-    return finalize(tx,uid,ctx,'solved',step.n,t,{correct:true,reply:null,idx:ctx.p.moves.length});
+    return finalize(tx,uid,ctx,'solved',step.n,t,{correct:true,reply:null,idx:ctx.p.moves.length},{f:from,t:to,ok:true});
    }
    const resp={correct:true,done:false,reply:j.reply,idx:j.nextIdx};
    patch(tx,attemptRef(a.id),{idx:j.nextIdx,lastN:step.n,lastReq:{n:step.n,resp:resp},updatedAt:t});
-   if(a.sessionId)patch(tx,playerRef(a.sessionId,uid),{idx:j.nextIdx,updatedAt:t});
+   if(a.sessionId)patch(tx,playerRef(a.sessionId,uid),{idx:j.nextIdx,last:{f:from,t:to,ok:true},updatedAt:t});
    return resp;
   });
  }

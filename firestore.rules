@@ -587,20 +587,21 @@ service cloud.firestore {
    allow delete: if false;
   }
   match /eloSessions/{sid} {
-   function eloSessKeys(d){return d.keys().hasOnly(['id','teacherId','teacherName','room','minElo','maxElo','themes','puzzleId','puzzleRating','hints','timeLimitSec','status','startedAt','endsAt','endedAt','createdAt']);}
+   function eloSessKeys(d){return d.keys().hasOnly(['id','teacherId','teacherName','room','minElo','maxElo','themes','puzzleId','puzzleRating','hints','timeLimitSec','status','startedAt','endsAt','endedAt','createdAt','ink']) && (!('ink' in d) || (d.ink is string && d.ink.size()<=4000));}
    allow get: if active() && (resource==null || (teacher() && resource.data.teacherId==request.auth.uid) || (student() && resource.data.teacherId==me().data.teacherId));
    allow list: if teacher() && resource.data.teacherId==request.auth.uid;
    allow create: if teacher() && request.resource.data.teacherId==request.auth.uid && request.resource.data.id==sid && request.resource.data.status=='active' && eloSessKeys(request.resource.data);
    allow update: if teacher() && resource.data.teacherId==request.auth.uid && request.resource.data.teacherId==request.auth.uid && eloSessKeys(request.resource.data);
    allow delete: if false;
    match /players/{pid} {
-    function eloPlKeys(d){return d.keys().hasOnly(['uid','teacherId','name','classCode','status','mistakes','hintLevel','idx','startedAt','doneAt','clean','delta','updatedAt']);}
-    allow get, list: if teacher() && resource.data.teacherId==request.auth.uid;
+    function eloPlKeys(d){return d.keys().hasOnly(['uid','teacherId','name','classCode','status','mistakes','hintLevel','idx','startedAt','doneAt','clean','delta','updatedAt','last','ink']) && (!('ink' in d) || (d.ink is string && d.ink.size()<=4000)) && (!('last' in d) || (d.last is map && d.last.keys().hasOnly(['f','t','ok']) && d.last.f is string && d.last.f.size()==2 && d.last.t is string && d.last.t.size()==2 && d.last.ok is bool));}
+    allow list: if teacher() && resource.data.teacherId==request.auth.uid;
+    allow get: if (student() && pid==request.auth.uid) || (teacher() && resource.data.teacherId==request.auth.uid);
     allow create: if student() && pid==request.auth.uid && request.resource.data.uid==pid
      && request.resource.data.teacherId==me().data.teacherId
      && get(/databases/$(database)/documents/eloSessions/$(sid)).data.teacherId==request.resource.data.teacherId
      && eloPlKeys(request.resource.data);
-    allow update: if ((student() && pid==request.auth.uid && resource.data.uid==pid) || (teacher() && resource.data.teacherId==request.auth.uid))
+    allow update: if ((student() && pid==request.auth.uid && resource.data.uid==pid && request.resource.data.get('ink','')==resource.data.get('ink','')) || (teacher() && resource.data.teacherId==request.auth.uid))
      && request.resource.data.uid==resource.data.uid && request.resource.data.teacherId==resource.data.teacherId
      && eloPlKeys(request.resource.data);
     allow delete: if false;

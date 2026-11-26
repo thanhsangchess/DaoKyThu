@@ -154,3 +154,39 @@
 .vqc-elo-home__text p{margin:0;font-size:14.5px;line-height:1.5;color:#6b5513;font-weight:650}
 .vqc-elo-home .btn{flex:0 0 auto;min-height:52px;padding:12px 22px;font-size:16px;font-weight:800;border-radius:15px}
 @media(max-width:720px){.vqc-elo-home{margin:14px 0 0;padding:14px;border-radius:20px}.vqc-elo-home .btn{width:100%}}
+
+/* Theo dõi màn hình học sinh + vẽ */
+#vqcEloOverlay .vqc-elo-ink{position:absolute;left:5px;top:5px;width:calc(100% - 10px);height:calc(100% - 10px);z-index:6;pointer-events:none;overflow:visible}
+@media(max-width:820px){#vqcEloOverlay .vqc-elo-ink{left:3px;top:3px;width:calc(100% - 6px);height:calc(100% - 6px)}}
+#vqcEloOverlay .vqc-elo-minicell.bad{box-shadow:inset 0 0 0 100px #e6394670}
+#vqcEloOverlay .vqc-elo-btn.mini{min-height:0;padding:4px 10px;font-size:13px;box-shadow:none}
+#vqcEloOverlay .vqc-elo-btn.tgl.on{background:#e8f3ff;border-color:#2878cc;color:#1a5a9f}
+#vqcEloOverlay .vqc-elo-modes{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+#vqcEloOverlay .vqc-elo-galgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin-top:8px}
+#vqcEloOverlay .vqc-elo-card2{display:flex;flex-direction:column;gap:5px;padding:8px;border:2px solid #dbeaf4;border-radius:12px;background:#fff;font:inherit;color:#27465e;text-align:left;cursor:pointer}
+#vqcEloOverlay .vqc-elo-card2:disabled{cursor:default;opacity:.6}
+#vqcEloOverlay .vqc-elo-card2.st-active{border-color:#2878cc}
+#vqcEloOverlay .vqc-elo-card2.st-ok{border-color:#2f9e6e}
+#vqcEloOverlay .vqc-elo-card2.st-ok2{border-color:#9ccf7a}
+#vqcEloOverlay .vqc-elo-card2.st-fail,#vqcEloOverlay .vqc-elo-card2.st-exp{border-color:#e0a1a1}
+#vqcEloOverlay .vqc-elo-card2head{display:flex;justify-content:space-between;gap:6px;font-size:14px}
+#vqcEloOverlay .vqc-elo-card2head span{color:#64809b;font-size:12.5px}
+#vqcEloOverlay .vqc-elo-card2foot{font-size:12.5px;color:#4a6780;line-height:1.35}
+#vqcEloOverlay .vqc-elo-card2empty{display:flex;align-items:center;justify-content:center;aspect-ratio:1/1;border-radius:10px;background:#f1f6fa;color:#8aa0b4;font-size:13px}
+#vqcEloOverlay .vqc-elo-detailhead{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin:0 0 12px}
+#vqcEloOverlay .vqc-elo-detailtitle{font-size:18px;color:#27465e}
+#vqcEloOverlay .vqc-elo-detailstat{flex:1 1 220px;color:#4a6780;font-weight:700}
+#vqcEloOverlay .vqc-elo-detailbody{display:grid;grid-template-columns:minmax(260px,min(100%,440px)) minmax(0,1fr);gap:16px;align-items:start}
+@media(max-width:820px){#vqcEloOverlay .vqc-elo-detailbody{grid-template-columns:minmax(0,1fr)}}
+#vqcEloOverlay .vqc-elo-stage{position:relative;width:100%}
+#vqcEloOverlay .vqc-elo-stage .vqc-elo-mini{box-sizing:border-box}
+#vqcEloOverlay .vqc-elo-stage .vqc-elo-ink{left:3px;top:3px;width:calc(100% - 6px);height:calc(100% - 6px)}
+#vqcEloOverlay .vqc-elo-stage .vqc-elo-ink.base{opacity:.45;z-index:5}
+#vqcEloOverlay .vqc-elo-stage .vqc-elo-ink.edit{pointer-events:auto;cursor:crosshair;z-index:6;touch-action:none}
+#vqcEloOverlay .vqc-elo-drawside{display:flex;flex-direction:column;gap:8px}
+#vqcEloOverlay .vqc-elo-drawrow{display:flex;flex-wrap:wrap;gap:8px}
+#vqcEloOverlay .vqc-elo-drawlabel{margin:4px 0 0;font-weight:800;color:#3d5a75}
+#vqcEloOverlay .vqc-elo-drawhelp{margin:4px 0 0;font-size:13px;line-height:1.5;color:#64809b}
+#vqcEloOverlay .vqc-elo-swatch{width:38px;height:38px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 2px #c5d6e4;cursor:pointer;padding:0}
+#vqcEloOverlay .vqc-elo-swatch.on{box-shadow:0 0 0 4px #27465e}
+#vqcEloOverlay .vqc-elo-livegrid[hidden],#vqcEloOverlay .vqc-elo-gallery[hidden],#vqcEloOverlay .vqc-elo-detail[hidden]{display:none}
