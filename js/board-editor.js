@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 if(window.vqcBoardEditor)return;
-const VERSION='20261126-bed-v2';
+const VERSION='20261126-bed-v3';
 const FILES='abcdefgh';
 const START='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
 const PALETTE=['K','Q','R','B','N','P','k','q','r','b','n','p',''];
@@ -165,6 +165,7 @@ function evbFor(fen){
 
 function setMsg(t,k){msgText=t||'';msgKind=k||'';const m=$('vqcBedMsg');if(m){m.textContent=msgText;m.className='vqc-bed-msg'+(msgKind?' '+msgKind:'');}}
 
+const ERASER_SVG='<svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><g transform="rotate(-35 24 24)"><rect x="6" y="15" width="36" height="20" rx="5" fill="#f4a6b8" stroke="#8a4358" stroke-width="2.4"/><path d="M6 20a5 5 0 0 1 5-5h9v20h-9a5 5 0 0 1-5-5z" fill="#fff" stroke="#8a4358" stroke-width="2.4" stroke-linejoin="round"/></g><path d="M8 42h32" stroke="#6b7f92" stroke-width="2.6" stroke-linecap="round"/></svg>';
 function paintPalette(){
  const pal=$('vqcBedPalette');if(!pal)return;
  pal.replaceChildren();
@@ -175,7 +176,7 @@ function paintPalette(){
   b.title=name;b.setAttribute('aria-label',name);b.setAttribute('aria-pressed',String(tool===code));
   if(code&&typeof pieceSvgMarkup==='function')b.innerHTML=pieceSvgMarkup(code);
   else if(code)b.textContent=({K:'♔',Q:'♕',R:'♖',B:'♗',N:'♘',P:'♙',k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟'})[code];
-  else b.textContent='✕';
+  else b.innerHTML=ERASER_SVG;
   b.addEventListener('click',function(){tool=code;paintPalette();});
   pal.append(b);
  });

@@ -159,7 +159,7 @@
    document.head.appendChild(l);
   }
   const s=document.createElement('script');
-  s.src='./js/board-editor.js?v=20261126-bed-v2';s.async=false;
+  s.src='./js/board-editor.js?v=20261126-bed-v3';s.async=false;
   document.head.appendChild(s);
  }catch(e){}
 })();
