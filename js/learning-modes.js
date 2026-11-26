@@ -136,11 +136,14 @@
    l.id='vqcEloCss';l.rel='stylesheet';l.href='./css/elo-puzzles.css?v=20261126-elo-v2';
    document.head.appendChild(l);
   }
+  const s0=document.createElement('script');
+  s0.src='./js/elo-local.js?v=20261126-elo-v3';s0.async=false;
+  document.head.appendChild(s0);
   const s=document.createElement('script');
-  s.src='./js/elo-puzzles.js?v=20261126-elo-v2';s.async=false;
+  s.src='./js/elo-puzzles.js?v=20261126-elo-v3';s.async=false;
   document.head.appendChild(s);
   const s2=document.createElement('script');
-  s2.src='./js/elo-class.js?v=20261126-elo-v2';s2.async=false;
+  s2.src='./js/elo-class.js?v=20261126-elo-v3';s2.async=false;
   document.head.appendChild(s2);
  }catch(e){}
 })();

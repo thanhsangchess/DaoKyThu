@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 if(window.vqcEloPuzzles)return;
-const VERSION='20261126-elo-v2';
+const VERSION='20261126-elo-v3';
 const FILES='abcdefgh';
 const THEME_VI={
  mateIn1:'Chiếu hết 1 nước',mateIn2:'Chiếu hết 2 nước',mateIn3:'Chiếu hết 3 nước',fork:'Đòn đánh đôi',pin:'Ghim quân',skewer:'Đòn xiên',
@@ -41,15 +41,15 @@ function retryable(e){
 }
 function errText(e){
  const c=String(e&&e.code||''),m=String(e&&e.message||'');
- if(/not-found/.test(c)&&m==='NOT_FOUND')return 'Máy chủ câu đố chưa được cài đặt. Hãy báo giáo viên hoặc người quản trị triển khai Cloud Functions.';
+ if(/permission-denied/.test(c)&&/insufficient permissions/i.test(m))return 'Chưa có quyền lưu điểm Câu đố. Hãy báo giáo viên hoặc người quản trị cập nhật luật Firestore (Rules).';
  if(/unauthenticated/.test(c))return 'Phiên đăng nhập đã hết. Em hãy đăng nhập lại nhé.';
  if(/unavailable|deadline|network/.test(c)||(typeof navigator!=='undefined'&&navigator.onLine===false))return 'Mất kết nối mạng. Em kiểm tra Internet rồi thử lại nhé.';
- if(/internal|unknown/.test(c))return 'Máy chủ đang bận. Em thử lại sau ít giây nhé.';
+ if(/internal|unknown/.test(c))return 'Hệ thống đang bận. Em thử lại sau ít giây nhé.';
  return m||'Có lỗi xảy ra. Em thử lại nhé.';
 }
 async function call(name,payload){
- if(typeof callable==='undefined'||!callable||typeof callable.httpsCallable!=='function'){
-  const e=new Error('Chưa kết nối được máy chủ.');e.code='unavailable';throw e;
+ if(!window.vqcEloLocal||typeof window.vqcEloLocal.call!=='function'){
+  const e=new Error('Chưa tải xong chức năng câu đố. Em thử lại sau ít giây nhé.');e.code='unavailable';throw e;
  }
  if(typeof navigator!=='undefined'&&navigator.onLine===false){
   const e=new Error('Mất kết nối mạng.');e.code='unavailable';throw e;
@@ -57,8 +57,7 @@ async function call(name,payload){
  let err=null;
  for(let i=0;i<3;i++){
   try{
-   const r=await callable.httpsCallable(name)(payload);
-   return r.data;
+   return await window.vqcEloLocal.call(name,payload);
   }catch(e){
    err=e;
    if(!retryable(e))throw e;
@@ -475,7 +474,7 @@ const OVERLAY_HTML=`<div id="vqcEloOverlay" role="dialog" aria-modal="true" aria
     <div class="vqc-elo-foot">
      <button type="button" id="vqcEloNext" class="vqc-elo-btn primary">Câu tiếp theo →</button>
     </div>
-    <p class="vqc-elo-credit">Câu đố từ <a href="https://database.lichess.org/#puzzles" target="_blank" rel="noopener">cơ sở dữ liệu câu đố của Lichess</a> (CC0). Elo của em được máy chủ tính và lưu theo tài khoản.</p>
+    <p class="vqc-elo-credit">Câu đố từ <a href="https://database.lichess.org/#puzzles" target="_blank" rel="noopener">cơ sở dữ liệu câu đố của Lichess</a> (CC0). Elo của em được tính và lưu theo tài khoản.</p>
    </section>
   </div>
   <div id="vqcEloTeacherHost" class="vqc-elo-teacherhost" hidden></div>

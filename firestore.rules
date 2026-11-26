@@ -548,17 +548,62 @@ service cloud.firestore {
    allow delete: if false;
   }
   match /eloStats/{uid} {
+   function eloStatKeys(d){return d.keys().hasOnly(['uid','role','name','teacherId','classCode','elo','games','solved','streak','best','history','seen','active','createdAt','updatedAt','lastAt','lastAtTs']);}
+   function eloStatOwner(d){return d.uid==uid && d.role==me().data.role && d.teacherId==(teacher()?request.auth.uid:me().data.teacherId);}
+   function eloStatNums(d){return d.elo is int && d.elo>=200 && d.elo<=2200 && d.games is int && d.games>=0 && d.solved is int && d.solved<=d.games && d.streak is int && d.streak>=0 && d.best is int && d.best<=2200 && d.history.size()>=1 && d.history.size()<=40 && d.seen.size()<=300 && d.history[d.history.size()-1]==d.elo;}
    allow get: if active() && (request.auth.uid==uid || (teacher() && resource.data.teacherId==request.auth.uid));
    allow list: if teacher() && resource.data.teacherId==request.auth.uid;
-   allow write: if false;
+   allow create: if active() && request.auth.uid==uid
+    && eloStatKeys(request.resource.data) && eloStatOwner(request.resource.data) && eloStatNums(request.resource.data)
+    && request.resource.data.elo==600 && request.resource.data.games==0 && request.resource.data.best==600
+    && request.resource.data.history==[600] && request.resource.data.lastAtTs==request.time;
+   allow update: if active() && request.auth.uid==uid
+    && eloStatKeys(request.resource.data) && eloStatOwner(request.resource.data) && eloStatNums(request.resource.data)
+    && ((request.resource.data.games==resource.data.games
+      && request.resource.data.elo==resource.data.elo
+      && request.resource.data.solved==resource.data.solved
+      && request.resource.data.streak==resource.data.streak
+      && request.resource.data.best==resource.data.best
+      && request.resource.data.history==resource.data.history
+      && request.resource.data.lastAtTs==resource.data.lastAtTs)
+     || (request.resource.data.games==resource.data.games+1
+      && request.resource.data.elo-resource.data.elo<=48
+      && resource.data.elo-request.resource.data.elo<=48
+      && request.resource.data.solved>=resource.data.solved
+      && request.resource.data.solved<=resource.data.solved+1
+      && request.resource.data.streak<=resource.data.streak+1
+      && (request.resource.data.best==resource.data.best || request.resource.data.best==request.resource.data.elo)
+      && request.resource.data.lastAtTs==request.time
+      && request.time>resource.data.lastAtTs+duration.value(2,'s')));
+   allow delete: if false;
   }
-  match /eloAttempts/{id} {allow read,write: if false;}
+  match /eloAttempts/{id} {
+   function eloAttKeys(d){return d.keys().hasOnly(['id','uid','teacherId','classCode','sessionId','puzzleId','idx','mistakes','hintLevel','lastN','lastReq','status','startedAt','updatedAt','result']);}
+   function eloAttMine(d){return d.uid==request.auth.uid && d.id==id && d.teacherId==(teacher()?request.auth.uid:me().data.teacherId);}
+   allow get: if active() && (resource==null || resource.data.uid==request.auth.uid);
+   allow list: if false;
+   allow create: if active() && eloAttKeys(request.resource.data) && eloAttMine(request.resource.data);
+   allow update: if active() && resource.data.uid==request.auth.uid && eloAttKeys(request.resource.data) && eloAttMine(request.resource.data);
+   allow delete: if false;
+  }
   match /eloSessions/{sid} {
-   allow get, list: if teacher() && resource.data.teacherId==request.auth.uid;
-   allow write: if false;
+   function eloSessKeys(d){return d.keys().hasOnly(['id','teacherId','teacherName','room','minElo','maxElo','themes','puzzleId','puzzleRating','hints','timeLimitSec','status','startedAt','endsAt','endedAt','createdAt']);}
+   allow get: if active() && ((teacher() && resource.data.teacherId==request.auth.uid) || (student() && resource.data.teacherId==me().data.teacherId));
+   allow list: if teacher() && resource.data.teacherId==request.auth.uid;
+   allow create: if teacher() && request.resource.data.teacherId==request.auth.uid && request.resource.data.id==sid && request.resource.data.status=='active' && eloSessKeys(request.resource.data);
+   allow update: if teacher() && resource.data.teacherId==request.auth.uid && request.resource.data.teacherId==request.auth.uid && eloSessKeys(request.resource.data);
+   allow delete: if false;
    match /players/{pid} {
+    function eloPlKeys(d){return d.keys().hasOnly(['uid','teacherId','name','classCode','status','mistakes','hintLevel','idx','startedAt','doneAt','clean','delta','updatedAt']);}
     allow get, list: if teacher() && resource.data.teacherId==request.auth.uid;
-    allow write: if false;
+    allow create: if student() && pid==request.auth.uid && request.resource.data.uid==pid
+     && request.resource.data.teacherId==me().data.teacherId
+     && get(/databases/$(database)/documents/eloSessions/$(sid)).data.teacherId==request.resource.data.teacherId
+     && eloPlKeys(request.resource.data);
+    allow update: if ((student() && pid==request.auth.uid && resource.data.uid==pid) || (teacher() && resource.data.teacherId==request.auth.uid))
+     && request.resource.data.uid==resource.data.uid && request.resource.data.teacherId==resource.data.teacherId
+     && eloPlKeys(request.resource.data);
+    allow delete: if false;
    }
   }
   match /{document=**} {allow read,write: if false;}
