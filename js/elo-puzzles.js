@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 if(window.vqcEloPuzzles)return;
-const VERSION='20261126-elo-v7';
+const VERSION='20261126-elo-v8';
 const FILES='abcdefgh';
 const THEME_VI={
  mateIn1:'Chiếu hết 1 nước',mateIn2:'Chiếu hết 2 nước',mateIn3:'Chiếu hết 3 nước',fork:'Đòn đánh đôi',pin:'Ghim quân',skewer:'Đòn xiên',
@@ -573,6 +573,7 @@ function showOverlay(){
  setTimeout(function(){const b=$('vqcEloClose');if(b)b.focus();},0);
 }
 function open(){
+ warmUp();
  if(typeof Chess!=='function'){notify('Chưa thể mở: thư viện luật cờ vua chưa được tải.');return;}
  if(!window.accountProfile){if(typeof showAccountPanel==='function')showAccountPanel();else notify('Em hãy đăng nhập để luyện câu đố nhé.');return;}
  showOverlay();
@@ -643,7 +644,24 @@ function ensureMenu(){
 window.vqcEloPuzzles={open:open,close:close,version:VERSION,
  shared:{call:call,errText:errText,el:el,THEME_VI:THEME_VI,notify:notify,role:role,sleep:sleep,newNonce:newNonce,applyIsOpen:function(){return isOpen;}}};
 window.vqcEloPuzzlesHide=close;
-function init(){ensureMenu();watchRoom();}
+let warmedUid='';
+function warmUp(){
+ try{
+  const uid=myUid();
+  if(!uid||uid===warmedUid||!window.vqcEloLocal||typeof window.vqcEloLocal.warm!=='function')return;
+  warmedUid=uid;
+  window.vqcEloLocal.warm();
+ }catch(e){}
+}
+function startWarm(){
+ let n=0;
+ const t=setInterval(function(){
+  warmUp();
+  if(warmedUid||++n>40)clearInterval(t);
+ },1500);
+ try{if(typeof auth!=='undefined'&&auth.onAuthStateChanged)auth.onAuthStateChanged(function(){setTimeout(warmUp,300);});}catch(e){}
+}
+function init(){ensureMenu();watchRoom();startWarm();}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
 else init();
 })();

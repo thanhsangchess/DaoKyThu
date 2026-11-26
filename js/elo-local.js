@@ -144,8 +144,10 @@ function makeApi(deps){
  let B=null;
  const bank=function(){return B;};
  async function ready(){
-  if(!B)B=await loadBank(deps.bankBase,deps.fetchJson);
-  if(deps.syncClock)await deps.syncClock();
+  await Promise.all([
+   B?null:loadBank(deps.bankBase,deps.fetchJson).then(function(b){B=b;}),
+   deps.syncClock?deps.syncClock():null
+  ]);
  }
  const bad=function(m){return new HttpsError('invalid-argument',m);};
  const denied=function(m){return new HttpsError('permission-denied',m);};
@@ -552,7 +554,8 @@ function makeApi(deps){
  }
 
  const wrap=function(fn){return async function(data,uid){await ready();return fn(data,uid);};};
- return {start:wrap(start),move:wrap(move),hint:wrap(hint),giveUp:wrap(giveUp),sessionBrowse:wrap(sessionBrowse),sessionCreate:wrap(sessionCreate),sessionGet:wrap(sessionGet),sessionEnd:wrap(sessionEnd)};
+ async function warm(uid){await Promise.all([ready(),loadUser(uid).catch(function(){})]);return true;}
+ return {warm:warm,start:wrap(start),move:wrap(move),hint:wrap(hint),giveUp:wrap(giveUp),sessionBrowse:wrap(sessionBrowse),sessionCreate:wrap(sessionCreate),sessionGet:wrap(sessionGet),sessionEnd:wrap(sessionEnd)};
 }
 
 const NAMES={eloPuzzleStart:'start',eloPuzzleMove:'move',eloPuzzleHint:'hint',eloPuzzleGiveUp:'giveUp',eloSessionBrowse:'sessionBrowse',eloSessionCreate:'sessionCreate',eloSessionGet:'sessionGet',eloSessionEnd:'sessionEnd'};
@@ -589,6 +592,15 @@ function instance(){
  return inst;
 }
 
+function warm(){
+ try{
+  const a=typeof auth!=='undefined'?auth:root.auth;
+  const u=a&&a.currentUser;
+  if(!u)return Promise.resolve(false);
+  return instance().warm(u.uid).catch(function(){return false;});
+ }catch(e){return Promise.resolve(false);}
+}
+
 async function call(name,payload){
  const fn=NAMES[name];
  if(!fn)throw new EloError('invalid-argument','Chức năng không tồn tại.');
@@ -599,7 +611,7 @@ async function call(name,payload){
  return api[fn](payload,u.uid);
 }
 
-const out={version:VERSION,call:call,makeApi:makeApi,core:core,EloError:EloError,GRACE_MS:GRACE_MS,RESUME_MS:RESUME_MS,reset:function(){inst=null;}};
+const out={version:VERSION,call:call,warm:warm,makeApi:makeApi,core:core,EloError:EloError,GRACE_MS:GRACE_MS,RESUME_MS:RESUME_MS,reset:function(){inst=null;}};
 if(isNode)module.exports=out;
 else root.vqcEloLocal=out;
 })();
