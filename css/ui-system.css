@@ -923,6 +923,10 @@ html body #vqcEloOverlay .vqc-elo-table.vqc-elo-lb{min-width:920px!important}
 
 html body .vqct-chip{display:none!important}
 
+html body :is(.square,.mate-square,.pvp-cell,.pawn-game-cell,.capture-cell,.defense-cell,.checkone-cell,.escape-cell,.freecapture-cell,.vqc-arcade-cell,.beginner-puzzle-cell,.vqc-bed-cell,.double-attack-cell,.vqc-elo-cell,.vqc-duel-square,.vqc-lonemate-square,.vqc-mateone-cell,.vqc-vsm-cell,.vqc-chd-cell).selected{box-shadow:none!important;outline:none!important}
+html body .board > .square.last.selected{box-shadow:none!important}
+html body #vqcReviewBoard .square.review-selected{box-shadow:inset 0 0 0 999px rgba(250,204,21,.25)!important;outline:none!important}
+
 html body :is(#vqcFriendsModal,#vqcChallengeLobby,#vqcFriendDuel,#vqcFriendChat,#vqcMembershipDialog,#starRewardOverlay,#editorPromotionDialog){
   background:rgba(11,42,115,.45)!important;
 }
