@@ -1033,3 +1033,249 @@ html body #vqcEloOverlay .vqc-elo-table.vqc-elo-lb{min-width:920px!important}
   html body #vqcEloOverlay .vqc-elo-btn.mini{min-height:var(--ui-tap)!important}
   html body #vqcEloOverlay .vqc-elo-tab.back{margin-left:0!important}
 }
+
+/* ==========================================================================
+   ĐỒNG HỒ LỚP HỌC — ẩn hẳn thẻ nổi .vqct-chip (cả nút "⏱ Đồng hồ" lẫn ô đếm giờ
+   khi đồng hồ được thu nhỏ), theo yêu cầu. Giáo viên mở đồng hồ bằng mục
+   "Đồng hồ lớp học" trong danh sách bài học; bảng đồng hồ đầy đủ và thông báo
+   "HẾT GIỜ!" (.vqct-toast) vẫn hoạt động như cũ.
+   ========================================================================== */
+html body .vqct-chip{display:none!important}
+
+/* ==========================================================================
+   MÀN HÌNH 6 — BẠN BÈ, GÓI THÀNH VIÊN & HỘP THOẠI CHUNG
+   Bạn bè (#vqcFriendsModal), Thách đấu / Đấu bạn / Trò chuyện, Gói thành viên,
+   Tùy chỉnh bàn cờ, Phần thưởng sao, Phong cấp, Thông báo nổi, bảng Tài khoản.
+   Không đổi: ô màu bàn cờ trong Tùy chỉnh (.vqc-appearance-swatch), [hidden].
+   ========================================================================== */
+
+/* Nền mờ chung */
+html body :is(#vqcFriendsModal,#vqcChallengeLobby,#vqcFriendDuel,#vqcFriendChat,#vqcMembershipDialog,#starRewardOverlay,#editorPromotionDialog){
+  background:rgba(11,42,115,.45)!important;
+}
+
+/* Khung hộp thoại chung */
+html body #vqcFriendsModal .vqc-friends-dialog,
+html body :is(#vqcChallengeLobby .vqc-challenge-dialog,#vqcFriendDuel .vqc-duel-dialog,#vqcFriendChat .vqc-chat-dialog),
+html body #vqcMembershipDialog .vqc-membership-modal,
+html body #vqcAppearanceDialog .vqc-appearance-panel,
+html body #starRewardOverlay .reward-card,
+html body #editorPromotionDialog .vqc-promotion-card{
+  background:var(--ui-surface)!important;border:1px solid var(--ui-border)!important;border-radius:var(--ui-r-lg)!important;
+  box-shadow:var(--ui-shadow-lg)!important;font-family:var(--dkt-font)!important;color:var(--ui-text)!important;
+}
+/* Tiêu đề hộp thoại */
+html body :is(#vqcChallengeLobby,#vqcFriendDuel,#vqcFriendChat) .vqc-duel-top,
+html body #vqcMembershipDialog .vqc-membership-head,
+html body #vqcAppearanceDialog .vqc-appearance-top{
+  background:transparent!important;border:0!important;border-bottom:1px solid var(--ui-border)!important;border-radius:0!important;
+  box-shadow:none!important;padding-bottom:var(--ui-s3)!important;margin-bottom:var(--ui-s3)!important;
+}
+html body :is(#vqcChallengeLobby,#vqcFriendDuel,#vqcFriendChat) .vqc-duel-top h2,
+html body #vqcMembershipDialog .vqc-membership-head h2,
+html body #vqcAppearanceDialog .vqc-appearance-top :is(h2,h3),
+html body #starRewardOverlay .reward-card h2,
+html body #editorPromotionDialog .vqc-promotion-card h3{
+  font-family:var(--dkt-font)!important;font-weight:700!important;color:var(--dkt-deep)!important;letter-spacing:-.01em!important;text-shadow:none!important;
+}
+/* Nút đóng (✕) */
+html body #vqcFriendsModal #vqcFriendsClose,
+html body :is(#vqcChallengeClose,#vqcDuelClose,#vqcFriendChatClose),
+html body #vqcMembershipDialog .vqc-membership-head .btn,
+html body #vqcAppearanceDialog .vqc-appearance-close{
+  min-width:var(--ui-ctl)!important;min-height:var(--ui-ctl)!important;padding:0 var(--ui-s3)!important;
+  border:1px solid var(--ui-border-strong)!important;border-radius:var(--ui-r-sm)!important;
+  background:#fff!important;color:var(--ui-text-2)!important;box-shadow:none!important;transform:none!important;
+  font:600 var(--ui-fs-md)/1 var(--dkt-font)!important;
+}
+html body #vqcFriendsModal #vqcFriendsClose{font-size:22px!important;padding:0!important;width:var(--ui-ctl)!important;height:var(--ui-ctl)!important}
+html body #vqcFriendsModal #vqcFriendsClose:hover,
+html body :is(#vqcChallengeClose,#vqcDuelClose,#vqcFriendChatClose):hover,
+html body #vqcMembershipDialog .vqc-membership-head .btn:hover,
+html body #vqcAppearanceDialog .vqc-appearance-close:hover{background:var(--dkt-light)!important;border-color:var(--dkt-blue)!important;color:var(--dkt-deep)!important}
+
+/* Nút phụ / nút chính dùng chung trong các hộp thoại */
+html body #vqcFriendsModal :is(#vqcFriendsCopyCode,#vqcFriendsFind,#vqcFriendsSettingsToggle,.vqc-friends-done,.vqc-friend-action),
+html body #vqcFriendChat :is(#vqcFriendChatClear),
+html body #vqcChallengeLobby #vqcChallengeFriends,
+html body #vqcFriendDuel #vqcDuelRetry,
+html body #vqcAppearanceDialog .vqc-appearance-actions > button:first-child,
+html body #editorPromotionDialog .vqc-promotion-card > .btn,
+html body #accountOverlay #accountLoggedArea .btn-soft,
+html body #vqcMembershipDialog :is(.btn-soft,#vqcMembershipAdmin button){
+  min-height:var(--ui-tap)!important;padding:var(--ui-s2) var(--ui-s4)!important;
+  border:1px solid var(--ui-border-strong)!important;border-radius:var(--ui-r-md)!important;
+  background:#fff!important;background-image:none!important;color:var(--dkt-deep)!important;
+  box-shadow:none!important;transform:none!important;filter:none!important;text-shadow:none!important;
+  font:600 var(--ui-fs-md)/1.2 var(--dkt-font)!important;
+}
+html body #vqcFriendsModal #vqcFriendsSend,
+html body #vqcFriendChat #vqcFriendChatSend,
+html body #vqcAppearanceDialog .vqc-appearance-actions > button:last-child,
+html body #starRewardOverlay .reward-close,
+html body #accountOverlay #accountLoggedArea .btn-blue,
+html body #vqcMembershipDialog .btn-blue{
+  min-height:var(--ui-tap)!important;padding:var(--ui-s2) var(--ui-s5)!important;
+  border:1px solid var(--dkt-blue)!important;border-radius:var(--ui-r-md)!important;
+  background:var(--dkt-blue)!important;background-image:none!important;color:#fff!important;
+  box-shadow:none!important;transform:none!important;filter:none!important;text-shadow:none!important;
+  font:700 var(--ui-fs-md)/1.2 var(--dkt-font)!important;
+}
+html body #vqcFriendsModal :is(#vqcFriendsCopyCode,#vqcFriendsFind,#vqcFriendsSettingsToggle,.vqc-friends-done,.vqc-friend-action):hover:not(:disabled),
+html body #vqcFriendChat #vqcFriendChatClear:hover:not(:disabled),
+html body #vqcChallengeLobby #vqcChallengeFriends:hover,
+html body #vqcFriendDuel #vqcDuelRetry:hover,
+html body #vqcAppearanceDialog .vqc-appearance-actions > button:first-child:hover,
+html body #editorPromotionDialog .vqc-promotion-card > .btn:hover,
+html body #accountOverlay #accountLoggedArea .btn-soft:hover,
+html body #vqcMembershipDialog :is(.btn-soft,#vqcMembershipAdmin button):hover{background:var(--dkt-light)!important;border-color:var(--dkt-blue)!important}
+html body #vqcFriendsModal #vqcFriendsSend:hover:not(:disabled),
+html body #vqcFriendChat #vqcFriendChatSend:hover:not(:disabled),
+html body #vqcAppearanceDialog .vqc-appearance-actions > button:last-child:hover,
+html body #starRewardOverlay .reward-close:hover,
+html body #accountOverlay #accountLoggedArea .btn-blue:hover,
+html body #vqcMembershipDialog .btn-blue:hover:not(:disabled){background:var(--dkt-blue-hover)!important;border-color:var(--dkt-blue-hover)!important}
+html body :is(#vqcFriendsModal,#vqcFriendChat,#vqcChallengeLobby,#vqcFriendDuel,#vqcAppearanceDialog,#editorPromotionDialog,#starRewardOverlay,#vqcMembershipDialog,#accountOverlay) button:focus-visible{
+  outline:none!important;box-shadow:var(--ui-focus)!important;
+}
+html body :is(#vqcFriendsModal,#vqcFriendChat,#vqcMembershipDialog) button:disabled{opacity:.45!important;cursor:not-allowed!important}
+/* Nút nguy hiểm (Chặn, Hủy kết bạn…) — viền đỏ */
+html body #vqcFriendsModal .vqc-friend-action.is-danger,
+html body #vqcFriendChat #vqcFriendChatBlock{
+  min-height:var(--ui-tap)!important;padding:var(--ui-s2) var(--ui-s4)!important;
+  border:1px solid var(--ui-danger-border)!important;border-radius:var(--ui-r-md)!important;
+  background:#fff!important;background-image:none!important;color:var(--ui-danger)!important;box-shadow:none!important;
+  font:600 var(--ui-fs-md)/1.2 var(--dkt-font)!important;
+}
+html body #vqcFriendsModal .vqc-friend-action.is-danger:hover,
+html body #vqcFriendChat #vqcFriendChatBlock:hover{background:var(--ui-danger-bg)!important;border-color:var(--ui-danger)!important}
+
+/* Ô nhập trong hộp thoại */
+html body :is(#vqcFriendsModal,#vqcFriendChat,#vqcAppearanceDialog,#vqcMembershipDialog) :is(input[type="text"],input:not([type]),textarea,select),
+html body #accountOverlay #accountLoggedArea :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea){
+  min-height:var(--ui-tap)!important;padding:var(--ui-s2) var(--ui-s3)!important;
+  border:1px solid var(--ui-border-strong)!important;border-radius:var(--ui-r-sm)!important;
+  background:#fff!important;color:var(--ui-text)!important;box-shadow:none!important;font-family:var(--dkt-font)!important;
+}
+html body :is(#vqcFriendsModal,#vqcFriendChat,#vqcAppearanceDialog,#vqcMembershipDialog) :is(input[type="text"],input:not([type]),textarea,select):focus,
+html body #accountOverlay #accountLoggedArea :is(input,select,textarea):focus{outline:none!important;border-color:var(--dkt-blue)!important;box-shadow:var(--ui-focus)!important}
+html body :is(#vqcFriendsModal,#vqcAppearanceDialog,#vqcMembershipDialog,#accountOverlay) input[type="checkbox"]{accent-color:var(--dkt-blue)}
+
+/* --- Bạn bè --- */
+html body #vqcFriendsModal .vqc-friends-hero{background:transparent!important;border:0!important;box-shadow:none!important}
+html body #vqcFriendsModal .vqc-friends-hero__emoji{
+  background:var(--ui-surface-3)!important;border:1px solid var(--ui-border)!important;border-radius:var(--ui-r-md)!important;box-shadow:none!important;
+}
+html body #vqcFriendsModal .vqc-friends-hero__eyebrow{color:var(--dkt-blue)!important;font-weight:700!important;letter-spacing:.06em!important}
+html body #vqcFriendsModal .vqc-friends-hero h2{font-family:var(--dkt-font)!important;font-weight:800!important;color:var(--dkt-deep)!important;text-shadow:none!important}
+html body #vqcFriendsModal .vqc-friends-hero p{color:var(--ui-muted)!important}
+html body #vqcFriendsModal :is(.vqc-friends-codebox,.vqc-friends-invite){
+  background:var(--ui-surface-2)!important;border:1px solid var(--ui-border)!important;border-radius:var(--ui-r-md)!important;box-shadow:none!important;
+}
+html body #vqcFriendsModal .vqc-friends-codebox strong,
+html body #vqcFriendsModal .vqc-friends-invite > label{color:var(--ui-text)!important;font-weight:700!important}
+html body #vqcFriendsModal :is(.vqc-friends-codebox p,.vqc-friends-invite small){color:var(--ui-muted)!important}
+html body #vqcFriendsModal #vqcFriendsMyCode{
+  background:#fff!important;border:1px solid var(--ui-border-strong)!important;border-radius:var(--ui-r-sm)!important;
+  color:var(--dkt-deep)!important;letter-spacing:.08em;
+}
+html body #vqcFriendsModal .vqc-friends-found{background:var(--ui-success-bg)!important;border:1px solid var(--ui-success-border)!important;border-radius:var(--ui-r-sm)!important;color:var(--ui-success)!important}
+html body #vqcFriendsModal .vqc-friends-settings{background:var(--ui-surface-2)!important;border:1px solid var(--ui-border)!important;border-radius:var(--ui-r-md)!important}
+html body #vqcFriendsModal .vqc-friends-tabs{
+  gap:var(--ui-s1)!important;padding:var(--ui-s1)!important;
+  background:var(--ui-surface-3)!important;border:1px solid var(--ui-border)!important;border-radius:var(--ui-r-md)!important;
+}
+html body #vqcFriendsModal .vqc-friends-tabs > button{
+  min-height:var(--ui-ctl)!important;border:0!important;border-radius:var(--ui-r-sm)!important;
+  background:transparent!important;background-image:none!important;color:var(--ui-text-2)!important;box-shadow:none!important;
+  font:600 var(--ui-fs-md)/1 var(--dkt-font)!important;
+}
+html body #vqcFriendsModal .vqc-friends-tabs > button:hover{background:#fff!important;color:var(--dkt-deep)!important}
+html body #vqcFriendsModal .vqc-friends-tabs > button.is-active{background:#fff!important;color:var(--dkt-blue)!important;box-shadow:var(--ui-shadow-sm),0 0 0 1px var(--ui-border-strong)!important}
+html body #vqcFriendsModal .vqc-friends-empty{
+  background:var(--ui-surface-2)!important;border:1px solid var(--ui-border)!important;border-radius:var(--ui-r-md)!important;color:var(--ui-muted)!important;
+}
+html body #vqcFriendsModal .vqc-friend-item{
+  background:#fff!important;background-image:none!important;border:1px solid var(--ui-border)!important;border-radius:var(--ui-r-md)!important;box-shadow:var(--ui-shadow-sm)!important;
+}
+html body #vqcFriendsModal .vqc-friend-item__name{color:var(--ui-text)!important;font-weight:700!important}
+html body #vqcFriendsModal .vqc-friend-item__subtitle{color:var(--ui-muted)!important}
+html body #vqcFriendsModal .vqc-friends-status{color:var(--ui-muted)!important;font-weight:600!important}
+html body #vqcFriendsModal .vqc-friends-status.is-error{color:var(--ui-danger)!important}
+html body #vqcFriendsModal .vqc-friends-debug__button{
+  min-height:var(--ui-ctl)!important;border:1px solid transparent!important;border-radius:var(--ui-r-sm)!important;
+  background:transparent!important;color:var(--ui-muted)!important;box-shadow:none!important;font:600 var(--ui-fs-sm)/1 var(--dkt-font)!important;
+}
+html body #vqcFriendsModal .vqc-friends-debug__button:hover{background:var(--ui-surface-2)!important;color:var(--dkt-deep)!important}
+html body #vqcFriendsModal .vqc-friends-safety{
+  background:var(--ui-surface-2)!important;border:1px solid var(--ui-border)!important;border-radius:var(--ui-r-md)!important;color:var(--ui-muted)!important;
+}
+
+/* --- Trò chuyện / Thách đấu / Đấu bạn --- */
+html body :is(#vqcFriendChat,#vqcChallengeLobby,#vqcFriendDuel) p{color:var(--ui-text-2)}
+html body #vqcFriendChat .vqc-chat-messages{
+  background:var(--ui-surface-2)!important;border:1px solid var(--ui-border)!important;border-radius:var(--ui-r-md)!important;
+}
+
+/* --- Gói thành viên --- */
+html body #vqcMembershipDialog .vqc-membership-card{
+  background:#fff!important;background-image:none!important;border:1px solid var(--ui-border)!important;border-radius:var(--ui-r-md)!important;box-shadow:none!important;
+}
+html body #vqcMembershipDialog .vqc-membership-sub{color:var(--ui-muted)!important}
+
+/* --- Tùy chỉnh bàn cờ --- */
+html body #vqcAppearanceDialog .vqc-appearance-choice{
+  border:1px solid var(--ui-border)!important;border-radius:var(--ui-r-md)!important;background:#fff!important;box-shadow:none!important;
+  font-family:var(--dkt-font)!important;color:var(--ui-text)!important;
+}
+html body #vqcAppearanceDialog .vqc-appearance-choice:hover{border-color:var(--ui-border-strong)!important;background:var(--ui-surface-2)!important}
+html body #vqcAppearanceDialog .vqc-appearance-choice[aria-pressed="true"]{border-color:var(--dkt-blue)!important;background:var(--dkt-light)!important;box-shadow:inset 0 0 0 1px var(--dkt-blue)!important}
+html body #vqcAppearanceDialog .vqc-appearance-label{color:var(--ui-text)!important;font-weight:700!important}
+
+/* --- Phần thưởng sao --- */
+html body #starRewardOverlay .reward-card h2{color:var(--dkt-deep)!important}
+html body #starRewardOverlay .reward-card p{color:var(--ui-text-2)!important}
+html body #starRewardOverlay .reward-score{background:var(--ui-warning-bg)!important;border:1px solid var(--ui-warning-border)!important;color:var(--ui-warning)!important}
+
+/* --- Phong cấp --- */
+html body #editorPromotionDialog .vqc-promotion-choices button{
+  border:1px solid var(--ui-border-strong)!important;border-radius:var(--ui-r-md)!important;background:#fff!important;box-shadow:none!important;
+}
+html body #editorPromotionDialog .vqc-promotion-choices button:hover{background:var(--dkt-light)!important;border-color:var(--dkt-blue)!important}
+
+/* --- Thông báo nổi --- */
+html body #vqcToasts .vqc-toast{
+  background:#fff!important;background-image:none!important;border:1px solid var(--ui-border)!important;border-left:4px solid var(--dkt-blue)!important;
+  border-radius:var(--ui-r-md)!important;box-shadow:var(--ui-shadow-md)!important;color:var(--ui-text)!important;
+  font:600 var(--ui-fs-md)/1.4 var(--dkt-font)!important;
+}
+html body #vqcToasts .vqc-toast.success{border-left-color:var(--ui-success)!important}
+html body #vqcToasts .vqc-toast.warning{border-left-color:#E8A317!important}
+html body #vqcToasts .vqc-toast.error{border-left-color:var(--ui-danger)!important}
+
+/* --- Bảng Tài khoản sau khi đăng nhập ---
+   Ẩn chữ "Đăng nhập / Vào Đảo Kỳ Thủ" ở đầu khung khi đã đăng nhập (JS đặt display:block cho #accountLoggedArea). */
+html body #accountOverlay:has(#accountLoggedArea[style*="block"]) .vqc-login-formhead :is(h2,p){display:none!important}
+html body #accountOverlay #accountLoggedArea .account-tabs{
+  display:flex!important;flex-wrap:wrap!important;gap:var(--ui-s1)!important;padding:var(--ui-s1)!important;margin-bottom:var(--ui-s4)!important;
+  background:var(--ui-surface-3)!important;border:1px solid var(--ui-border)!important;border-radius:var(--ui-r-md)!important;
+}
+html body #accountOverlay #accountLoggedArea .account-tabs button{
+  flex:1 1 auto!important;min-height:var(--ui-ctl)!important;padding:0 var(--ui-s3)!important;border:0!important;border-radius:var(--ui-r-sm)!important;
+  background:transparent!important;color:var(--ui-text-2)!important;box-shadow:none!important;font:600 var(--ui-fs-md)/1 var(--dkt-font)!important;
+}
+html body #accountOverlay #accountLoggedArea .account-tabs button:hover{background:#fff!important;color:var(--dkt-deep)!important}
+html body #accountOverlay #accountLoggedArea :is(h3,h4){font-family:var(--dkt-font)!important;color:var(--dkt-deep)!important}
+
+@media (max-width:760px){
+  html body #vqcFriendsModal #vqcFriendsClose,
+  html body :is(#vqcChallengeClose,#vqcDuelClose,#vqcFriendChatClose),
+  html body #vqcMembershipDialog .vqc-membership-head .btn,
+  html body #vqcAppearanceDialog .vqc-appearance-close,
+  html body #vqcFriendsModal .vqc-friends-tabs > button,
+  html body #accountOverlay #accountLoggedArea .account-tabs button{min-height:var(--ui-tap)!important;min-width:var(--ui-tap)!important}
+  html body #vqcFriendsModal #vqcFriendsClose{width:var(--ui-tap)!important;height:var(--ui-tap)!important}
+  html body #vqcFriendsModal .vqc-friends-debug__button{min-height:var(--ui-tap)!important}
+  html body #vqcFriendChat :is(#vqcFriendChatClear,#vqcFriendChatBlock,#vqcFriendChatSend){padding:var(--ui-s2) var(--ui-s3)!important}
+  html body :is(#vqcFriendsModal .vqc-friends-dialog,#vqcChallengeLobby .vqc-challenge-dialog,#vqcFriendDuel .vqc-duel-dialog,#vqcFriendChat .vqc-chat-dialog,#vqcMembershipDialog .vqc-membership-modal,#vqcAppearanceDialog .vqc-appearance-panel){border-radius:var(--ui-r-md)!important}
+}

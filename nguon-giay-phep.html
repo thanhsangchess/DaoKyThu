@@ -8,29 +8,42 @@
 <link rel="icon" type="image/png" href="./assets/favicon-rounded.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap">
 <style>
-:root{--bg:#eef6fd;--card:#fff;--ink:#27465e;--muted:#5f7a92;--line:#d9e6f1;--accent:#2878cc;--tag:#e3f2ff}
-@media(prefers-color-scheme:dark){:root{--bg:#10202e;--card:#172d40;--ink:#e3eef7;--muted:#9bb2c6;--line:#2a4358;--accent:#6db6f2;--tag:#1f3b52}}
+/* Cùng bảng màu với trang chính (--dkt-* trong css/home-redesign.css) */
+:root{--bg:#F5F9FF;--card:#FFFFFF;--ink:#172B4D;--muted:#63748B;--line:#DCE7F5;--accent:#155EEF;--accent-hover:#0E4FD4;--deep:#123B9A;--tag:#EAF3FF;--tag-ink:#123B9A;--ring:0 0 0 3px rgba(21,94,239,.28)}
+@media(prefers-color-scheme:dark){:root{--bg:#0B1730;--card:#12213F;--ink:#E6EEFA;--muted:#9FB0C8;--line:#24375A;--accent:#7AA7FF;--accent-hover:#A1C1FF;--deep:#C9DAFF;--tag:#1B2F55;--tag-ink:#C9DAFF;--ring:0 0 0 3px rgba(122,167,255,.4)}}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 "Be Vietnam Pro","Segoe UI",system-ui,sans-serif}
-main{max-width:860px;margin:0 auto;padding:28px 16px 56px}
-.back{display:inline-block;margin-bottom:14px;color:var(--accent);font-weight:700;text-decoration:none}
-.back:hover{text-decoration:underline}
-h1{margin:0 0 6px;font-size:clamp(24px,4vw,34px);line-height:1.25}
+.topbar{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--card) 94%,transparent);border-bottom:1px solid var(--line);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.topbar__inner{max-width:860px;margin:0 auto;padding:0 16px;height:64px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:12px;color:var(--deep);font-weight:800;font-size:17px;text-decoration:none;min-width:0}
+.brand img{width:54px;height:36px;object-fit:cover;border-radius:9px;background:#0033F4;box-shadow:0 0 0 1px rgba(18,59,154,.12),0 2px 6px rgba(18,59,154,.18);flex:none}
+.back{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--accent);font-weight:600;font-size:14px;text-decoration:none;white-space:nowrap;transition:background-color .15s ease,border-color .15s ease}
+.back:hover{background:var(--tag);border-color:var(--accent)}
+.back:focus-visible,a:focus-visible{outline:none;box-shadow:var(--ring);border-radius:8px}
+main{max-width:860px;margin:0 auto;padding:32px 16px 56px}
+h1{margin:0 0 8px;font-size:clamp(26px,4vw,34px);line-height:1.25;font-weight:800;color:var(--deep);letter-spacing:-.01em}
 .lead{margin:0 0 24px;color:var(--muted)}
-section{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin:0 0 16px}
-h2{margin:0 0 10px;font-size:19px}
+section{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px 24px;margin:0 0 16px;box-shadow:0 1px 2px rgba(16,42,90,.06)}
+h2{margin:0 0 12px;font-size:18px;font-weight:700;color:var(--deep)}
 ul{margin:0;padding:0;list-style:none;display:grid;gap:12px}
-li{padding:12px 14px;border:1px solid var(--line);border-radius:12px}
-li strong{display:block;font-size:16px}
-.tag{display:inline-block;margin:4px 6px 4px 0;padding:2px 10px;border-radius:999px;background:var(--tag);font-size:13px;font-weight:700}
+li{padding:12px 16px;border:1px solid var(--line);border-radius:12px}
+li strong{display:block;font-size:16px;font-weight:700}
+.tag{display:inline-block;margin:4px 6px 4px 0;padding:2px 10px;border-radius:999px;background:var(--tag);color:var(--tag-ink);font-size:13px;font-weight:600}
 li p{margin:4px 0 0;color:var(--muted);font-size:15px}
-a{color:var(--accent)}
+a{color:var(--accent);text-underline-offset:2px}
+a:hover{color:var(--accent-hover)}
 .note{color:var(--muted);font-size:14px;margin:0}
+@media(max-width:480px){.brand span{display:none}section{padding:16px}}
 </style>
 </head>
 <body>
-<main>
+<header class="topbar">
+<div class="topbar__inner">
+<a class="brand" href="./"><img src="./assets/logo.png" alt="" aria-hidden="true"><span>Đảo Kỳ Thủ</span></a>
 <a class="back" href="./">← Về Đảo Kỳ Thủ</a>
+</div>
+</header>
+<main>
 <h1>Nguồn và giấy phép</h1>
 <p class="lead">Đảo Kỳ Thủ sử dụng các phần mềm mã nguồn mở và nguồn dữ liệu dưới đây. Trang này ghi lại giấy phép của từng phần và nơi bạn có thể xem nguồn.</p>
 
