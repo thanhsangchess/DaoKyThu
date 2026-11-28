@@ -1045,3 +1045,10 @@ html body.dkt-auth-guest #accountOverlay .vqc-login-copyright{margin:12px 0 0!im
   html body.dkt-auth-guest #accountOverlay .dkt-login-close{top:8px;right:8px;width:44px;height:44px}
   html body.dkt-auth-guest #accountOverlay .vqc-login-formhead h2{font-size:24px!important}
 }
+
+/* Dòng liên hệ ở chân trang (khách cũng bấm được) */
+html body.vqc-mode-home #vqcModeHome .dkt-footer .dkt-footer__contact{margin-top:2px}
+html body.vqc-mode-home #vqcModeHome .dkt-footer a.dkt-footer__fb,
+html body.vqc-mode-home #vqcModeHome .dkt-footer a.dkt-footer__tel{min-height:28px;padding:0 2px;font-size:inherit!important;color:var(--dkt-deep);font-weight:700;font-variant-numeric:tabular-nums}
+html body.vqc-mode-home #vqcModeHome .dkt-footer a.dkt-footer__fb:hover,
+html body.vqc-mode-home #vqcModeHome .dkt-footer a.dkt-footer__tel:hover{color:var(--dkt-blue)}
