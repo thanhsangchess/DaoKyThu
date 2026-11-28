@@ -1,0 +1,26 @@
+Copyright (c) 2026 Đảo Kỳ Thủ (Dương Thanh Sang). All rights reserved.
+Bản quyền (c) 2026 Đảo Kỳ Thủ (Dương Thanh Sang). Bảo lưu mọi quyền.
+
+This repository and the website "Đảo Kỳ Thủ" (source code, design, text,
+lesson content, puzzle collections compiled by the author, images and
+brand identity) are proprietary. No licence is granted to use, copy,
+modify, merge, publish, distribute, sublicense, host, or sell any part of
+it, in whole or in part, without prior written permission from the
+copyright holder.
+
+Viewing the public website in a web browser for personal learning is
+permitted. Any other use - including copying the source code, the design
+or the content to build another website, app or product - requires prior
+written permission.
+
+Third-party components (for example chess.js, the Stockfish engine, Lichess
+puzzle data, piece sets, sounds and fonts) are NOT covered by this notice.
+They remain the property of their respective authors and are used under
+their own licences. See ./nguon-giay-phep.html for details.
+
+Các thành phần của bên thứ ba (ví dụ chess.js, động cơ Stockfish, dữ liệu
+câu đố Lichess, bộ quân cờ, âm thanh, phông chữ) không thuộc phạm vi thông
+báo này; chúng thuộc quyền của tác giả tương ứng và được dùng theo giấy phép
+riêng. Chi tiết xem ./nguon-giay-phep.html.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
