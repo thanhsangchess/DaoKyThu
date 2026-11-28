@@ -484,3 +484,47 @@ body.vqc-review-active #vqcReviewBoard .square>.capture-hint{
 #vqcReviewWorkspace .vqc-rev-curhead{display:flex;align-items:center;flex-wrap:wrap;gap:6px;font:700 14px/1.4 var(--rvf)!important}
 #vqcReviewWorkspace .vqc-rev-cur{background:var(--rv-surface2)!important;border:1px solid var(--rv-border)!important;border-radius:12px!important}
 #vqcReviewWorkspace.vqc-review--student #vqcChdReviewTools .vqc-rev-keys{display:none!important}
+
+#vqcReviewWorkspace .vqc-rev-chart--pgn{display:block;width:100%;height:auto;margin:0;border-radius:8px;box-shadow:inset 0 0 0 1px var(--rv-border)}
+#vqcReviewWorkspace .vqc-rev-chart--pgn .vqc-rev-pt .dot{transition:r .12s ease}
+#vqcReviewWorkspace .vqc-rev-chart--pgn.jump .vqc-rev-pt{cursor:pointer}
+#vqcReviewWorkspace .vqc-rev-chart--pgn.jump .vqc-rev-pt:hover .dot{r:4.5px;stroke:#fff;stroke-width:1.5px}
+#vqcReviewWorkspace .vqc-rev-chart--pgn .vqc-rev-pt.is-now .dot{r:4px}
+#vqcReviewWorkspace .vqc-rev-chart--pgn.jump .vqc-rev-key{cursor:pointer}
+#vqcReviewWorkspace .vqc-rev-legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin:8px 0 0;font:500 12px/1.4 var(--rvf);color:var(--rv-muted)}
+#vqcReviewWorkspace .vqc-rev-legend__item{display:inline-flex;align-items:center;gap:6px}
+#vqcReviewWorkspace .vqc-rev-legend__key{display:inline-block;width:12px;height:12px;border-radius:50%;background:#DD6B20;box-shadow:0 0 0 2px #fff,0 0 0 3px #DD6B20}
+#vqcReviewWorkspace .vqc-rev-legend__now{display:inline-block;width:12px;height:12px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 2px #C53030}
+@media (max-width:700px){
+  #vqcReviewWorkspace .vqc-rev-chart--pgn{min-height:120px}
+}
+
+#vqcReviewWorkspace .vqc-review-hints{order:5;display:flex;flex-direction:column;gap:8px;margin:0;padding:12px;border:1px solid var(--rv-border);border-radius:12px;background:#fff}
+#vqcReviewWorkspace .vqc-review-hints[hidden]{display:none!important}
+#vqcReviewWorkspace.vqc-review--empty .vqc-review-hints{display:none!important}
+#vqcReviewWorkspace .vqc-review-hints__row{display:flex;flex-wrap:wrap;gap:8px}
+#vqcReviewWorkspace .vqc-review-hint-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;flex:1 1 auto;min-height:40px;padding:0 12px;border:1px solid var(--rv-border2);border-radius:12px;background:#fff;color:var(--rv-deep);font:600 14px/1.2 var(--rvf);white-space:nowrap;cursor:pointer;transition:background-color .15s ease,border-color .15s ease}
+#vqcReviewWorkspace .vqc-review-hint-btn[hidden]{display:none!important}
+#vqcReviewWorkspace .vqc-review-hint-btn:hover:not(:disabled){background:var(--rv-light);border-color:var(--rv-blue)}
+#vqcReviewWorkspace .vqc-review-hint-btn:focus-visible{outline:none;box-shadow:var(--rv-ring)}
+#vqcReviewWorkspace #vqcReviewBestMove{flex-basis:100%}
+#vqcReviewWorkspace #vqcReviewBestMove[aria-pressed="true"]{background:#E7F6EF;border-color:#0F7A55;color:#0F7A55;box-shadow:inset 0 0 0 1px #0F7A55}
+#vqcReviewWorkspace .vqc-review-hint-btn:disabled{background:#F3F6FA;border-color:#E2E9F2;color:#8394AA;cursor:not-allowed}
+#vqcReviewWorkspace .vqc-review-hints__text{margin:0;font:500 13px/1.45 var(--rvf);color:var(--rv-text2)}
+#vqcReviewWorkspace .vqc-review-hints__text:empty{display:none}
+#vqcReviewWorkspace .vqc-review-arrow{position:absolute;z-index:5;pointer-events:none;overflow:visible}
+#vqcReviewWorkspace .vqc-review-arrow[hidden]{display:none}
+@media (max-width:700px){
+  #vqcReviewWorkspace .vqc-review-hint-btn{min-height:44px}
+}
+
+#vqcReviewWorkspace .vqc-review-controls .vqc-rev-speed{flex:1 0 100%;display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:0 0 2px}
+#vqcReviewWorkspace .vqc-review-controls .vqc-rev-speed__label{flex:0 0 auto;margin-right:2px;font:600 12px/1.2 var(--rvf);color:var(--rv-muted)}
+#vqcReviewWorkspace .vqc-review-controls .vqc-rev-speed__btn{flex:1 1 auto!important;min-width:0!important;min-height:32px!important;padding:0 8px!important;border-radius:999px!important;font:600 12.5px/1.1 var(--rvf)!important;white-space:nowrap!important}
+#vqcReviewWorkspace .vqc-review-controls .vqc-rev-speed__btn[aria-pressed="true"]{background:var(--rv-light)!important;border-color:var(--rv-blue)!important;color:var(--rv-blue)!important;box-shadow:inset 0 0 0 1px var(--rv-blue)!important}
+#vqcReviewWorkspace .vqc-review-controls [data-play].is-playing{background:#E7F6EF!important;border-color:#0F7A55!important;color:#0F7A55!important;box-shadow:inset 0 0 0 1px #0F7A55!important}
+@media (max-width:700px){
+  #vqcReviewWorkspace .vqc-review-controls .vqc-rev-speed__label{display:none}
+  #vqcReviewWorkspace .vqc-review-controls .vqc-rev-speed__btn{min-height:44px!important;font-size:13px!important}
+  #vqcReviewWorkspace .vqc-review-shortcut{display:none!important}
+}

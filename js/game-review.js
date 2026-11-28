@@ -101,6 +101,126 @@
   if(ar.top<lr.top+top)list.scrollTop-=lr.top+top-ar.top+6;
   else if(ar.bottom>lr.bottom)list.scrollTop+=ar.bottom-lr.bottom+6;
  }
+ let hintOn=false,hintEng=null,hintEpoch=0,hintTimer=0,hintFen='',hintError='';
+ const hintCache=new Map(),BAD_KIDS={sailam:1,nghiemtrong:1};
+ function currentFen(){return variationActive&&variationGame?variationGame.fen():positions[current];}
+ function uciToSanAt(fen,uci){
+  try{const c=new Chess();if(!c.load(fen))return uci;const m=c.move({from:uci.slice(0,2),to:uci.slice(2,4),promotion:uci[4]||'q'});return m?m.san:uci;}catch(e){return uci;}
+ }
+ function reviewQuality(){
+  try{
+   const q=window.vqcDuelReview&&typeof window.vqcDuelReview.pgnQuality==='function'?window.vqcDuelReview.pgnQuality():null;
+   return q&&q.key==='pgn:'+hashText(loadedText)?q:null;
+  }catch(e){return null;}
+ }
+ function mistakePlies(){
+  const q=reviewQuality();if(!q)return null;
+  return q.moves.filter(m=>m.kid&&BAD_KIDS[m.kid]).map(m=>m.ply);
+ }
+ function hintStop(){
+  hintEpoch++;clearTimeout(hintTimer);hintFen='';
+  if(hintEng){try{hintEng.dispose();}catch(e){}hintEng=null;}
+ }
+ function runHint(fen){
+  const ep=++hintEpoch;
+  let g=null;try{g=new Chess();if(!g.load(fen))g=null;}catch(e){g=null;}
+  if(!g){hintCache.set(fen,null);paintArrow();return;}
+  const over=typeof g.game_over==='function'?g.game_over():g.isGameOver();
+  if(over){hintCache.set(fen,null);paintArrow();return;}
+  try{
+   if(!hintEng){if(!window.VqcStockfish){hintError='Chưa tải được động cơ Stockfish. Hãy tải lại trang rồi thử lại.';paintArrow();return;}hintEng=window.VqcStockfish.create({onStatus:function(){}});}
+  }catch(e){hintError='Không khởi động được động cơ Stockfish.';paintArrow();return;}
+  hintError='';
+  hintEng.search(fen,{movetime:700,skill:20}).then(res=>{
+   if(ep!==hintEpoch||!res||res.cancelled)return;
+   const u=res.bestmove&&/^[a-h][1-8][a-h][1-8][qrbn]?$/.test(res.bestmove)?res.bestmove:null;
+   hintCache.set(fen,u?{uci:u,san:uciToSanAt(fen,u)}:null);
+   paintArrow();
+  }).catch(()=>{
+   if(ep!==hintEpoch)return;
+   if(hintEng){try{hintEng.dispose();}catch(e){}hintEng=null;}
+   hintError='Máy chưa tính được nước gợi ý. Hãy thử lại.';paintArrow();
+  });
+ }
+ function bestFor(fen){
+  if(hintCache.has(fen))return hintCache.get(fen);
+  const q=variationActive?null:reviewQuality();
+  const u=q&&q.best?q.best[current]:null;
+  if(u){const v={uci:u,san:uciToSanAt(fen,u)};hintCache.set(fen,v);return v;}
+  if(hintFen!==fen){hintFen=fen;clearTimeout(hintTimer);hintTimer=setTimeout(()=>runHint(fen),250);}
+  return undefined;
+ }
+ function paintArrow(){
+  const board=$('vqcReviewBoard'),shell=board&&board.parentNode;if(!shell)return;
+  let svg=$('vqcReviewArrow');
+  const text=$('vqcReviewHintText');
+  const on=hintOn&&positions.length>0&&!workspace()?.hidden;
+  const best=on?bestFor(currentFen()):null;
+  if(text&&on){
+   if(hintError)text.textContent=hintError;
+   else if(best===undefined)text.textContent='💡 Máy đang tìm nước đi tốt nhất…';
+   else if(best===null)text.textContent='Thế cờ này không còn nước đi (ván đã kết thúc).';
+   else text.textContent='💡 Nước đi tốt nhất: '+best.san+' (mũi tên xanh trên bàn cờ)';
+  }
+  if(!on||!best){if(svg)svg.hidden=true;return;}
+  if(!svg){
+   svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.id='vqcReviewArrow';svg.setAttribute('class','vqc-review-arrow');
+   svg.setAttribute('viewBox','0 0 8 8');svg.setAttribute('preserveAspectRatio','none');svg.setAttribute('aria-hidden','true');
+   svg.innerHTML='<defs><marker id="vqcReviewArrowHead" viewBox="0 0 10 10" refX="4" refY="5" markerWidth="3.2" markerHeight="3.2" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#0F7A55"/></marker></defs>'+
+    '<rect class="from" width="1" height="1" fill="#0F7A55" fill-opacity=".18"/><line stroke="#0F7A55" stroke-opacity=".88" stroke-width=".2" stroke-linecap="round" marker-end="url(#vqcReviewArrowHead)"/>';
+   shell.appendChild(svg);
+  }
+  if(svg.parentNode!==shell)shell.appendChild(svg);
+  if(getComputedStyle(shell).position==='static')shell.style.position='relative';
+  const sr=shell.getBoundingClientRect(),br=board.getBoundingClientRect();
+  svg.style.left=(br.left-sr.left-shell.clientLeft)+'px';svg.style.top=(br.top-sr.top-shell.clientTop)+'px';svg.style.width=br.width+'px';svg.style.height=br.height+'px';
+  const pos=sq=>{const f='abcdefgh'.indexOf(sq[0]),r=Number(sq[1]);return boardFlipped?{x:7-f,y:r-1}:{x:f,y:8-r};};
+  const a=pos(best.uci.slice(0,2)),b=pos(best.uci.slice(2,4));
+  const x1=a.x+.5,y1=a.y+.5,x2=b.x+.5,y2=b.y+.5,len=Math.hypot(x2-x1,y2-y1)||1,cut=.3;
+  const line=svg.querySelector('line'),rect=svg.querySelector('rect.from');
+  line.setAttribute('x1',x1);line.setAttribute('y1',y1);line.setAttribute('x2',x2-(x2-x1)/len*cut);line.setAttribute('y2',y2-(y2-y1)/len*cut);
+  rect.setAttribute('x',a.x);rect.setAttribute('y',a.y);
+  svg.hidden=false;
+ }
+ function installHints(){
+  const wrap=document.querySelector('#vqcReviewWorkspace .vqc-review-moves-wrap');
+  if(!wrap||$('vqcReviewHints'))return;
+  const box=document.createElement('section');box.id='vqcReviewHints';box.className='vqc-review-hints';box.setAttribute('aria-label','Gợi ý của máy');
+  box.innerHTML='<div class="vqc-review-hints__row">'+
+   '<button type="button" id="vqcReviewBestMove" class="vqc-review-hint-btn" aria-pressed="false">💡 Nước đi tốt nhất</button>'+
+   '<button type="button" id="vqcReviewPrevMistake" class="vqc-review-hint-btn">◀ Sai lầm trước</button>'+
+   '<button type="button" id="vqcReviewNextMistake" class="vqc-review-hint-btn">Sai lầm sau ▶</button></div>'+
+   '<p id="vqcReviewHintText" class="vqc-review-hints__text" role="status" aria-live="polite"></p>';
+  wrap.insertAdjacentElement('afterend',box);
+  $('vqcReviewBestMove').addEventListener('click',()=>{
+   hintOn=!hintOn;hintError='';
+   if(!hintOn){hintEpoch++;clearTimeout(hintTimer);hintFen='';}
+   paintHints();paintArrow();
+  });
+  $('vqcReviewPrevMistake').addEventListener('click',()=>{const list=mistakePlies()||[];const p=list.filter(x=>x<current).pop();if(p!=null)go(p);});
+  $('vqcReviewNextMistake').addEventListener('click',()=>{const list=mistakePlies()||[];const p=list.find(x=>x>current);if(p!=null)go(p);});
+  const board=$('vqcReviewBoard');
+  if(board&&typeof ResizeObserver==='function'){try{new ResizeObserver(()=>requestAnimationFrame(paintArrow)).observe(board);}catch(e){}}
+  window.addEventListener('resize',()=>requestAnimationFrame(paintArrow));
+  setInterval(()=>{if(!workspace()?.hidden&&positions.length)paintHints();},900);
+ }
+ function paintHints(){
+  const box=$('vqcReviewHints');if(!box)return;
+  box.hidden=!positions.length;if(!positions.length)return;
+  const teacher=isTeacher(),list=mistakePlies();
+  const bm=$('vqcReviewBestMove');bm.setAttribute('aria-pressed',String(hintOn));bm.textContent=hintOn?'💡 Ẩn nước đi tốt nhất':'💡 Nước đi tốt nhất';
+  const prev=$('vqcReviewPrevMistake'),next=$('vqcReviewNextMistake');
+  prev.hidden=next.hidden=!teacher;
+  const before=list?list.filter(x=>x<current).length:0,after=list?list.filter(x=>x>current).length:0;
+  prev.disabled=!list||!before;next.disabled=!list||!after;
+  prev.textContent='◀ Sai lầm trước'+(list?' ('+before+')':'');next.textContent='Sai lầm sau'+(list?' ('+after+')':'')+' ▶';
+  const text=$('vqcReviewHintText');
+  if(text&&!hintOn){
+   if(!teacher)text.textContent='Bấm “Nước đi tốt nhất” để máy trên máy em vẽ mũi tên gợi ý.';
+   else if(!list)text.textContent='Bấm “🤖 Phân tích ván” bên dưới để máy tìm các nước sai lầm.';
+   else text.textContent=list.length?'Ván có '+list.length+' nước ⚠️ sai lầm hoặc ❌ sai lầm nghiêm trọng.':'Máy không thấy nước sai lầm nào trong ván này. 🌟';
+  }
+ }
  function installMoveDrawer(){
   const workspaceEl=workspace();
   const boardCol=workspaceEl?.querySelector('.vqc-review-workspace__board');
@@ -124,7 +244,7 @@
   const el=workspace();if(!el)return;
   el.hidden=!open;
   if(!open&&variationActive)resetVariation(false);
-  if(!open)evbStop();
+  if(!open){evbStop();hintStop();}
 
   const center=document.querySelector('section.center');
   if(center)center.classList.toggle('vqc-review-mode',!!open);
@@ -346,6 +466,7 @@
   }
   updateFlipButton();
   updateVariationControls();
+  paintArrow();
  }
  function renderMoveList(){
   const list=$('vqcReviewMoves');if(!list)return;list.replaceChildren();
@@ -377,7 +498,7 @@
   requestAnimationFrame(scrollMoveIntoView);
  }
  function render(){
-  renderBoard();renderMoveList();paintEmptyState();
+  renderBoard();renderMoveList();paintEmptyState();paintHints();
   $('vqcReviewCounter').textContent=positions.length?(variationActive?'Thử biến thể · '+variationMoves.length+' nước':'Ván gốc · '+current+' / '+moves.length+' nước'):'Chưa có ván đấu';
   $('vqcReviewTurn').textContent=positions.length?(variationActive?(variationGame?.turn()==='w'?'Trắng đi tiếp':'Đen đi tiếp')+(variationGame?.isCheck?.()?' · Đang bị chiếu':''):(current===moves.length?'Đã đến vị trí cuối ván':(current%2===0?'Trắng đi tiếp':'Đen đi tiếp'))):'';
   $('vqcReviewMoveCount').textContent=moves.length?moves.length+' nước đi':'Chưa có nước đi';
@@ -719,6 +840,7 @@
  document.addEventListener('DOMContentLoaded',()=>{
   installMoveDrawer();
   installEmptyState();
+  installHints();
   evbInit();
   $('vqcReviewPgn')?.addEventListener('input',()=>{const el=$('vqcReviewError');if(el&&el.dataset.kind==='error')setMsg('');});
   $('vqcReviewLoad')?.addEventListener('click',window.vqcGameReviewLoad);
