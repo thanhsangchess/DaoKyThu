@@ -798,3 +798,250 @@ html body.vqc-mode-home #vqcModeHome .dkt-footer__copy{
   .dkt-hero__slogan{font-size:14px}
   html body.vqc-mode-home > .header .logo-text span{display:none!important}
 }
+
+/* ===== Trạng thái đăng nhập (js/auth-gate.js đặt lớp dkt-auth-* lên body) =====
+   Chỉ là lớp giao diện; quyền thật do Firestore rules quyết định. */
+.dkt-login-btn,.dkt-guest-only,.dkt-lock{display:none}
+.dkt-sr{
+  position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;
+  clip:rect(0 0 0 0)!important;white-space:nowrap!important;margin:-1px!important;padding:0!important;
+}
+
+/* Header khách: chỉ logo + nút Đăng nhập */
+/* :not(#dktLoginBtn) nâng độ ưu tiên lên trên các quy tắc #accountBar có sẵn */
+html body.dkt-auth-guest > .header > :not(.logo):not(#dktLoginBtn){display:none!important}
+html body.dkt-auth-guest > .header{justify-content:space-between!important}
+html body.dkt-auth-guest > .header > .dkt-login-btn{
+  display:inline-flex!important;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  flex:0 0 auto;
+  height:40px;
+  min-height:40px;
+  margin:0 0 0 auto!important;
+  padding:0 18px 0 15px!important;
+  border:0!important;
+  border-radius:10px!important;
+  background:var(--dkt-blue)!important;
+  color:#fff!important;
+  font:700 15px/1 var(--dkt-font)!important;
+  letter-spacing:0;
+  white-space:nowrap;
+  box-shadow:0 6px 16px -8px rgba(21,94,239,.85)!important;
+  cursor:pointer;
+  transition:background-color .15s ease,box-shadow .15s ease,transform .15s ease;
+}
+html body.dkt-auth-guest > .header > .dkt-login-btn svg{flex:none}
+html body.dkt-auth-guest > .header > .dkt-login-btn:hover{background:var(--dkt-blue-hover)!important;box-shadow:0 8px 18px -8px rgba(14,79,212,.9)!important}
+html body.dkt-auth-guest > .header > .dkt-login-btn:active{background:#0B43B8!important;transform:translateY(1px)}
+html body.dkt-auth-guest > .header > .dkt-login-btn:focus-visible{outline:none!important;box-shadow:0 0 0 3px #fff,0 0 0 6px rgba(21,94,239,.45)!important}
+
+/* Lời mời dưới slogan */
+html body.dkt-auth-guest .dkt-hero__invite{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:12px 18px;
+  margin-top:18px;
+}
+.dkt-hero__invite p{
+  font-size:15.5px;
+  font-weight:600;
+  line-height:1.5;
+  color:var(--dkt-text);
+}
+.dkt-hero__invite .dkt-invite-btn{min-height:46px;padding:0 20px 0 18px;box-shadow:0 8px 18px -10px rgba(21,94,239,.9)}
+.dkt-hero__invite .dkt-invite-btn:hover svg{transform:none}
+.dkt-hero__invite .dkt-invite-btn:active{background:#0B43B8}
+
+/* Thẻ chức năng bị khóa nhẹ */
+.dkt-lock{
+  position:absolute;
+  top:22px;
+  right:22px;
+  z-index:2;
+  align-items:center;
+  gap:6px;
+  height:28px;
+  padding:0 11px 0 9px;
+  border-radius:999px;
+  background:rgba(255,255,255,.95);
+  color:var(--dkt-deep);
+  font:700 12.5px/1 var(--dkt-font);
+  white-space:nowrap;
+  box-shadow:0 2px 8px rgba(11,42,115,.22);
+  pointer-events:none;
+}
+.dkt-lock svg{flex:none;color:var(--dkt-blue)}
+.dkt-lock--inline{position:static;margin:0 0 6px;background:var(--dkt-light);box-shadow:none}
+html body.dkt-auth-guest .dkt-lock{display:inline-flex}
+html body.dkt-auth-guest .dkt-lock--inline{display:flex;width:max-content}
+html body.dkt-auth-guest .dkt-sr.dkt-guest-only{display:inline}
+html body.dkt-auth-guest [data-dkt-locked]{cursor:pointer}
+html body.dkt-auth-guest .dkt-feature__art,
+html body.dkt-auth-guest .dkt-feature__media img{filter:saturate(.82)}
+html body.dkt-auth-guest #vqcJoinArea{display:none!important}
+html body.dkt-auth-guest > .vqc-mobile-nav,
+html body.dkt-auth-guest > .vqc-mobile-sheet{display:none!important}
+
+@media (max-width:760px){
+  html body.dkt-auth-guest > .header > .dkt-login-btn{height:44px;min-height:44px;padding:0 16px 0 13px!important;font-size:15px!important}
+  html body.dkt-auth-guest .dkt-hero__invite{flex-direction:column;align-items:stretch;gap:10px;margin-top:14px}
+  .dkt-hero__invite p{font-size:14.5px}
+  .dkt-hero__invite .dkt-invite-btn{width:100%;min-height:48px}
+  .dkt-lock{top:16px;right:16px}
+}
+
+/* ===== Trạng thái trung tính trước khi Firebase báo lần đầu (tránh nhấp nháy) ===== */
+html body.dkt-auth-pending #accountOverlay{display:none!important}
+html body.dkt-auth-pending > .header > :not(.logo):not(#dktLoginBtn){visibility:hidden!important}
+html body.dkt-auth-pending [data-dkt-locked]{pointer-events:none!important}
+html body.dkt-auth-pending [data-dkt-locked] .dkt-btn,
+html body.dkt-auth-pending #vqcJoinArea{visibility:hidden!important}
+html body.dkt-auth-pending > .vqc-mobile-nav{display:none!important}
+
+/* ===== Hộp thoại đăng nhập cho khách (tái sử dụng form #accountOverlay của core.js) =====
+   Chỉ áp dụng khi là khách; bảng Tài khoản của người đã đăng nhập giữ nguyên giao diện cũ. */
+.dkt-login-close{display:none}
+html body.dkt-login-open{overflow:hidden!important}
+html body.dkt-auth-guest #accountOverlay.account-overlay{
+  display:flex!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  padding:24px 16px!important;
+  overflow-y:auto!important;
+  background:rgba(11,42,115,.46)!important;
+  -webkit-backdrop-filter:blur(4px);
+  backdrop-filter:blur(4px);
+  font-family:var(--dkt-font)!important;
+}
+html body.dkt-auth-guest #accountOverlay.account-overlay.hidden{display:none!important}
+html body.dkt-auth-guest #accountOverlay .vqc-login-layout{
+  display:block!important;
+  width:100%!important;
+  max-width:440px!important;
+  min-height:0!important;
+  margin:auto!important;
+}
+html body.dkt-auth-guest #accountOverlay .vqc-login-scene{display:none!important}
+html body.dkt-auth-guest #accountOverlay .account-modal{
+  position:relative!important;
+  display:block!important;
+  width:100%!important;
+  min-height:0!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:30px 28px 22px!important;
+  overflow:visible!important;
+  border:1px solid var(--dkt-border)!important;
+  border-radius:20px!important;
+  background:#fff!important;
+  box-shadow:0 28px 60px -24px rgba(11,42,115,.6),0 2px 8px rgba(11,42,115,.08)!important;
+  color:var(--dkt-text)!important;
+  font-family:var(--dkt-font)!important;
+}
+html body.dkt-auth-guest #accountOverlay .dkt-login-close{
+  position:absolute;
+  top:12px;
+  right:12px;
+  z-index:1;
+  display:grid;
+  place-items:center;
+  width:40px;
+  height:40px;
+  margin:0;
+  padding:0;
+  border:0;
+  border-radius:50%;
+  background:transparent;
+  color:var(--dkt-muted);
+  cursor:pointer;
+  transition:background-color .15s ease,color .15s ease;
+}
+html body.dkt-auth-guest #accountOverlay .dkt-login-close:hover{background:var(--dkt-light);color:var(--dkt-deep)}
+html body.dkt-auth-guest #accountOverlay .dkt-login-close:active{background:#DCEAFF}
+html body.dkt-auth-guest #accountOverlay .dkt-login-close:focus-visible{outline:none;box-shadow:var(--dkt-ring)}
+
+html body.dkt-auth-guest #accountOverlay .vqc-login-formhead{margin:0 0 18px!important;text-align:center}
+html body.dkt-auth-guest #accountOverlay img.vqc-login-form-logo{
+  width:78px!important;height:52px!important;margin:0 auto 12px!important;
+  border-radius:12px!important;box-shadow:0 6px 16px -6px rgba(0,51,244,.55)!important;
+}
+html body.dkt-auth-guest #accountOverlay .vqc-login-formhead h2{
+  margin:0 0 4px!important;
+  font:800 26px/1.2 var(--dkt-font)!important;
+  letter-spacing:-.02em!important;
+  color:var(--dkt-deep)!important;
+}
+html body.dkt-auth-guest #accountOverlay .vqc-login-formhead p{margin:0!important;font:500 15px/1.4 var(--dkt-font)!important;color:var(--dkt-muted)!important}
+
+.dkt-login-reason[hidden]{display:none!important}
+html body.dkt-auth-guest #accountOverlay .dkt-login-reason{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  margin:0 0 16px;
+  padding:12px 14px;
+  border:1px solid #C9DCFB;
+  border-radius:12px;
+  background:var(--dkt-light);
+  color:var(--dkt-deep);
+  font:700 15px/1.45 var(--dkt-font);
+}
+html body.dkt-auth-guest #accountOverlay .dkt-login-reason::before{
+  content:"";
+  flex:none;
+  width:18px;
+  height:18px;
+  margin-top:1px;
+  background:var(--dkt-blue);
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='3' y='7' width='10' height='7' rx='1.6'/%3E%3Cpath d='M5.2 7V5.2a2.8 2.8 0 0 1 5.6 0V7' fill='none' stroke='%23000' stroke-width='1.6'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='3' y='7' width='10' height='7' rx='1.6'/%3E%3Cpath d='M5.2 7V5.2a2.8 2.8 0 0 1 5.6 0V7' fill='none' stroke='%23000' stroke-width='1.6'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+
+html body.dkt-auth-guest #accountOverlay .vqc-login-roles{
+  margin:0 0 18px!important;padding:4px!important;gap:4px!important;
+  border:1px solid var(--dkt-border)!important;border-radius:12px!important;background:var(--dkt-light)!important;
+}
+html body.dkt-auth-guest #accountOverlay .vqc-login-roles button{
+  min-height:44px!important;border-radius:9px!important;
+  font:700 15px/1 var(--dkt-font)!important;color:#3B4C66!important;
+}
+html body.dkt-auth-guest #accountOverlay .vqc-login-roles button.selected{
+  background:#fff!important;color:var(--dkt-blue)!important;
+  box-shadow:0 1px 3px rgba(11,42,115,.12),0 0 0 1px #C9DCFB!important;
+}
+html body.dkt-auth-guest #accountOverlay .vqc-login-roles button:focus-visible{outline:none!important;box-shadow:var(--dkt-ring)!important}
+html body.dkt-auth-guest #accountOverlay .vqc-login-label{
+  margin:0 0 6px!important;padding:0 2px!important;
+  font:700 14px/1.3 var(--dkt-font)!important;color:var(--dkt-text)!important;
+}
+html body.dkt-auth-guest #accountOverlay .vqc-login-input{
+  height:50px!important;margin:0 0 14px!important;padding:0 6px 0 14px!important;
+  border:1px solid #C9D8EE!important;border-radius:12px!important;background:#fff!important;box-shadow:none!important;
+}
+html body.dkt-auth-guest #accountOverlay .vqc-login-input:hover{border-color:#A9C0E3!important}
+html body.dkt-auth-guest #accountOverlay .vqc-login-input:focus-within{border-color:var(--dkt-blue)!important;box-shadow:var(--dkt-ring)!important}
+html body.dkt-auth-guest #accountOverlay .vqc-login-input input{font:500 16px/1.2 var(--dkt-font)!important;color:var(--dkt-text)!important}
+html body.dkt-auth-guest #accountOverlay .vqc-login-eye{width:40px!important;height:40px!important;flex-basis:40px!important;border-radius:9px!important}
+html body.dkt-auth-guest #accountOverlay .vqc-login-submit{
+  height:50px!important;margin-top:4px!important;border:0!important;border-radius:12px!important;
+  background:var(--dkt-blue)!important;color:#fff!important;
+  font:700 17px/1 var(--dkt-font)!important;
+  box-shadow:0 8px 18px -10px rgba(21,94,239,.9)!important;filter:none!important;
+}
+html body.dkt-auth-guest #accountOverlay .vqc-login-submit:hover{background:var(--dkt-blue-hover)!important;transform:none!important}
+html body.dkt-auth-guest #accountOverlay .vqc-login-submit:active{background:#0B43B8!important;transform:translateY(1px)!important}
+html body.dkt-auth-guest #accountOverlay .vqc-login-submit:focus-visible{outline:none!important;box-shadow:0 0 0 3px #fff,0 0 0 6px rgba(21,94,239,.45)!important}
+html body.dkt-auth-guest #accountOverlay .account-error:not(:empty){margin:12px 0 0!important;border-radius:12px!important;font:600 14px/1.45 var(--dkt-font)!important}
+html body.dkt-auth-guest #accountOverlay .vqc-login-help{margin:16px 0 0!important;font:500 14px/1.6 var(--dkt-font)!important;color:var(--dkt-muted)!important;text-align:center}
+html body.dkt-auth-guest #accountOverlay .vqc-login-help strong{color:var(--dkt-deep)!important}
+html body.dkt-auth-guest #accountOverlay .vqc-login-copyright{margin:12px 0 0!important;font-size:12px!important;color:#8392A8!important;text-align:center}
+
+@media (max-width:760px){
+  html body.dkt-auth-guest #accountOverlay.account-overlay{padding:12px!important}
+  html body.dkt-auth-guest #accountOverlay .account-modal{padding:26px 18px 18px!important;border-radius:18px!important}
+  html body.dkt-auth-guest #accountOverlay .dkt-login-close{top:8px;right:8px;width:44px;height:44px}
+  html body.dkt-auth-guest #accountOverlay .vqc-login-formhead h2{font-size:24px!important}
+}

@@ -52,9 +52,10 @@
 <link rel="stylesheet" href="./css/double-attack.css?v=20261112-pdf24-v1">
 <link rel="stylesheet" href="./css/beginner-puzzles.css?v=20261113-puzzle-ui-v3">
 <link rel="stylesheet" href="./css/brand-identity.css?v=20261115-brand-v3">
+<style id="dktAuthCritical">/* Trạng thái đăng nhập (auth-gate.js): ẩn ngay từ khung hình đầu, trước khi CSS cuối trang tải xong */.dkt-login-btn,.dkt-guest-only,.dkt-lock{display:none}body.dkt-auth-pending>.header>:not(.logo){visibility:hidden!important}body.dkt-auth-pending #vqcModeHome{visibility:hidden!important}</style>
 </head>
 
-<body class="vqc-mode-home">
+<body class="vqc-mode-home dkt-auth-pending">
 
 <header class="header">
 
@@ -115,7 +116,7 @@
 
     </div>
 
-<button id="vqcBackHome" class="btn btn-soft" onclick="vqcGoHome()">⌂ Trang chủ</button><div id="accountBar" aria-label="Tài khoản người dùng"><span id="accountUserLabel" style="font-size:13px;font-weight:700">Chưa đăng nhập</span><button id="vqcFriendsOpen" class="btn btn-soft vqc-friends-trigger" type="button" aria-haspopup="dialog" aria-controls="vqcFriendsModal" title="Bạn bè Kỳ Thủ"><svg class="dkt-hico" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span class="dkt-hlabel">Bạn bè</span> <span id="vqcFriendsUnread" class="vqc-friends-trigger__badge" aria-label="Lời mời mới" hidden></span></button><button class="btn btn-soft" type="button" onclick="showAccountPanel()" title="Tài khoản"><svg class="dkt-hico" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span class="dkt-hlabel">Tài khoản</span></button><button class="btn btn-soft" type="button" id="vqcMembershipLaunch" onclick="window.vqcOpenMembershipSafe()" title="Gói thành viên"><svg class="dkt-hico" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2.5 7 4.5 4 5-7 5 7 4.5-4-2 11h-15z"/><path d="M5.5 21h13"/></svg><span class="dkt-hlabel">Gói thành viên</span></button><button class="btn btn-soft" type="button" onclick="accountSignOut()" title="Thoát"><svg class="dkt-hico" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg><span class="dkt-hlabel">Thoát</span></button></div></header>
+<button id="vqcBackHome" class="btn btn-soft" onclick="vqcGoHome()">⌂ Trang chủ</button><div id="accountBar" aria-label="Tài khoản người dùng"><span id="accountUserLabel" style="font-size:13px;font-weight:700">Chưa đăng nhập</span><button id="vqcFriendsOpen" class="btn btn-soft vqc-friends-trigger" type="button" aria-haspopup="dialog" aria-controls="vqcFriendsModal" title="Bạn bè Kỳ Thủ"><svg class="dkt-hico" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span class="dkt-hlabel">Bạn bè</span> <span id="vqcFriendsUnread" class="vqc-friends-trigger__badge" aria-label="Lời mời mới" hidden></span></button><button class="btn btn-soft" type="button" onclick="showAccountPanel()" title="Tài khoản"><svg class="dkt-hico" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span class="dkt-hlabel">Tài khoản</span></button><button class="btn btn-soft" type="button" id="vqcMembershipLaunch" onclick="window.vqcOpenMembershipSafe()" title="Gói thành viên"><svg class="dkt-hico" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2.5 7 4.5 4 5-7 5 7 4.5-4-2 11h-15z"/><path d="M5.5 21h13"/></svg><span class="dkt-hlabel">Gói thành viên</span></button><button class="btn btn-soft" type="button" onclick="accountSignOut()" title="Thoát"><svg class="dkt-hico" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg><span class="dkt-hlabel">Thoát</span></button></div><button id="dktLoginBtn" class="dkt-login-btn" type="button" data-dkt-login=""><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="m10 17 5-5-5-5"/><path d="M15 12H3"/></svg><span>Đăng nhập</span></button></header>
 
 <section id="vqcModeHome" class="dkt-home" aria-label="Chọn chế độ học">
  <div class="dkt-home__inner">
@@ -124,11 +125,13 @@
    <div class="dkt-hero__text">
     <h1>Đảo Kỳ Thủ</h1>
     <p class="dkt-hero__slogan">Mỗi nước cờ – Một hành trình khám phá!</p>
+    <div class="dkt-hero__invite dkt-guest-only"><p>Em hãy đăng nhập bằng tài khoản thầy cô cấp để bắt đầu học nhé!</p><button class="dkt-btn dkt-btn--primary dkt-invite-btn" type="button" data-dkt-login=""><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="m10 17 5-5-5-5"/><path d="M15 12H3"/></svg>Đăng nhập để bắt đầu</button></div>
    </div>
   </div>
 
   <div class="dkt-features">
-   <article class="dkt-feature dkt-feature--class" aria-labelledby="dktClassTitle">
+   <article class="dkt-feature dkt-feature--class" aria-labelledby="dktClassTitle" data-dkt-locked="class">
+    <span class="dkt-lock" aria-hidden="true"><svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true" focusable="false"><rect x="3" y="7" width="10" height="7" rx="1.6" fill="currentColor"/><path d="M5.2 7V5.2a2.8 2.8 0 0 1 5.6 0V7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Đăng nhập để vào</span>
     <div class="dkt-feature__art" aria-hidden="true">
      <div class="dkt-session">
       <span class="dkt-session__live"><i></i>Trực tiếp</span>
@@ -164,12 +167,13 @@
      <h2 id="dktClassTitle">Vào lớp</h2>
      <p class="dkt-feature__desc">Giáo viên và học sinh cùng học, xem và thao tác trên bàn cờ theo thời gian thực.</p>
      <p class="dkt-feature__meta">Toàn bộ các bài tập, đối kháng và công cụ giảng dạy hiện tại</p>
-     <button class="dkt-btn dkt-btn--light" type="button" onclick="vqcEnterClass()">Vào lớp học<svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" focusable="false"><path d="M4 10h11m-4-4 4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+     <button class="dkt-btn dkt-btn--light" type="button" onclick="vqcEnterClass()">Vào lớp học<span class="dkt-sr dkt-guest-only"> (cần đăng nhập)</span><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" focusable="false"><path d="M4 10h11m-4-4 4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
      <div id="vqcJoinArea" class="dkt-join" hidden><label for="vqcJoinCode">Mã phòng giáo viên cung cấp</label><div class="dkt-join__row"><input id="vqcJoinCode" maxlength="8" placeholder="Nhập mã phòng" autocomplete="off" autocapitalize="characters"><button class="dkt-btn dkt-btn--accent" type="button" onclick="vqcJoinFromLanding()">Kết nối với lớp</button></div></div>
     </div>
    </article>
 
-   <article class="dkt-feature dkt-feature--islands" aria-labelledby="dktIslandTitle">
+   <article class="dkt-feature dkt-feature--islands" aria-labelledby="dktIslandTitle" data-dkt-locked="islands">
+    <span class="dkt-lock" aria-hidden="true"><svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true" focusable="false"><rect x="3" y="7" width="10" height="7" rx="1.6" fill="currentColor"/><path d="M5.2 7V5.2a2.8 2.8 0 0 1 5.6 0V7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Đăng nhập để vào</span>
     <div class="dkt-feature__media" aria-hidden="true">
      <img src="./assets/map-background.jpg" alt="" width="1024" height="572" loading="lazy" decoding="async">
      <span class="dkt-chip"><svg viewBox="0 0 20 20" width="14" height="14" focusable="false"><path d="M7 3 2.5 5v12L7 15l6 2 4.5-2V3L13 5zM7 3v12m6-10v12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>Bản đồ phiêu lưu</span>
@@ -179,14 +183,15 @@
      <h2 id="dktIslandTitle">Khám phá các đảo</h2>
      <p class="dkt-feature__desc">Khám phá những hòn đảo kỳ thú, chinh phục thử thách và phát triển kỹ năng cờ vua theo hành trình riêng.</p>
      <p class="dkt-feature__meta">Hành trình riêng • Những hòn đảo đang được phát triển</p>
-     <button class="dkt-btn dkt-btn--primary" type="button" onclick="vqcOpenWorld()">Khám phá các đảo<svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" focusable="false"><path d="M4 10h11m-4-4 4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+     <button class="dkt-btn dkt-btn--primary" type="button" onclick="vqcOpenWorld()">Khám phá các đảo<span class="dkt-sr dkt-guest-only"> (cần đăng nhập)</span><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" focusable="false"><path d="M4 10h11m-4-4 4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     </div>
    </article>
   </div>
 
-  <section class="dkt-practice" id="vqcEloHome" aria-labelledby="dktPracticeTitle">
+  <section class="dkt-practice" id="vqcEloHome" aria-labelledby="dktPracticeTitle" data-dkt-locked="elo">
    <div class="dkt-practice__icon" aria-hidden="true"><svg viewBox="0 0 40 40" width="30" height="30" focusable="false"><path d="M12 32C12.3 29.5 13 27.5 14.6 25.4L19 20.2 13.2 19.8C11.2 19.6 9.8 17.6 10.6 15.8L16 9 17.2 5.2 19.8 8.1C26.2 8.6 30 14 30 21c0 4-.7 7.6-2 11z" fill="currentColor"/><rect x="10" y="33" width="20" height="3.5" rx="1" fill="currentColor"/><circle cx="17.6" cy="12.6" r="1.2" fill="#EAF3FF"/></svg></div>
    <div class="dkt-practice__text">
+    <span class="dkt-lock dkt-lock--inline" aria-hidden="true"><svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true" focusable="false"><rect x="3" y="7" width="10" height="7" rx="1.6" fill="currentColor"/><path d="M5.2 7V5.2a2.8 2.8 0 0 1 5.6 0V7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Đăng nhập để vào</span>
     <h2 id="dktPracticeTitle">Câu đố theo Elo</h2>
     <p>Luyện chiến thuật ngoài giờ lớp, bất cứ lúc nào. Câu đố tự tăng hoặc giảm độ khó theo trình độ của em. Elo được lưu theo tài khoản.</p>
    </div>
@@ -194,7 +199,7 @@
     <div class="dkt-level__scale"><span>200</span><span class="dkt-level__bar"><i></i><i></i><i></i><i></i><i></i></span><span>2200</span></div>
     <span class="dkt-level__caption">Độ khó theo trình độ</span>
    </div>
-   <button class="dkt-btn dkt-btn--outline" type="button" onclick="window.vqcEloPuzzles?window.vqcEloPuzzles.open():vqcNotify('Đang tải, em thử lại sau ít giây nhé.','warning')">Luyện câu đố</button>
+   <button class="dkt-btn dkt-btn--outline" type="button" onclick="window.vqcEloPuzzles?window.vqcEloPuzzles.open():vqcNotify('Đang tải, em thử lại sau ít giây nhé.','warning')">Luyện câu đố<span class="dkt-sr dkt-guest-only"> (cần đăng nhập)</span></button>
   </section>
 
   <p class="dkt-footer vqc-credits-foot"><a href="./nguon-giay-phep.html" target="_blank" rel="noopener">ⓘ Nguồn và giấy phép</a><span class="dkt-footer__copy">© 2026 Đảo Kỳ Thủ · Bảo lưu mọi quyền</span></p>
@@ -988,7 +993,7 @@
   <button id="vqcFriendsDone" class="vqc-friends-done" type="button">Quay lại Đảo Kỳ Thủ</button>
  </div>
 </div>
-<div id="accountOverlay" class="account-overlay" role="dialog" aria-modal="true" aria-label="Đăng nhập Đảo Kỳ Thủ">
+<div id="accountOverlay" class="account-overlay hidden" role="dialog" aria-modal="true" aria-label="Đăng nhập Đảo Kỳ Thủ">
   <div class="vqc-login-layout">
     <div class="vqc-login-scene" aria-hidden="true">
       <div class="vqc-login-sun"></div><div class="vqc-login-cloud cloud-a"></div><div class="vqc-login-cloud cloud-b"></div>
@@ -1003,9 +1008,10 @@
         <div><b>👥</b><span><strong>Giáo viên theo dõi</strong><small>Đồng bộ thời gian thực</small></span></div>
       </div>
     </div>
-    <div class="account-modal">
+    <div class="account-modal"><button type="button" class="dkt-login-close" data-dkt-login-close="" aria-label="Đóng hộp đăng nhập"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
       <div class="vqc-login-formhead"><img class="vqc-login-form-logo" src="./assets/logo.png" alt="" aria-hidden="true"><h2>Đăng nhập</h2><p>Vào Đảo Kỳ Thủ</p></div>
       <div id="accountLoginArea">
+        <p id="dktLoginReason" class="dkt-login-reason" role="status" hidden></p>
         <div class="vqc-login-roles" aria-label="Loại tài khoản">
           <button type="button" class="selected" id="vqcLoginStudent" onclick="vqcSelectLoginRole('student')">🎓 Học sinh</button>
           <button type="button" id="vqcLoginTeacher" onclick="vqcSelectLoginRole('teacher')">👩‍🏫 Giáo viên</button>
@@ -1354,8 +1360,9 @@ window.vqcCloseMembershipSafe=function(){
 <p id="beginnerPuzzleHintText" class="beginner-puzzle-hint" hidden></p><p id="beginnerPuzzleAnswerText" class="beginner-puzzle-answer" hidden></p><div class="beginner-puzzle-notation" id="beginnerPuzzleNotation">Chọn quân có lượt đi, sau đó chọn ô đích được đánh dấu.</div><div class="beginner-puzzle-source">Nguồn thế cờ và lời giải: <a href="https://chessfox.com/chess-puzzles-for-beginners/" target="_blank" rel="noopener">Chessfox — 10 Easy Chess Puzzles for Beginners</a>.</div>
 </section></div></div></div>
 <script src="./js/beginner-puzzles.js?v=20261114-puzzle8-fen-v3"></script>
-<link rel="stylesheet" href="./css/home-redesign.css?v=20261128-home-v3">
+<link rel="stylesheet" href="./css/home-redesign.css?v=20261128-home-v6">
 <link rel="stylesheet" href="./css/ui-system.css?v=20261128-ui-v9">
+<script src="./js/auth-gate.js?v=20261128-gate-v3"></script>
 </body>
 
 </html>
