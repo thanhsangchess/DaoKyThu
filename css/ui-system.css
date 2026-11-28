@@ -638,3 +638,248 @@ html body.vqc-mode-class main.app .vqc-classroom-tabs button:focus-visible{outli
     border-radius:var(--ui-r-sm);background:var(--ui-surface-3);font-size:18px!important;
   }
 }
+
+/* ==========================================================================
+   MÀN HÌNH 3 — BÀN CỜ & CÔNG CỤ
+   a) Khung bàn cờ trong trang (thử thách quân cờ) + thanh công cụ bàn cờ.
+   b) Khung chung cho các hộp bài tập/công cụ (19 hộp, chọn theo id).
+   KHÔNG đổi: ô cờ (nhiều hộp dùng <button> cho ô: *-cell, *-square),
+   viền/kích thước phần tử bàn cờ (vẽ chuột phải tính theo toạ độ bàn cờ),
+   bảng quân trong trình chỉnh sửa (.vqc-bed-piece), công tắc thanh đánh giá.
+   ========================================================================== */
+
+/* a) Bàn cờ trong trang */
+html body.vqc-mode-class main.app .board-shell{
+  border:1px solid var(--ui-border)!important;border-radius:var(--ui-r-lg)!important;
+  background:var(--ui-surface)!important;box-shadow:var(--ui-shadow-md)!important;
+}
+html body.vqc-mode-class main.app .board-toolbar{gap:var(--ui-s2)!important}
+html body.vqc-mode-class main.app .board-toolbar > .btn{
+  min-height:var(--ui-ctl)!important;padding:0 var(--ui-s4)!important;
+  border:1px solid var(--ui-border-strong)!important;border-radius:var(--ui-r-md)!important;
+  background:#fff!important;color:var(--dkt-deep)!important;box-shadow:none!important;transform:none!important;
+  font:600 var(--ui-fs-md)/1 var(--dkt-font)!important;
+}
+html body.vqc-mode-class main.app .board-toolbar > .btn:first-child{background:var(--dkt-blue)!important;border-color:var(--dkt-blue)!important;color:#fff!important}
+html body.vqc-mode-class main.app .board-toolbar > .btn:hover{background:var(--dkt-light)!important;border-color:var(--dkt-blue)!important}
+html body.vqc-mode-class main.app .board-toolbar > .btn:first-child:hover{background:var(--dkt-blue-hover)!important}
+html body.vqc-mode-class main.app .board-toolbar > .btn:focus-visible{outline:none!important;box-shadow:var(--ui-focus)!important}
+
+/* b) Hộp bài tập — nền mờ */
+html body :is(#mateOverlay,#mate3Overlay,#captureOverlay,#defenseOverlay,#checkOneOverlay,#escapeOverlay,#freeCaptureOverlay,#pawnGameOverlay,#vqcLoneMateOverlay,#vqcMateOneOverlay,#vqcMateOneBasicOverlay,#vqcMateThreeOverlay,#castlingOverlay,#doubleAttackOverlay,#beginnerPuzzleOverlay,#vqcVsMachineOverlay,#vqcBedOverlay,#pvpOverlay,#vqcChdOverlay){
+  background:rgba(11,42,115,.45)!important;
+}
+/* Khung hộp */
+html body :is(#mateOverlay,#mate3Overlay,#captureOverlay,#defenseOverlay,#checkOneOverlay,#escapeOverlay,#freeCaptureOverlay,#pawnGameOverlay,#vqcLoneMateOverlay,#vqcMateOneOverlay,#vqcMateOneBasicOverlay,#vqcMateThreeOverlay,#castlingOverlay,#doubleAttackOverlay,#beginnerPuzzleOverlay,#vqcVsMachineOverlay,#vqcBedOverlay,#pvpOverlay,#vqcChdOverlay)
+  > :is(.mate-dialog,.mate3-dialog,.capture-dialog,.defense-dialog,.checkone-dialog,.escape-dialog,.freecapture-dialog,.pawn-game-dialog,.vqc-lonemate-dialog,.vqc-mateone-dialog,.castling-dialog,.double-attack-dialog,.beginner-puzzle-dialog,.vqc-vsm-dialog,.vqc-bed-dialog,.pvp-dialog,.vqc-chd-dialog){
+  background:var(--ui-surface)!important;border:1px solid var(--ui-border)!important;
+  border-radius:var(--ui-r-lg)!important;box-shadow:var(--ui-shadow-lg)!important;
+  font-family:var(--dkt-font)!important;color:var(--ui-text);
+}
+/* Thanh tiêu đề */
+html body :is(#mateOverlay,#mate3Overlay,#captureOverlay,#defenseOverlay,#checkOneOverlay,#escapeOverlay,#freeCaptureOverlay,#pawnGameOverlay,#vqcLoneMateOverlay,#vqcMateOneOverlay,#vqcMateOneBasicOverlay,#vqcMateThreeOverlay,#castlingOverlay,#doubleAttackOverlay,#beginnerPuzzleOverlay,#vqcVsMachineOverlay,#vqcBedOverlay,#pvpOverlay,#vqcChdOverlay)
+  :is(.mate-top,.pawn-game-top,.vqc-lonemate-top,.vqc-mateone-top,.castling-top,.double-attack-top,.beginner-puzzle-top,.vqc-vsm-top,.vqc-bed-top,.vqc-chd-top){
+  background:var(--ui-surface)!important;border:0!important;border-bottom:1px solid var(--ui-border)!important;
+  border-radius:0!important;box-shadow:none!important;
+  padding:var(--ui-s1) var(--ui-s1) var(--ui-s3)!important;
+}
+html body :is(#mateOverlay,#mate3Overlay,#captureOverlay,#defenseOverlay,#checkOneOverlay,#escapeOverlay,#freeCaptureOverlay,#pawnGameOverlay,#vqcLoneMateOverlay,#vqcMateOneOverlay,#vqcMateOneBasicOverlay,#vqcMateThreeOverlay,#castlingOverlay,#doubleAttackOverlay,#beginnerPuzzleOverlay,#vqcVsMachineOverlay,#vqcBedOverlay,#pvpOverlay,#vqcChdOverlay)
+  :is(.mate-top,.pawn-game-top,.vqc-lonemate-top,.vqc-mateone-top,.castling-top,.double-attack-top,.beginner-puzzle-top,.vqc-vsm-top,.vqc-bed-top,.vqc-chd-top) :is(h2,strong){
+  font-family:var(--dkt-font)!important;font-weight:700!important;color:var(--dkt-deep)!important;
+  letter-spacing:-.01em!important;text-shadow:none!important;background:none!important;-webkit-text-fill-color:currentColor;
+}
+html body :is(#mateOverlay,#mate3Overlay,#captureOverlay,#defenseOverlay,#checkOneOverlay,#escapeOverlay,#freeCaptureOverlay,#pawnGameOverlay,#vqcLoneMateOverlay,#vqcMateOneOverlay,#vqcMateOneBasicOverlay,#vqcMateThreeOverlay,#castlingOverlay,#doubleAttackOverlay,#beginnerPuzzleOverlay,#vqcVsMachineOverlay,#vqcBedOverlay,#pvpOverlay,#vqcChdOverlay)
+  :is(.mate-top,.pawn-game-top,.vqc-lonemate-top,.vqc-mateone-top,.castling-top,.double-attack-top,.beginner-puzzle-top,.vqc-vsm-top,.vqc-bed-top,.vqc-chd-top) p{
+  color:var(--ui-muted)!important;font-weight:500!important;
+}
+
+/* Nút Đóng (và các nút ở thanh tiêu đề) */
+html body :is(#mateOverlay,#mate3Overlay,#captureOverlay,#defenseOverlay,#checkOneOverlay,#escapeOverlay,#freeCaptureOverlay,#pvpOverlay) .mate-top > .btn,
+html body #pawnGameOverlay .pawn-game-top > button,
+html body :is(#vqcLoneMateClose,#vqcMateOneClose,#vqcMateOneBasicClose,#vqcMateThreeClose,#doubleAttackClose,#beginnerPuzzleClose,#vqcVsmClose,#vqcBedClose,#vqcChdClose),
+html body #castlingOverlay .castling-close,
+html body #vqcChdOverlay .vqc-chd-topbtns > button{
+  min-height:var(--ui-ctl)!important;height:auto!important;padding:0 var(--ui-s3)!important;
+  border:1px solid var(--ui-border-strong)!important;border-radius:var(--ui-r-sm)!important;
+  background:#fff!important;color:var(--ui-text-2)!important;box-shadow:none!important;transform:none!important;
+  font:600 var(--ui-fs-md)/1 var(--dkt-font)!important;cursor:pointer;
+}
+html body :is(#mateOverlay,#mate3Overlay,#captureOverlay,#defenseOverlay,#checkOneOverlay,#escapeOverlay,#freeCaptureOverlay,#pvpOverlay) .mate-top > .btn:hover,
+html body #pawnGameOverlay .pawn-game-top > button:hover,
+html body :is(#vqcLoneMateClose,#vqcMateOneClose,#vqcMateOneBasicClose,#vqcMateThreeClose,#doubleAttackClose,#beginnerPuzzleClose,#vqcVsmClose,#vqcBedClose,#vqcChdClose):hover,
+html body #castlingOverlay .castling-close:hover,
+html body #vqcChdOverlay .vqc-chd-topbtns > button:hover{background:var(--dkt-light)!important;color:var(--dkt-deep)!important;border-color:var(--dkt-blue)!important}
+html body :is(#mateOverlay,#mate3Overlay,#captureOverlay,#defenseOverlay,#checkOneOverlay,#escapeOverlay,#freeCaptureOverlay,#pvpOverlay) .mate-top > .btn:focus-visible,
+html body #pawnGameOverlay .pawn-game-top > button:focus-visible,
+html body :is(#vqcLoneMateClose,#vqcMateOneClose,#vqcMateOneBasicClose,#vqcMateThreeClose,#doubleAttackClose,#beginnerPuzzleClose,#vqcVsmClose,#vqcBedClose,#vqcChdClose):focus-visible,
+html body #castlingOverlay .castling-close:focus-visible,
+html body #vqcChdOverlay .vqc-chd-topbtns > button:focus-visible{outline:none!important;box-shadow:var(--ui-focus)!important}
+
+/* Cột bên phải của các bài tập cổ điển: bỏ đầu khung gradient */
+html body :is(#captureOverlay,#defenseOverlay,#checkOneOverlay,#escapeOverlay,#freeCaptureOverlay,#mateOverlay,#mate3Overlay)
+  :is(.capture-side,.defense-side,.checkone-side,.escape-side,.freecapture-side,.mate-side,.mate3-side) > h2{
+  margin:0!important;padding:0 0 var(--ui-s1)!important;border-radius:0!important;
+  background:none!important;box-shadow:none!important;
+  font:700 var(--ui-fs-lg)/1.3 var(--dkt-font)!important;color:var(--dkt-deep)!important;text-align:left!important;letter-spacing:0!important;
+}
+html body #captureOverlay .capture-side{
+  padding:var(--ui-s4)!important;border:1px solid var(--ui-border)!important;border-radius:var(--ui-r-md)!important;text-align:left!important;
+}
+html body #captureOverlay .capture-side > p{padding:0!important;margin:var(--ui-s2) 0 var(--ui-s3)!important}
+html body :is(#defenseOverlay,#checkOneOverlay,#escapeOverlay) :is(.defense-side,.checkone-side,.escape-side) > p{
+  background:var(--ui-surface-2)!important;border:1px solid var(--ui-border)!important;border-radius:var(--ui-r-md)!important;
+  color:var(--ui-text)!important;font-family:var(--dkt-font)!important;
+}
+
+/* Nút điều khiển trong cột bên (Bài trước / Bài sau / Làm lại / Gợi ý …) */
+html body :is(#mateOverlay .mate-side,#mate3Overlay .mate3-side,#pvpOverlay .pvp-side) > button,
+html body :is(#captureOverlay .capture-controls,#defenseOverlay .defense-controls,#checkOneOverlay .checkone-controls,#escapeOverlay .escape-controls,#freeCaptureOverlay .freecapture-controls) > button,
+html body #pawnGameOverlay .pawn-game-side > button:not([id^="pawnGameTab"]),
+html body #vqcLoneMateOverlay :is(.vqc-lonemate-nav,.vqc-lonemate-actions) > button,
+html body :is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay,#vqcMateThreeOverlay) :is(.vqc-mateone-controls,.vqc-mateone-jump) > button,
+html body #castlingOverlay .castling-controls > button,
+html body #doubleAttackOverlay :is(.double-attack-controls,.double-attack-jump) > button,
+html body #beginnerPuzzleOverlay .beginner-puzzle-controls > button,
+html body #vqcVsMachineOverlay .vqc-vsm-controls > button,
+html body #vqcBedOverlay :is(.vqc-bed-tools,.vqc-bed-btns,.vqc-bed-foot) > .vqc-bed-btn,
+html body #vqcChdOverlay .vqc-chd-controls > button{
+  min-height:var(--ui-tap)!important;padding:var(--ui-s2) var(--ui-s3)!important;
+  border:1px solid var(--ui-border-strong)!important;border-radius:var(--ui-r-md)!important;
+  background:#fff!important;color:var(--dkt-deep)!important;box-shadow:none!important;transform:none!important;filter:none!important;
+  font:600 var(--ui-fs-md)/1.25 var(--dkt-font)!important;cursor:pointer;
+  transition:background-color var(--ui-t),border-color var(--ui-t),color var(--ui-t)!important;
+}
+html body :is(#mateOverlay .mate-side,#mate3Overlay .mate3-side,#pvpOverlay .pvp-side) > button:hover:not(:disabled),
+html body :is(#captureOverlay .capture-controls,#defenseOverlay .defense-controls,#checkOneOverlay .checkone-controls,#escapeOverlay .escape-controls,#freeCaptureOverlay .freecapture-controls) > button:hover:not(:disabled),
+html body #pawnGameOverlay .pawn-game-side > button:not([id^="pawnGameTab"]):hover:not(:disabled),
+html body #vqcLoneMateOverlay :is(.vqc-lonemate-nav,.vqc-lonemate-actions) > button:hover:not(:disabled),
+html body :is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay,#vqcMateThreeOverlay) :is(.vqc-mateone-controls,.vqc-mateone-jump) > button:hover:not(:disabled),
+html body #castlingOverlay .castling-controls > button:hover:not(:disabled),
+html body #doubleAttackOverlay :is(.double-attack-controls,.double-attack-jump) > button:hover:not(:disabled),
+html body #beginnerPuzzleOverlay .beginner-puzzle-controls > button:hover:not(:disabled),
+html body #vqcVsMachineOverlay .vqc-vsm-controls > button:hover:not(:disabled),
+html body #vqcBedOverlay :is(.vqc-bed-tools,.vqc-bed-btns,.vqc-bed-foot) > .vqc-bed-btn:hover:not(:disabled),
+html body #vqcChdOverlay .vqc-chd-controls > button:hover:not(:disabled){
+  background:var(--dkt-light)!important;border-color:var(--dkt-blue)!important;transform:none!important;box-shadow:none!important;
+}
+html body :is(#mateOverlay .mate-side,#mate3Overlay .mate3-side,#pvpOverlay .pvp-side) > button:focus-visible,
+html body :is(#captureOverlay .capture-controls,#defenseOverlay .defense-controls,#checkOneOverlay .checkone-controls,#escapeOverlay .escape-controls,#freeCaptureOverlay .freecapture-controls) > button:focus-visible,
+html body #pawnGameOverlay .pawn-game-side > button:focus-visible,
+html body #vqcLoneMateOverlay :is(.vqc-lonemate-nav,.vqc-lonemate-actions) > button:focus-visible,
+html body :is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay,#vqcMateThreeOverlay) :is(.vqc-mateone-controls,.vqc-mateone-jump) > button:focus-visible,
+html body #castlingOverlay .castling-controls > button:focus-visible,
+html body #doubleAttackOverlay :is(.double-attack-controls,.double-attack-jump) > button:focus-visible,
+html body #beginnerPuzzleOverlay .beginner-puzzle-controls > button:focus-visible,
+html body #vqcVsMachineOverlay .vqc-vsm-controls > button:focus-visible,
+html body #vqcBedOverlay .vqc-bed-btn:focus-visible,
+html body #vqcChdOverlay .vqc-chd-controls > button:focus-visible{outline:none!important;box-shadow:var(--ui-focus)!important}
+html body :is(#mateOverlay .mate-side,#mate3Overlay .mate3-side,#pvpOverlay .pvp-side) > button:disabled,
+html body :is(#captureOverlay,#defenseOverlay,#checkOneOverlay,#escapeOverlay,#freeCaptureOverlay,#pawnGameOverlay,#vqcLoneMateOverlay,#vqcMateOneOverlay,#vqcMateOneBasicOverlay,#vqcMateThreeOverlay,#castlingOverlay,#doubleAttackOverlay,#beginnerPuzzleOverlay,#vqcVsMachineOverlay,#vqcBedOverlay,#vqcChdOverlay) :is([class*="-controls"],[class*="-jump"],[class*="-actions"],.vqc-lonemate-nav,.vqc-bed-tools,.vqc-bed-btns,.vqc-bed-foot,.pawn-game-side) > button:disabled{
+  opacity:.45!important;cursor:not-allowed!important;background:var(--ui-surface-2)!important;
+}
+/* Hành động chính — xanh thương hiệu (trước đây "Phân tích thế này" màu xanh lá) */
+html body #castlingOverlay .castling-controls > button.primary,
+html body #vqcBedOverlay .vqc-bed-foot > .vqc-bed-btn.primary,
+html body #pvpOverlay .pvp-side > #pvpStartBtn:not(:disabled){
+  background:var(--dkt-blue)!important;border-color:var(--dkt-blue)!important;color:#fff!important;
+}
+html body #castlingOverlay .castling-controls > button.primary:hover:not(:disabled),
+html body #vqcBedOverlay .vqc-bed-foot > .vqc-bed-btn.primary:hover:not(:disabled),
+html body #pvpOverlay .pvp-side > #pvpStartBtn:hover:not(:disabled){background:var(--dkt-blue-hover)!important;border-color:var(--dkt-blue-hover)!important}
+
+/* Nhóm nút chọn bài / số / tab (trạng thái chọn = xanh đặc) */
+html body :is(#captureStars,#defenseStars,#checkOneStars,#escapeStars,#freeCaptureNumbers,#beginnerPuzzleSteps) > button,
+html body #pawnGameOverlay :is(#pawnGameTab0,#pawnGameTab1,.pawn-game-choice > button),
+html body #vqcVsMachineOverlay .vqc-vsm-chips > button,
+html body :is(#vqcVsrTabs,#vqcPvrTabs) > button{
+  border:1px solid var(--ui-border-strong)!important;border-radius:var(--ui-r-sm)!important;
+  background:#fff!important;color:var(--ui-text-2)!important;box-shadow:none!important;transform:none!important;
+  font-family:var(--dkt-font)!important;font-weight:600!important;
+}
+html body #captureStars{gap:var(--ui-s1)!important;padding:0!important}
+html body :is(#captureStars,#defenseStars,#checkOneStars,#escapeStars,#freeCaptureNumbers,#beginnerPuzzleSteps) > button:hover,
+html body #pawnGameOverlay :is(#pawnGameTab0,#pawnGameTab1,.pawn-game-choice > button):hover,
+html body #vqcVsMachineOverlay .vqc-vsm-chips > button:hover,
+html body :is(#vqcVsrTabs,#vqcPvrTabs) > button:hover:not(:disabled){background:var(--dkt-light)!important;color:var(--dkt-deep)!important}
+html body :is(#captureStars,#defenseStars,#checkOneStars,#escapeStars,#freeCaptureNumbers,#beginnerPuzzleSteps) > button.active,
+html body #pawnGameOverlay :is(#pawnGameTab0,#pawnGameTab1,.pawn-game-choice > button).active{
+  background:var(--dkt-blue)!important;border-color:var(--dkt-blue)!important;color:#fff!important;
+}
+html body #vqcVsMachineOverlay .vqc-vsm-chips > button[aria-pressed="true"],
+html body :is(#vqcVsrTabs,#vqcPvrTabs) > button[aria-selected="true"]{
+  background:var(--dkt-light)!important;border-color:var(--dkt-blue)!important;color:var(--dkt-blue)!important;
+  box-shadow:inset 0 0 0 1px var(--dkt-blue)!important;
+}
+html body :is(#captureStars,#defenseStars,#checkOneStars,#escapeStars,#freeCaptureNumbers,#beginnerPuzzleSteps) > button:focus-visible,
+html body #pawnGameOverlay :is(#pawnGameTab0,#pawnGameTab1,.pawn-game-choice > button):focus-visible,
+html body #vqcVsMachineOverlay .vqc-vsm-chips > button:focus-visible,
+html body :is(#vqcVsrTabs,#vqcPvrTabs) > button:focus-visible{outline:none!important;box-shadow:var(--ui-focus)!important}
+
+/* Ô nhập / chọn trong hộp */
+html body :is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay,#vqcMateThreeOverlay,#doubleAttackOverlay,#vqcVsMachineOverlay,#vqcBedOverlay,#pvpOverlay) :is(input[type="text"],input[type="number"],input:not([type]),select){
+  min-height:var(--ui-ctl)!important;border:1px solid var(--ui-border-strong)!important;border-radius:var(--ui-r-sm)!important;
+  background:#fff!important;color:var(--ui-text)!important;box-shadow:none!important;font-family:var(--dkt-font)!important;
+}
+html body :is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay,#vqcMateThreeOverlay,#doubleAttackOverlay,#vqcVsMachineOverlay,#vqcBedOverlay,#pvpOverlay) :is(input[type="text"],input[type="number"],input:not([type]),select):focus{
+  outline:none!important;border-color:var(--dkt-blue)!important;box-shadow:var(--ui-focus)!important;
+}
+
+/* Ô thông báo — trạng thái mặc định: trung tính (trước đây vàng như cảnh báo).
+   Chỉ áp cho phần tử KHÔNG có class trạng thái (so khớp đúng thuộc tính class). */
+html body #mateOverlay #mateMessage[class="mate-msg"],
+html body #mate3Overlay #mate3Message[class="mate-msg"],
+html body :is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay,#vqcMateThreeOverlay) p[class="vqc-mateone-feedback"],
+html body #doubleAttackOverlay #doubleAttackFeedback[class="double-attack-feedback"],
+html body #vqcVsMachineOverlay #vqcVsmStatus[class="vqc-vsm-status"],
+html body #pvpOverlay #pvpStatus[class="pvp-status"],
+html body #beginnerPuzzleOverlay #beginnerPuzzleFeedback[class="beginner-puzzle-feedback"],
+html body #pawnGameOverlay #pawnGameStatus[class="pawn-game-status"]{
+  background:var(--ui-surface-2)!important;border:1px solid var(--ui-border)!important;border-radius:var(--ui-r-md)!important;
+  box-shadow:none!important;color:var(--ui-text)!important;font-family:var(--dkt-font)!important;
+}
+html body #vqcLoneMateOverlay #vqcLoneMateStage[class="vqc-lonemate-stage"]{
+  background:var(--dkt-light)!important;border:1px solid var(--ui-border-strong)!important;border-radius:var(--ui-r-md)!important;color:var(--dkt-deep)!important;
+}
+/* Trạng thái đúng / sai / hòa — dùng đúng bảng màu trạng thái */
+html body :is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay,#vqcMateThreeOverlay) .vqc-mateone-feedback.success,
+html body #doubleAttackOverlay .double-attack-feedback.success,
+html body #beginnerPuzzleOverlay .beginner-puzzle-feedback.success,
+html body #vqcVsMachineOverlay .vqc-vsm-status.win,
+html body :is(#defenseOverlay,#checkOneOverlay,#escapeOverlay) :is(.defense-feedback,.checkone-feedback,.escape-feedback).good,
+html body #castlingOverlay .castling-feedback.good,
+html body #vqcLoneMateOverlay .vqc-lonemate-success{
+  background:var(--ui-success-bg)!important;border-color:var(--ui-success-border)!important;color:var(--ui-success)!important;
+}
+html body :is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay,#vqcMateThreeOverlay) .vqc-mateone-feedback.error,
+html body #doubleAttackOverlay .double-attack-feedback.error,
+html body #vqcVsMachineOverlay :is(.vqc-vsm-status.error,.vqc-vsm-status.loss),
+html body #escapeOverlay .escape-feedback.wrong,
+html body #castlingOverlay .castling-feedback.bad{
+  background:var(--ui-danger-bg)!important;border-color:var(--ui-danger-border)!important;color:var(--ui-danger)!important;
+}
+html body #vqcVsMachineOverlay .vqc-vsm-status.draw,
+html body #vqcLoneMateOverlay .vqc-lonemate-draw{
+  background:var(--ui-warning-bg)!important;border-color:var(--ui-warning-border)!important;color:var(--ui-warning)!important;
+}
+
+/* Điện thoại: nút chạm ≥44px, nút Đóng 44px */
+@media (max-width:760px){
+  html body :is(#mateOverlay,#mate3Overlay,#captureOverlay,#defenseOverlay,#checkOneOverlay,#escapeOverlay,#freeCaptureOverlay,#pvpOverlay) .mate-top > .btn,
+  html body #pawnGameOverlay .pawn-game-top > button,
+  html body :is(#vqcLoneMateClose,#vqcMateOneClose,#vqcMateOneBasicClose,#vqcMateThreeClose,#doubleAttackClose,#beginnerPuzzleClose,#vqcVsmClose,#vqcBedClose,#vqcChdClose),
+  html body #castlingOverlay .castling-close,
+  html body #vqcChdOverlay .vqc-chd-topbtns > button,
+  html body :is(#captureStars,#defenseStars,#checkOneStars,#escapeStars,#freeCaptureNumbers,#beginnerPuzzleSteps) > button,
+  html body #pawnGameOverlay :is(#pawnGameTab0,#pawnGameTab1,.pawn-game-choice > button),
+  html body #vqcVsMachineOverlay .vqc-vsm-chips > button,
+  html body :is(#vqcVsrTabs,#vqcPvrTabs) > button,
+  html body .vqc-mobile-steps button{min-height:var(--ui-tap)!important}
+  html body :is(#mateOverlay,#mate3Overlay,#captureOverlay,#defenseOverlay,#checkOneOverlay,#escapeOverlay,#freeCaptureOverlay,#pawnGameOverlay,#vqcLoneMateOverlay,#vqcMateOneOverlay,#vqcMateOneBasicOverlay,#vqcMateThreeOverlay,#castlingOverlay,#doubleAttackOverlay,#beginnerPuzzleOverlay,#vqcVsMachineOverlay,#vqcBedOverlay,#pvpOverlay,#vqcChdOverlay)
+    > :is(.mate-dialog,.mate3-dialog,.capture-dialog,.defense-dialog,.checkone-dialog,.escape-dialog,.freecapture-dialog,.pawn-game-dialog,.vqc-lonemate-dialog,.vqc-mateone-dialog,.castling-dialog,.double-attack-dialog,.beginner-puzzle-dialog,.vqc-vsm-dialog,.vqc-bed-dialog,.pvp-dialog,.vqc-chd-dialog){border-radius:var(--ui-r-md)!important}
+  /* thanh tiêu đề dính trên cùng khi cuộn (mobile-home.css) — giữ nền trắng */
+  html body .mate-top{background:var(--ui-surface)!important}
+  html body .vqc-mobile-steps button{
+    border:1px solid var(--ui-border-strong)!important;border-radius:var(--ui-r-sm)!important;background:#fff!important;
+    color:var(--dkt-deep)!important;font-family:var(--dkt-font)!important;font-weight:600!important;
+  }
+}
