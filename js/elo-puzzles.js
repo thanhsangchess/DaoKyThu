@@ -213,14 +213,11 @@ function paintPanel(){
  const nb=$('vqcEloNext');
  nb.disabled=!(finished||status==='nodata');
  nb.textContent=status==='nodata'?'Thử tải lại':'Câu tiếp theo →';
- /* Trong phiên “Cả lớp cùng một câu” em không được luyện thêm câu khác. */
  nb.hidden=mode==='session'&&status!=='nodata';
  const side=$('vqcEloSide');
  side.textContent=P&&game&&status!=='loading'&&status!=='nodata'?('Em cầm quân '+(P.color==='w'?'Trắng ⚪':'Đen ⚫')):'';
  paintSession();
 }
-/* Học sinh trong phiên “Cả lớp cùng một câu”: không tự đóng được; chỉ đóng khi giáo viên kết thúc (máy em tự đóng).
-   Lối thoát phòng khi giáo viên mất kết nối: quá hạn giờ 2 phút, hoặc phiên không hạn giờ mở quá 3 giờ. */
 function locked(){
  if(!(role()==='student'&&mode==='session'&&sess))return false;
  if(status==='nodata'||status==='idle')return false;
@@ -240,7 +237,6 @@ function paintLock(){
   if(on)b.title=LOCK_TIP;else b.removeAttribute('title');
  });
 }
-/* Em tự vẽ mũi tên/khoanh tròn bằng chuột phải khi luyện ngoài lớp (chỉ máy em thấy). */
 let mineEd=null;
 function syncMine(){
  const svg=$('vqcEloMine');if(!svg||!window.vqcEloInk)return;
@@ -257,7 +253,6 @@ function paint(){
  paintBoard();paintPromo();paintPanel();syncInk();paintLock();syncMine();
 }
 
-/* Nét vẽ của giáo viên: chỉ đọc, hiện phía trên bàn cờ (cho riêng em này và/hoặc cho cả lớp). */
 function myUid(){try{return auth.currentUser.uid;}catch(e){return '';}}
 function paintInk(){
  const svg=$('vqcEloInk');if(!svg)return;
@@ -314,7 +309,6 @@ function onCell(sq){
  paint();
 }
 
-/* Tải trước câu kế tiếp (tự luyện) ngay khi em làm xong câu này, để bấm “Câu tiếp theo” là có ngay. */
 function prefetchNext(){
  if(mode!=='solo'||pre)return;
  const nonce=newNonce();
@@ -584,7 +578,6 @@ function disarmClose(){
  clearTimeout(closeArm);closeArm=0;
  const b=$('vqcEloClose');if(b)b.textContent='✕ Đóng';
 }
-/* Học sinh bị khoá khi đang trong phiên; giáo viên đóng khi phiên còn mở thì hỏi lại (đóng = kết thúc cho cả lớp). */
 function requestClose(){
  if(locked()){notify(LOCK_TIP);return;}
  if(classLive()&&!closeArm){

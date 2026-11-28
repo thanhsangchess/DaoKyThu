@@ -1,53 +1,30 @@
-/* ==========================================================================
-   Đảo Kỳ Thủ — Hệ thiết kế chung (ui-system.css)
-   Nạp SAU CÙNG (sau home-redesign.css). Chỉ đổi giao diện, không đổi chức năng.
-   Quy ước:
-   - Màu thương hiệu lấy từ biến --dkt-* trong home-redesign.css.
-   - Cam / vàng / xanh lá / đỏ chỉ dùng cho trạng thái (--ui-success/warning/danger).
-   - Mọi selector áp dụng cho màn hình đều có phạm vi hẹp (body class hoặc id).
-   - KHÔNG đặt display:...!important lên phần tử mà JS bật/tắt bằng style.display
-     (ví dụ #leaveRoomBtn), để không ghi đè trạng thái do JS đặt.
-   ========================================================================== */
-
 :root{
-  /* Khoảng cách — thang 4/8px */
   --ui-s1:4px; --ui-s2:8px; --ui-s3:12px; --ui-s4:16px; --ui-s5:20px; --ui-s6:24px; --ui-s8:32px;
-  /* Bo góc — 3 mức */
-  --ui-r-sm:8px;   /* nút nhỏ, ô nhập, huy hiệu */
-  --ui-r-md:12px;  /* nút chính, thẻ nhỏ, nhóm điều khiển */
-  --ui-r-lg:16px;  /* thẻ lớn, hộp thoại */
+  --ui-r-sm:8px;
+  --ui-r-md:12px;
+  --ui-r-lg:16px;
   --ui-r-pill:999px;
-  /* Cỡ chữ */
   --ui-fs-xs:12px; --ui-fs-sm:13px; --ui-fs-md:14px; --ui-fs-base:16px; --ui-fs-lg:18px; --ui-fs-xl:22px; --ui-fs-2xl:28px;
-  /* Đổ bóng nhẹ */
   --ui-shadow-sm:0 1px 2px rgba(16,42,90,.06);
   --ui-shadow-md:0 4px 16px rgba(16,42,90,.08);
   --ui-shadow-lg:0 16px 48px rgba(16,42,90,.18);
-  /* Viền */
   --ui-border:var(--dkt-border,#DCE7F5);
   --ui-border-strong:#C7D7EE;
-  /* Bề mặt */
   --ui-surface:#FFFFFF;
   --ui-surface-2:var(--dkt-bg,#F5F9FF);
   --ui-surface-3:#EEF3FB;
-  /* Chữ */
   --ui-text:var(--dkt-text,#172B4D);
   --ui-text-2:#3B4C66;
   --ui-muted:var(--dkt-muted,#63748B);
-  /* Trạng thái (chỉ dùng cho đúng / sai / cảnh báo) */
   --ui-success:#0F7A55; --ui-success-bg:#E7F6EF; --ui-success-border:#BFE6D3;
   --ui-warning:#9A5B00; --ui-warning-bg:#FFF6E0; --ui-warning-border:#FBE1A6;
   --ui-danger:#C0352B;  --ui-danger-bg:#FDEEEC;  --ui-danger-border:#F6CCC7;
-  /* Kích thước chạm */
   --ui-tap:44px;
   --ui-ctl:40px;
   --ui-focus:var(--dkt-ring,0 0 0 3px rgba(21,94,239,.28));
   --ui-t:.15s ease;
 }
 
-/* --------------------------------------------------------------------------
-   Thành phần dùng chung (lớp tiện ích — dùng khi thêm markup mới)
-   -------------------------------------------------------------------------- */
 .ui-btn{
   display:inline-flex;align-items:center;justify-content:center;gap:var(--ui-s2);
   min-height:var(--ui-ctl);padding:0 var(--ui-s4);
@@ -75,11 +52,6 @@
 .ui-badge--danger{background:var(--ui-danger-bg);color:var(--ui-danger)}
 @media (max-width:760px){.ui-btn{min-height:var(--ui-tap)}}
 
-/* ==========================================================================
-   MÀN HÌNH 1 — HEADER (chế độ Lớp học & Khám phá)
-   Trang chủ đã có giao diện trong home-redesign.css; ở đây đưa cùng ngôn ngữ
-   đó sang body.vqc-mode-class / body.vqc-mode-world. Không chạm .vqc-mode-home.
-   ========================================================================== */
 html body:is(.vqc-mode-class,.vqc-mode-world)::before,
 html body:is(.vqc-mode-class,.vqc-mode-world)::after{content:none!important;animation:none!important}
 
@@ -98,7 +70,6 @@ html body:is(.vqc-mode-class,.vqc-mode-world) > .header{
 html body:is(.vqc-mode-class,.vqc-mode-world) > .header::before,
 html body:is(.vqc-mode-class,.vqc-mode-world) > .header::after{content:none!important}
 
-/* Logo (giữ nguyên ảnh assets/logo.png) */
 html body:is(.vqc-mode-class,.vqc-mode-world) > .header > .logo{
   display:flex!important;align-items:center!important;gap:var(--ui-s3)!important;
   flex:0 0 auto!important;min-width:0;margin:0!important;order:0!important;
@@ -123,7 +94,6 @@ html body:is(.vqc-mode-class,.vqc-mode-world) > .header .logo-text span{
   color:var(--ui-muted)!important;white-space:nowrap;
 }
 
-/* Thanh phòng học — chỉ định dạng, không đổi display của các nút (JS điều khiển) */
 html body.vqc-mode-class > .header .room-box{
   display:flex!important;align-items:center!important;flex-wrap:nowrap!important;gap:var(--ui-s1)!important;
   flex:0 1 auto!important;min-width:0!important;width:auto!important;max-width:none!important;
@@ -155,16 +125,12 @@ html body:is(.vqc-mode-class,.vqc-mode-world) > .header > #vqcBackHome{
   font:600 var(--ui-fs-md)/1 var(--dkt-font)!important;letter-spacing:0!important;white-space:nowrap!important;text-shadow:none!important;
   cursor:pointer;transition:background-color var(--ui-t),color var(--ui-t),border-color var(--ui-t);
 }
-/* Vào lớp — hành động chính */
 html body.vqc-mode-class > .header .room-box > .btn-blue{background:var(--dkt-blue)!important;color:#fff!important}
 html body.vqc-mode-class > .header .room-box > .btn-blue:hover{background:var(--dkt-blue-hover)!important}
-/* Tạo phòng — hành động phụ (không dùng màu xanh lá vì đó là màu trạng thái) */
 html body.vqc-mode-class > .header .room-box > .btn-green{background:#fff!important;color:var(--dkt-blue)!important;border-color:var(--ui-border-strong)!important}
 html body.vqc-mode-class > .header .room-box > .btn-green:hover{background:var(--dkt-light)!important;border-color:var(--dkt-blue)!important}
-/* Rời phòng */
 html body.vqc-mode-class > .header .room-box > #leaveRoomBtn{background:#fff!important;color:var(--ui-danger)!important;border-color:var(--ui-danger-border)!important}
 html body.vqc-mode-class > .header .room-box > #leaveRoomBtn:hover{background:var(--ui-danger-bg)!important}
-/* Trang chủ */
 html body:is(.vqc-mode-class,.vqc-mode-world) > .header > #vqcBackHome{background:transparent!important;color:var(--ui-text-2)!important}
 html body:is(.vqc-mode-class,.vqc-mode-world) > .header > #vqcBackHome:hover{background:var(--dkt-light)!important;color:var(--dkt-deep)!important}
 html body:is(.vqc-mode-class,.vqc-mode-world) > .header .room-box > .btn:active,
@@ -173,7 +139,6 @@ html body:is(.vqc-mode-class,.vqc-mode-world) > .header .room-box > .btn:focus-v
 html body:is(.vqc-mode-class,.vqc-mode-world) > .header > #vqcBackHome:focus-visible{outline:none!important;box-shadow:var(--ui-focus)!important}
 html body:is(.vqc-mode-class,.vqc-mode-world) > .header .room-box > .btn:disabled{opacity:.5!important;cursor:not-allowed}
 
-/* Khu tài khoản — giống trang chủ */
 html body:is(.vqc-mode-class,.vqc-mode-world) > .header #accountBar{
   display:flex!important;flex-wrap:nowrap!important;align-items:center!important;justify-content:flex-end!important;
   gap:2px!important;flex:1 1 auto!important;min-width:0!important;max-width:none!important;
@@ -220,7 +185,6 @@ html body:is(.vqc-mode-class,.vqc-mode-world) > .header #accountBar #vqcFriendsU
   border-radius:50%!important;background:#E5484D!important;border:2px solid #fff!important;box-sizing:content-box;
 }
 
-/* Màn hình vừa: ẩn chữ trên nút tài khoản (giữ biểu tượng + title) */
 @media (max-width:1380px){
   html body.vqc-mode-class > .header #accountBar > .btn .dkt-hlabel,
   html body.vqc-mode-class > .header > .vqc-appearance-open .dkt-hlabel{
@@ -242,7 +206,6 @@ html body:is(.vqc-mode-class,.vqc-mode-world) > .header #accountBar #vqcFriendsU
   html body.vqc-mode-world > .header > .vqc-appearance-open{width:40px!important;padding:0!important;gap:0!important}
 }
 
-/* Máy tính bảng: 2 hàng — (logo · tài khoản) / (trang chủ · phòng học) */
 @media (max-width:1100px){
   html body.vqc-mode-class > .header{
     flex-wrap:wrap!important;height:auto!important;min-height:64px!important;
@@ -254,12 +217,10 @@ html body:is(.vqc-mode-class,.vqc-mode-world) > .header #accountBar #vqcFriendsU
   html body.vqc-mode-class > .header > #vqcBackHome{order:3!important}
   html body.vqc-mode-class > .header .room-box{order:4!important;flex:0 1 auto!important;margin:0!important}
   html body.vqc-mode-class > .header #accountUserLabel{max-width:140px!important}
-  /* Ngắt hàng sau nút "Bàn cờ" */
   html body.vqc-mode-class > .header::after{content:""!important;order:2!important;flex:0 0 100%!important;height:0!important;display:block!important;position:static!important;background:none!important}
   html body.vqc-mode-class > .header .room-box #roomCode{flex:0 1 120px!important;width:120px!important}
 }
 
-/* Điện thoại */
 @media (max-width:760px){
   html body:is(.vqc-mode-class,.vqc-mode-world) > .header{
     position:relative!important;
@@ -289,7 +250,6 @@ html body:is(.vqc-mode-class,.vqc-mode-world) > .header #accountBar #vqcFriendsU
   html body:is(.vqc-mode-class,.vqc-mode-world) > .header #accountBar > .btn:last-child::before{display:none}
   html body:is(.vqc-mode-class,.vqc-mode-world) > .header > .vqc-appearance-open{margin-left:0!important;border-color:transparent!important;background:transparent!important}
 
-  /* Hàng 2: Trang chủ (biểu tượng) + phòng học */
   html body:is(.vqc-mode-class,.vqc-mode-world) > .header > #vqcBackHome{
     order:3!important;width:var(--ui-tap)!important;height:var(--ui-tap)!important;min-height:var(--ui-tap)!important;padding:0!important;
     font-size:0!important;border-color:var(--ui-border)!important;background:#fff!important;border-radius:var(--ui-r-md)!important;
@@ -318,10 +278,6 @@ html body:is(.vqc-mode-class,.vqc-mode-world) > .header #accountBar #vqcFriendsU
   html body.vqc-mode-class > .header .room-box > .btn{padding:0 var(--ui-s2)!important;font-size:var(--ui-fs-sm)!important}
 }
 
-/* ==========================================================================
-   MÀN HÌNH 1b — ĐĂNG NHẬP (#accountOverlay)
-   Giữ ảnh minh họa bên trái; khung đăng nhập dùng thành phần chung.
-   ========================================================================== */
 #accountOverlay.account-overlay{background:var(--ui-surface-2)!important}
 #accountOverlay .account-modal{
   border:1px solid var(--ui-border)!important;border-radius:var(--ui-r-lg)!important;
@@ -382,7 +338,6 @@ html body:is(.vqc-mode-class,.vqc-mode-world) > .header #accountBar #vqcFriendsU
 #accountOverlay .vqc-login-help strong{color:var(--dkt-deep)!important;font-weight:600!important}
 #accountOverlay .vqc-login-copyright{color:#8392A8!important}
 
-/* Bảng tài khoản sau khi đăng nhập (tab Hồ sơ / Quản lý / Lớp / Tiến độ) */
 #accountOverlay #accountLoggedArea .account-tabs{
   display:flex;flex-wrap:wrap;gap:var(--ui-s1);padding:var(--ui-s1);margin-bottom:var(--ui-s4);
   background:var(--ui-surface-3);border:1px solid var(--ui-border);border-radius:var(--ui-r-md);
@@ -398,34 +353,20 @@ html body:is(.vqc-mode-class,.vqc-mode-world) > .header #accountBar #vqcFriendsU
   #accountOverlay #accountLoggedArea .account-tabs button{min-height:var(--ui-tap)}
 }
 
-/* --------------------------------------------------------------------------
-   Giữ nguyên các trạng thái ẩn sẵn có (đặt cuối để thắng các luật ở trên)
-   -------------------------------------------------------------------------- */
 html body.vqc-review-active:is(.vqc-mode-class,.vqc-mode-world) > .header #accountBar > #vqcFriendsOpen,
 html body.vqc-review-active:is(.vqc-mode-class,.vqc-mode-world) > .header #accountBar > #accountUserLabel{display:none!important}
 @media (max-width:760px){
-  /* Đã đăng nhập trên điện thoại: dùng thanh điều hướng dưới (mobile-layout.js) */
   html body.vqc-mobile-logged-in:is(.vqc-mode-class,.vqc-mode-world) > .header #accountBar,
   html body.vqc-mobile-logged-in:is(.vqc-mode-class,.vqc-mode-world) > .header > #vqcBackHome,
   html body.vqc-mobile-logged-in:is(.vqc-mode-class,.vqc-mode-world) > .header > .vqc-appearance-open{display:none!important}
-  /* Khi đang trong phòng có thêm nút "Rời phòng": cho xuống dòng thay vì tràn */
   html body.vqc-mode-class[class] > .header .room-box{flex-wrap:wrap!important;row-gap:var(--ui-s2)!important}
 }
 
-/* ==========================================================================
-   MÀN HÌNH 2 — VÀO LỚP / PHÒNG HỌC (body.vqc-mode-class main.app)
-   Chỉ đổi bề ngoài: thẻ, danh sách bài học, bảng "Phòng học trực tiếp",
-   thanh thử thách, tab lớp học, thanh điều hướng & bảng trượt trên điện thoại.
-   Không đổi lưới (ui-fit.css) và không đặt opacity cho .lesson
-   (student-lock.js dùng opacity để báo bài bị khóa).
-   ========================================================================== */
 html body.vqc-mode-class{background:var(--ui-surface-2)!important}
-/* Chiều cao header mới (64px khi một hàng) — dùng cho bàn cờ & cột bài học */
 @media (min-width:1101px){html body.vqc-mode-class{--vqc-hdr:64px}}
 @media (min-width:951px) and (max-width:1100px){html body.vqc-mode-class{--vqc-hdr:126px}}
 
 html body.vqc-mode-class main.app{justify-content:safe center!important;column-gap:var(--ui-s6)!important;font-family:var(--dkt-font)}
-/* Cột giữa co giãn để 3 cột luôn vừa khung (trước đây bị tràn phải ở 1024–1340px) */
 @media (min-width:1151px){
   html body.vqc-mode-class main.app:not(.vqc-review-expanded){grid-template-columns:270px minmax(0,650px) 330px!important}
 }
@@ -435,15 +376,13 @@ html body.vqc-mode-class main.app{justify-content:safe center!important;column-g
   }
 }
 
-/* Thẻ chung */
 html body.vqc-mode-class main.app > aside.card{
   background:var(--ui-surface)!important;border:1px solid var(--ui-border)!important;
   border-radius:var(--ui-r-lg)!important;box-shadow:var(--ui-shadow-sm)!important;
 }
 
-/* --- Cột bài học --- */
 html body.vqc-mode-class main.app > aside.sidebar{padding:var(--ui-s2) 0 var(--ui-s3)!important;scrollbar-color:#C7D7EE transparent}
-html body.vqc-mode-class main.app > aside.sidebar > .profile{display:none!important} /* logo đã có ở header */
+html body.vqc-mode-class main.app > aside.sidebar > .profile{display:none!important}
 html body.vqc-mode-class main.app > aside.sidebar .lesson-title{
   display:flex!important;align-items:center;gap:var(--ui-s2)!important;
   margin:0!important;padding:var(--ui-s4) var(--ui-s4) var(--ui-s2)!important;
@@ -479,7 +418,6 @@ html body.vqc-mode-class main.app > aside.sidebar .vqc-credits-link{
 }
 html body.vqc-mode-class main.app > aside.sidebar .vqc-credits-link:hover{color:var(--dkt-blue)!important}
 
-/* --- Bảng "Phòng học trực tiếp" --- */
 html body.vqc-mode-class main.app > aside.card:not(.sidebar) .panel-header{
   padding:var(--ui-s4) var(--ui-s5) var(--ui-s3)!important;
   background:var(--ui-surface)!important;border-bottom:1px solid var(--ui-border)!important;color:var(--ui-text)!important;
@@ -492,7 +430,6 @@ html body.vqc-mode-class main.app > aside.card:not(.sidebar) .panel-header p{
 }
 html body.vqc-mode-class main.app > aside.card:not(.sidebar) .panel-content{padding:var(--ui-s4) var(--ui-s5) var(--ui-s5)!important}
 
-/* Vai trò: điều khiển phân đoạn */
 html body.vqc-mode-class main.app .roles{
   gap:var(--ui-s1)!important;margin:0 0 var(--ui-s3)!important;padding:var(--ui-s1)!important;
   background:var(--ui-surface-3)!important;border:1px solid var(--ui-border)!important;border-radius:var(--ui-r-md)!important;
@@ -510,7 +447,6 @@ html body.vqc-mode-class main.app .roles .role-btn.active{
 html body.vqc-mode-class main.app .roles .role-btn:focus-visible{outline:none!important;box-shadow:var(--ui-focus)!important}
 html body.vqc-mode-class main.app .roles .role-btn:disabled{opacity:.5!important;cursor:not-allowed}
 
-/* Trạng thái kết nối */
 html body.vqc-mode-class main.app #connection{
   display:flex!important;align-items:center;gap:var(--ui-s2)!important;
   min-height:var(--ui-ctl);margin:0 0 var(--ui-s3)!important;padding:var(--ui-s2) var(--ui-s3)!important;
@@ -522,7 +458,6 @@ html body.vqc-mode-class main.app #connection .dot{
   background:var(--ui-success)!important;box-shadow:0 0 0 3px var(--ui-success-bg)!important;
 }
 
-/* Nhiệm vụ hôm nay */
 html body.vqc-mode-class main.app .mission{
   margin:0 0 var(--ui-s3)!important;padding:var(--ui-s3) var(--ui-s4)!important;
   background:var(--ui-surface-2)!important;border:1px solid var(--ui-border)!important;border-left:3px solid var(--dkt-blue)!important;
@@ -533,14 +468,12 @@ html body.vqc-mode-class main.app .mission-title{
 }
 html body.vqc-mode-class main.app .mission p{margin:0!important;font:500 var(--ui-fs-md)/1.5 var(--dkt-font)!important;color:var(--ui-text)!important}
 
-/* Thông báo trạng thái */
 html body.vqc-mode-class main.app #status{
   margin:0 0 var(--ui-s4)!important;padding:var(--ui-s3)!important;
   background:#fff!important;border:1px solid var(--ui-border)!important;border-radius:var(--ui-r-md)!important;box-shadow:none!important;
   font:500 var(--ui-fs-md)/1.5 var(--dkt-font)!important;color:var(--ui-text-2)!important;
 }
 
-/* Hoạt động gần đây */
 html body.vqc-mode-class main.app .log-title{
   margin:0 0 var(--ui-s2)!important;font:700 var(--ui-fs-sm)/1.3 var(--dkt-font)!important;color:var(--ui-text)!important;
 }
@@ -552,7 +485,6 @@ html body.vqc-mode-class main.app #log{
 html body.vqc-mode-class main.app #log .log-entry{padding:var(--ui-s2) 0!important;border-bottom:1px solid var(--ui-surface-3)!important;color:var(--ui-muted)!important}
 html body.vqc-mode-class main.app #log .log-entry:last-child{border-bottom:0!important}
 
-/* --- Thanh thử thách quân cờ --- */
 html body.vqc-mode-class main.app #pieceGameBar{
   padding:var(--ui-s3) var(--ui-s4)!important;gap:var(--ui-s3)!important;
   background:var(--ui-surface)!important;border:1px solid var(--ui-border)!important;border-radius:var(--ui-r-lg)!important;
@@ -566,7 +498,6 @@ html body.vqc-mode-class main.app #pieceGameBar .piece-game-score{
   font:700 var(--ui-fs-md)/1 var(--dkt-font)!important;color:var(--ui-warning)!important;white-space:nowrap;
 }
 
-/* --- Tab lớp học (Bàn cờ / Phân tích ván đấu) --- */
 html body.vqc-mode-class main.app .vqc-classroom-tabs{
   gap:var(--ui-s1)!important;padding:var(--ui-s1)!important;
   background:var(--ui-surface-3)!important;border:1px solid var(--ui-border)!important;border-radius:var(--ui-r-md)!important;
@@ -582,7 +513,6 @@ html body.vqc-mode-class main.app .vqc-classroom-tabs button.is-active{
 }
 html body.vqc-mode-class main.app .vqc-classroom-tabs button:focus-visible{outline:none!important;box-shadow:var(--ui-focus)!important}
 
-/* --- Điện thoại: một cột, nút ≥44px --- */
 @media (max-width:760px){
   html body.vqc-mode-class main.app{column-gap:0!important}
   html body.vqc-mode-class main.app .roles .role-btn,
@@ -595,7 +525,6 @@ html body.vqc-mode-class main.app .vqc-classroom-tabs button:focus-visible{outli
     background:#fff!important;box-shadow:none!important;color:var(--dkt-blue)!important;font:600 var(--ui-fs-base)/1 var(--dkt-font)!important;
   }
 
-  /* Thanh điều hướng dưới (chỉ hiện khi đã đăng nhập) */
   html body.vqc-mobile-logged-in > .vqc-mobile-nav{
     gap:0!important;padding:var(--ui-s1) var(--ui-s1) calc(var(--ui-s1) + env(safe-area-inset-bottom,0px))!important;
     background:rgba(255,255,255,.97)!important;border-top:1px solid var(--ui-border)!important;box-shadow:0 -2px 12px rgba(16,42,90,.06)!important;
@@ -608,7 +537,6 @@ html body.vqc-mode-class main.app .vqc-classroom-tabs button:focus-visible{outli
   html body.vqc-mobile-logged-in > .vqc-mobile-nav > button[aria-expanded="true"]{background:var(--dkt-light)!important;color:var(--dkt-blue)!important}
   html body.vqc-mobile-logged-in > .vqc-mobile-nav > button:focus-visible{outline:none!important;box-shadow:var(--ui-focus)!important}
 
-  /* Bảng trượt (Bài học / Thêm) */
   html body .vqc-mobile-sheet__scrim{background:rgba(11,42,115,.42)!important}
   html body .vqc-mobile-sheet__panel{
     background:var(--ui-surface-2)!important;border-radius:var(--ui-r-lg) var(--ui-r-lg) 0 0!important;box-shadow:var(--ui-shadow-lg)!important;
@@ -639,16 +567,6 @@ html body.vqc-mode-class main.app .vqc-classroom-tabs button:focus-visible{outli
   }
 }
 
-/* ==========================================================================
-   MÀN HÌNH 3 — BÀN CỜ & CÔNG CỤ
-   a) Khung bàn cờ trong trang (thử thách quân cờ) + thanh công cụ bàn cờ.
-   b) Khung chung cho các hộp bài tập/công cụ (19 hộp, chọn theo id).
-   KHÔNG đổi: ô cờ (nhiều hộp dùng <button> cho ô: *-cell, *-square),
-   viền/kích thước phần tử bàn cờ (vẽ chuột phải tính theo toạ độ bàn cờ),
-   bảng quân trong trình chỉnh sửa (.vqc-bed-piece), công tắc thanh đánh giá.
-   ========================================================================== */
-
-/* a) Bàn cờ trong trang */
 html body.vqc-mode-class main.app .board-shell{
   border:1px solid var(--ui-border)!important;border-radius:var(--ui-r-lg)!important;
   background:var(--ui-surface)!important;box-shadow:var(--ui-shadow-md)!important;
@@ -665,18 +583,15 @@ html body.vqc-mode-class main.app .board-toolbar > .btn:hover{background:var(--d
 html body.vqc-mode-class main.app .board-toolbar > .btn:first-child:hover{background:var(--dkt-blue-hover)!important}
 html body.vqc-mode-class main.app .board-toolbar > .btn:focus-visible{outline:none!important;box-shadow:var(--ui-focus)!important}
 
-/* b) Hộp bài tập — nền mờ */
 html body :is(#mateOverlay,#mate3Overlay,#captureOverlay,#defenseOverlay,#checkOneOverlay,#escapeOverlay,#freeCaptureOverlay,#pawnGameOverlay,#vqcLoneMateOverlay,#vqcMateOneOverlay,#vqcMateOneBasicOverlay,#vqcMateThreeOverlay,#castlingOverlay,#doubleAttackOverlay,#beginnerPuzzleOverlay,#vqcVsMachineOverlay,#vqcBedOverlay,#pvpOverlay,#vqcChdOverlay){
   background:rgba(11,42,115,.45)!important;
 }
-/* Khung hộp */
 html body :is(#mateOverlay,#mate3Overlay,#captureOverlay,#defenseOverlay,#checkOneOverlay,#escapeOverlay,#freeCaptureOverlay,#pawnGameOverlay,#vqcLoneMateOverlay,#vqcMateOneOverlay,#vqcMateOneBasicOverlay,#vqcMateThreeOverlay,#castlingOverlay,#doubleAttackOverlay,#beginnerPuzzleOverlay,#vqcVsMachineOverlay,#vqcBedOverlay,#pvpOverlay,#vqcChdOverlay)
   > :is(.mate-dialog,.mate3-dialog,.capture-dialog,.defense-dialog,.checkone-dialog,.escape-dialog,.freecapture-dialog,.pawn-game-dialog,.vqc-lonemate-dialog,.vqc-mateone-dialog,.castling-dialog,.double-attack-dialog,.beginner-puzzle-dialog,.vqc-vsm-dialog,.vqc-bed-dialog,.pvp-dialog,.vqc-chd-dialog){
   background:var(--ui-surface)!important;border:1px solid var(--ui-border)!important;
   border-radius:var(--ui-r-lg)!important;box-shadow:var(--ui-shadow-lg)!important;
   font-family:var(--dkt-font)!important;color:var(--ui-text);
 }
-/* Thanh tiêu đề */
 html body :is(#mateOverlay,#mate3Overlay,#captureOverlay,#defenseOverlay,#checkOneOverlay,#escapeOverlay,#freeCaptureOverlay,#pawnGameOverlay,#vqcLoneMateOverlay,#vqcMateOneOverlay,#vqcMateOneBasicOverlay,#vqcMateThreeOverlay,#castlingOverlay,#doubleAttackOverlay,#beginnerPuzzleOverlay,#vqcVsMachineOverlay,#vqcBedOverlay,#pvpOverlay,#vqcChdOverlay)
   :is(.mate-top,.pawn-game-top,.vqc-lonemate-top,.vqc-mateone-top,.castling-top,.double-attack-top,.beginner-puzzle-top,.vqc-vsm-top,.vqc-bed-top,.vqc-chd-top){
   background:var(--ui-surface)!important;border:0!important;border-bottom:1px solid var(--ui-border)!important;
@@ -693,7 +608,6 @@ html body :is(#mateOverlay,#mate3Overlay,#captureOverlay,#defenseOverlay,#checkO
   color:var(--ui-muted)!important;font-weight:500!important;
 }
 
-/* Nút Đóng (và các nút ở thanh tiêu đề) */
 html body :is(#mateOverlay,#mate3Overlay,#captureOverlay,#defenseOverlay,#checkOneOverlay,#escapeOverlay,#freeCaptureOverlay,#pvpOverlay) .mate-top > .btn,
 html body #pawnGameOverlay .pawn-game-top > button,
 html body :is(#vqcLoneMateClose,#vqcMateOneClose,#vqcMateOneBasicClose,#vqcMateThreeClose,#doubleAttackClose,#beginnerPuzzleClose,#vqcVsmClose,#vqcBedClose,#vqcChdClose),
@@ -715,7 +629,6 @@ html body :is(#vqcLoneMateClose,#vqcMateOneClose,#vqcMateOneBasicClose,#vqcMateT
 html body #castlingOverlay .castling-close:focus-visible,
 html body #vqcChdOverlay .vqc-chd-topbtns > button:focus-visible{outline:none!important;box-shadow:var(--ui-focus)!important}
 
-/* Cột bên phải của các bài tập cổ điển: bỏ đầu khung gradient */
 html body :is(#captureOverlay,#defenseOverlay,#checkOneOverlay,#escapeOverlay,#freeCaptureOverlay,#mateOverlay,#mate3Overlay)
   :is(.capture-side,.defense-side,.checkone-side,.escape-side,.freecapture-side,.mate-side,.mate3-side) > h2{
   margin:0!important;padding:0 0 var(--ui-s1)!important;border-radius:0!important;
@@ -731,7 +644,6 @@ html body :is(#defenseOverlay,#checkOneOverlay,#escapeOverlay) :is(.defense-side
   color:var(--ui-text)!important;font-family:var(--dkt-font)!important;
 }
 
-/* Nút điều khiển trong cột bên (Bài trước / Bài sau / Làm lại / Gợi ý …) */
 html body :is(#mateOverlay .mate-side,#mate3Overlay .mate3-side,#pvpOverlay .pvp-side) > button,
 html body :is(#captureOverlay .capture-controls,#defenseOverlay .defense-controls,#checkOneOverlay .checkone-controls,#escapeOverlay .escape-controls,#freeCaptureOverlay .freecapture-controls) > button,
 html body #pawnGameOverlay .pawn-game-side > button:not([id^="pawnGameTab"]),
@@ -777,7 +689,6 @@ html body :is(#mateOverlay .mate-side,#mate3Overlay .mate3-side,#pvpOverlay .pvp
 html body :is(#captureOverlay,#defenseOverlay,#checkOneOverlay,#escapeOverlay,#freeCaptureOverlay,#pawnGameOverlay,#vqcLoneMateOverlay,#vqcMateOneOverlay,#vqcMateOneBasicOverlay,#vqcMateThreeOverlay,#castlingOverlay,#doubleAttackOverlay,#beginnerPuzzleOverlay,#vqcVsMachineOverlay,#vqcBedOverlay,#vqcChdOverlay) :is([class*="-controls"],[class*="-jump"],[class*="-actions"],.vqc-lonemate-nav,.vqc-bed-tools,.vqc-bed-btns,.vqc-bed-foot,.pawn-game-side) > button:disabled{
   opacity:.45!important;cursor:not-allowed!important;background:var(--ui-surface-2)!important;
 }
-/* Hành động chính — xanh thương hiệu (trước đây "Phân tích thế này" màu xanh lá) */
 html body #castlingOverlay .castling-controls > button.primary,
 html body #vqcBedOverlay .vqc-bed-foot > .vqc-bed-btn.primary,
 html body #pvpOverlay .pvp-side > #pvpStartBtn:not(:disabled){
@@ -787,7 +698,6 @@ html body #castlingOverlay .castling-controls > button.primary:hover:not(:disabl
 html body #vqcBedOverlay .vqc-bed-foot > .vqc-bed-btn.primary:hover:not(:disabled),
 html body #pvpOverlay .pvp-side > #pvpStartBtn:hover:not(:disabled){background:var(--dkt-blue-hover)!important;border-color:var(--dkt-blue-hover)!important}
 
-/* Nhóm nút chọn bài / số / tab (trạng thái chọn = xanh đặc) */
 html body :is(#captureStars,#defenseStars,#checkOneStars,#escapeStars,#freeCaptureNumbers,#beginnerPuzzleSteps) > button,
 html body #pawnGameOverlay :is(#pawnGameTab0,#pawnGameTab1,.pawn-game-choice > button),
 html body #vqcVsMachineOverlay .vqc-vsm-chips > button,
@@ -815,7 +725,6 @@ html body #pawnGameOverlay :is(#pawnGameTab0,#pawnGameTab1,.pawn-game-choice > b
 html body #vqcVsMachineOverlay .vqc-vsm-chips > button:focus-visible,
 html body :is(#vqcVsrTabs,#vqcPvrTabs) > button:focus-visible{outline:none!important;box-shadow:var(--ui-focus)!important}
 
-/* Ô nhập / chọn trong hộp */
 html body :is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay,#vqcMateThreeOverlay,#doubleAttackOverlay,#vqcVsMachineOverlay,#vqcBedOverlay,#pvpOverlay) :is(input[type="text"],input[type="number"],input:not([type]),select){
   min-height:var(--ui-ctl)!important;border:1px solid var(--ui-border-strong)!important;border-radius:var(--ui-r-sm)!important;
   background:#fff!important;color:var(--ui-text)!important;box-shadow:none!important;font-family:var(--dkt-font)!important;
@@ -824,8 +733,6 @@ html body :is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay,#vqcMateThreeOverlay,#d
   outline:none!important;border-color:var(--dkt-blue)!important;box-shadow:var(--ui-focus)!important;
 }
 
-/* Ô thông báo — trạng thái mặc định: trung tính (trước đây vàng như cảnh báo).
-   Chỉ áp cho phần tử KHÔNG có class trạng thái (so khớp đúng thuộc tính class). */
 html body #mateOverlay #mateMessage[class="mate-msg"],
 html body #mate3Overlay #mate3Message[class="mate-msg"],
 html body :is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay,#vqcMateThreeOverlay) p[class="vqc-mateone-feedback"],
@@ -840,7 +747,6 @@ html body #pawnGameOverlay #pawnGameStatus[class="pawn-game-status"]{
 html body #vqcLoneMateOverlay #vqcLoneMateStage[class="vqc-lonemate-stage"]{
   background:var(--dkt-light)!important;border:1px solid var(--ui-border-strong)!important;border-radius:var(--ui-r-md)!important;color:var(--dkt-deep)!important;
 }
-/* Trạng thái đúng / sai / hòa — dùng đúng bảng màu trạng thái */
 html body :is(#vqcMateOneOverlay,#vqcMateOneBasicOverlay,#vqcMateThreeOverlay) .vqc-mateone-feedback.success,
 html body #doubleAttackOverlay .double-attack-feedback.success,
 html body #beginnerPuzzleOverlay .beginner-puzzle-feedback.success,
@@ -862,7 +768,6 @@ html body #vqcLoneMateOverlay .vqc-lonemate-draw{
   background:var(--ui-warning-bg)!important;border-color:var(--ui-warning-border)!important;color:var(--ui-warning)!important;
 }
 
-/* Điện thoại: nút chạm ≥44px, nút Đóng 44px */
 @media (max-width:760px){
   html body :is(#mateOverlay,#mate3Overlay,#captureOverlay,#defenseOverlay,#checkOneOverlay,#escapeOverlay,#freeCaptureOverlay,#pvpOverlay) .mate-top > .btn,
   html body #pawnGameOverlay .pawn-game-top > button,
@@ -876,7 +781,6 @@ html body #vqcLoneMateOverlay .vqc-lonemate-draw{
   html body .vqc-mobile-steps button{min-height:var(--ui-tap)!important}
   html body :is(#mateOverlay,#mate3Overlay,#captureOverlay,#defenseOverlay,#checkOneOverlay,#escapeOverlay,#freeCaptureOverlay,#pawnGameOverlay,#vqcLoneMateOverlay,#vqcMateOneOverlay,#vqcMateOneBasicOverlay,#vqcMateThreeOverlay,#castlingOverlay,#doubleAttackOverlay,#beginnerPuzzleOverlay,#vqcVsMachineOverlay,#vqcBedOverlay,#pvpOverlay,#vqcChdOverlay)
     > :is(.mate-dialog,.mate3-dialog,.capture-dialog,.defense-dialog,.checkone-dialog,.escape-dialog,.freecapture-dialog,.pawn-game-dialog,.vqc-lonemate-dialog,.vqc-mateone-dialog,.castling-dialog,.double-attack-dialog,.beginner-puzzle-dialog,.vqc-vsm-dialog,.vqc-bed-dialog,.pvp-dialog,.vqc-chd-dialog){border-radius:var(--ui-r-md)!important}
-  /* thanh tiêu đề dính trên cùng khi cuộn (mobile-home.css) — giữ nền trắng */
   html body .mate-top{background:var(--ui-surface)!important}
   html body .vqc-mobile-steps button{
     border:1px solid var(--ui-border-strong)!important;border-radius:var(--ui-r-sm)!important;background:#fff!important;
@@ -884,18 +788,11 @@ html body #vqcLoneMateOverlay .vqc-lonemate-draw{
   }
 }
 
-/* ==========================================================================
-   MÀN HÌNH 4 — CÂU ĐỐ ELO & BẢNG XẾP HẠNG (#vqcEloOverlay)
-   KHÔNG đổi: ô cờ .vqc-elo-cell, viền/kích thước .vqc-elo-board (lớp vẽ
-   .vqc-elo-ink được đặt lệch theo viền 5px), bàn cờ mini, màu viền trạng thái
-   của thẻ học sinh (.vqc-elo-card2.st-*), ô màu bút vẽ.
-   ========================================================================== */
 html body #vqcEloOverlay{background:rgba(11,42,115,.45)!important}
 html body #vqcEloOverlay .vqc-elo-dialog{
   background:var(--ui-surface)!important;border:1px solid var(--ui-border)!important;border-radius:var(--ui-r-lg)!important;
   box-shadow:var(--ui-shadow-lg)!important;font-family:var(--dkt-font)!important;color:var(--ui-text);
 }
-/* Thanh tiêu đề */
 html body #vqcEloOverlay .vqc-elo-top{
   background:var(--ui-surface)!important;border:0!important;border-bottom:1px solid var(--ui-border)!important;border-radius:0!important;
   padding:var(--ui-s1) var(--ui-s1) var(--ui-s3)!important;
@@ -912,7 +809,6 @@ html body #vqcEloOverlay .vqc-elo-top button.vqc-elo-teacher{color:var(--dkt-blu
 html body #vqcEloOverlay .vqc-elo-top button:hover:not(:disabled){background:var(--dkt-light)!important;border-color:var(--dkt-blue)!important;color:var(--dkt-deep)!important}
 html body #vqcEloOverlay .vqc-elo-top button:focus-visible{outline:none!important;box-shadow:var(--ui-focus)!important}
 
-/* Cột bên */
 html body #vqcEloOverlay .vqc-elo-side{background:var(--ui-surface)!important;border:1px solid var(--ui-border)!important;border-radius:var(--ui-r-md)!important;padding:var(--ui-s3)!important;gap:var(--ui-s3)!important}
 html body #vqcEloOverlay .vqc-elo-card{background:var(--ui-surface-2)!important;border:1px solid var(--ui-border)!important;border-radius:var(--ui-r-md)!important}
 html body #vqcEloOverlay .vqc-elo-label{color:var(--ui-muted)!important;font-weight:600!important;font-size:var(--ui-fs-sm)!important}
@@ -925,7 +821,6 @@ html body #vqcEloOverlay .vqc-elo-stats b{color:var(--ui-text)!important;font-va
 html body #vqcEloOverlay .vqc-elo-sidenote{color:var(--ui-text)!important;font-weight:700!important}
 html body #vqcEloOverlay .vqc-elo-credit{color:var(--ui-muted)!important}
 
-/* Ô thông báo: mặc định thông tin (xanh nhạt); đúng / sai / gợi ý = màu trạng thái */
 html body #vqcEloOverlay .vqc-elo-msg{
   background:var(--dkt-light)!important;border:1px solid var(--ui-border-strong)!important;border-radius:var(--ui-r-md)!important;
   color:var(--dkt-deep)!important;font-weight:600!important;
@@ -936,7 +831,6 @@ html body #vqcEloOverlay .vqc-elo-msg.bad{background:var(--ui-danger-bg)!importa
 html body #vqcEloOverlay .vqc-elo-msg.hint{background:var(--ui-warning-bg)!important;border-color:var(--ui-warning-border)!important;color:var(--ui-warning)!important}
 html body #vqcEloOverlay .vqc-elo-chip{background:var(--dkt-light)!important;color:var(--dkt-deep)!important;font-weight:600!important;border-radius:var(--ui-r-pill)!important}
 
-/* Nút */
 html body #vqcEloOverlay .vqc-elo-btn{
   min-height:var(--ui-tap)!important;padding:var(--ui-s2) var(--ui-s4)!important;
   border:1px solid var(--ui-border-strong)!important;border-radius:var(--ui-r-md)!important;
@@ -954,7 +848,6 @@ html body #vqcEloOverlay .vqc-elo-btn.mini{min-height:32px!important;padding:var
 html body #vqcEloOverlay .vqc-elo-btn:focus-visible{outline:none!important;box-shadow:var(--ui-focus)!important}
 html body #vqcEloOverlay .vqc-elo-foot{border-top-color:var(--ui-border)!important}
 
-/* Phiên "Cả lớp cùng một câu" */
 html body #vqcEloOverlay :is(.vqc-elo-sessionbar,.vqc-elo-livetop){
   background:var(--dkt-light)!important;border:1px solid var(--ui-border-strong)!important;border-left:3px solid var(--dkt-blue)!important;
   border-radius:var(--ui-r-md)!important;color:var(--dkt-deep)!important;
@@ -963,7 +856,6 @@ html body #vqcEloOverlay .vqc-elo-liveinfo{color:var(--dkt-deep)!important}
 html body #vqcEloOverlay :is(#vqcEloClock,.vqc-elo-liveclock){color:var(--ui-warning)!important;font-variant-numeric:tabular-nums}
 html body #vqcEloOverlay .vqc-elo-solution{background:var(--ui-success-bg)!important;color:var(--ui-success)!important;border-radius:var(--ui-r-sm)!important}
 
-/* Tab giáo viên */
 html body #vqcEloOverlay .vqc-elo-tabs{gap:var(--ui-s2)!important}
 html body #vqcEloOverlay .vqc-elo-tab{
   min-height:var(--ui-ctl)!important;padding:0 var(--ui-s4)!important;
@@ -977,7 +869,6 @@ html body #vqcEloOverlay .vqc-elo-tab.back{border-color:transparent!important;ba
 html body #vqcEloOverlay .vqc-elo-tab.back:hover{background:var(--dkt-light)!important;color:var(--dkt-deep)!important}
 html body #vqcEloOverlay .vqc-elo-tab:focus-visible{outline:none!important;box-shadow:var(--ui-focus)!important}
 
-/* Biểu mẫu chọn câu */
 html body #vqcEloOverlay :is(.vqc-elo-lead,.vqc-elo-flabel,.vqc-elo-field,.vqc-elo-radio,.vqc-elo-drawlabel){color:var(--ui-text)!important;font-weight:600!important}
 html body #vqcEloOverlay :is(.vqc-elo-note,.vqc-elo-empty,.vqc-elo-drawhelp){color:var(--ui-muted)!important}
 html body #vqcEloOverlay :is(.vqc-elo-err,.vqc-elo-fstatus){color:var(--ui-danger)!important}
@@ -999,7 +890,6 @@ html body #vqcEloOverlay .vqc-elo-pickrow:hover{background:var(--ui-surface-2)!i
 html body #vqcEloOverlay .vqc-elo-pickrow.on{background:var(--dkt-light)!important;border-color:var(--dkt-blue)!important}
 html body #vqcEloOverlay .vqc-elo-card2{border-radius:var(--ui-r-md)!important;color:var(--ui-text)!important}
 
-/* Bảng xếp hạng */
 html body #vqcEloOverlay .vqc-elo-sumcard{background:var(--ui-surface-2)!important;border:1px solid var(--ui-border)!important;border-radius:var(--ui-r-sm)!important;padding:var(--ui-s2) var(--ui-s3)!important}
 html body #vqcEloOverlay .vqc-elo-sumcard span{color:var(--ui-muted)!important;font-weight:600!important}
 html body #vqcEloOverlay .vqc-elo-sumcard b{color:var(--dkt-deep)!important;font-variant-numeric:tabular-nums}
@@ -1017,9 +907,6 @@ html body #vqcEloOverlay .vqc-elo-table tr.idle td,html body #vqcEloOverlay .vqc
 html body #vqcEloOverlay .vqc-elo-lb tr.me td{box-shadow:inset 0 2px 0 var(--dkt-blue),inset 0 -2px 0 var(--dkt-blue)!important}
 html body #vqcEloOverlay .vqc-elo-lb small.mine{color:var(--dkt-blue)!important}
 html body #vqcEloOverlay .vqc-elo-sort.on{color:var(--dkt-blue)!important}
-/* Sửa lỗi có sẵn: các cột cố định cộng lại đúng 760px = min-width của bảng, nên ở
-   màn hẹp cột "Họ và tên" bị co về 0. Nâng min-width để cột tên luôn ≥160px
-   (bảng cuộn ngang trong khung .vqc-elo-tablewrap như cũ). */
 html body #vqcEloOverlay .vqc-elo-table.vqc-elo-lb{min-width:920px!important}
 
 @media (max-width:820px){
@@ -1034,27 +921,12 @@ html body #vqcEloOverlay .vqc-elo-table.vqc-elo-lb{min-width:920px!important}
   html body #vqcEloOverlay .vqc-elo-tab.back{margin-left:0!important}
 }
 
-/* ==========================================================================
-   ĐỒNG HỒ LỚP HỌC — ẩn hẳn thẻ nổi .vqct-chip (cả nút "⏱ Đồng hồ" lẫn ô đếm giờ
-   khi đồng hồ được thu nhỏ), theo yêu cầu. Giáo viên mở đồng hồ bằng mục
-   "Đồng hồ lớp học" trong danh sách bài học; bảng đồng hồ đầy đủ và thông báo
-   "HẾT GIỜ!" (.vqct-toast) vẫn hoạt động như cũ.
-   ========================================================================== */
 html body .vqct-chip{display:none!important}
 
-/* ==========================================================================
-   MÀN HÌNH 6 — BẠN BÈ, GÓI THÀNH VIÊN & HỘP THOẠI CHUNG
-   Bạn bè (#vqcFriendsModal), Thách đấu / Đấu bạn / Trò chuyện, Gói thành viên,
-   Tùy chỉnh bàn cờ, Phần thưởng sao, Phong cấp, Thông báo nổi, bảng Tài khoản.
-   Không đổi: ô màu bàn cờ trong Tùy chỉnh (.vqc-appearance-swatch), [hidden].
-   ========================================================================== */
-
-/* Nền mờ chung */
 html body :is(#vqcFriendsModal,#vqcChallengeLobby,#vqcFriendDuel,#vqcFriendChat,#vqcMembershipDialog,#starRewardOverlay,#editorPromotionDialog){
   background:rgba(11,42,115,.45)!important;
 }
 
-/* Khung hộp thoại chung */
 html body #vqcFriendsModal .vqc-friends-dialog,
 html body :is(#vqcChallengeLobby .vqc-challenge-dialog,#vqcFriendDuel .vqc-duel-dialog,#vqcFriendChat .vqc-chat-dialog),
 html body #vqcMembershipDialog .vqc-membership-modal,
@@ -1064,7 +936,6 @@ html body #editorPromotionDialog .vqc-promotion-card{
   background:var(--ui-surface)!important;border:1px solid var(--ui-border)!important;border-radius:var(--ui-r-lg)!important;
   box-shadow:var(--ui-shadow-lg)!important;font-family:var(--dkt-font)!important;color:var(--ui-text)!important;
 }
-/* Tiêu đề hộp thoại */
 html body :is(#vqcChallengeLobby,#vqcFriendDuel,#vqcFriendChat) .vqc-duel-top,
 html body #vqcMembershipDialog .vqc-membership-head,
 html body #vqcAppearanceDialog .vqc-appearance-top{
@@ -1078,7 +949,6 @@ html body #starRewardOverlay .reward-card h2,
 html body #editorPromotionDialog .vqc-promotion-card h3{
   font-family:var(--dkt-font)!important;font-weight:700!important;color:var(--dkt-deep)!important;letter-spacing:-.01em!important;text-shadow:none!important;
 }
-/* Nút đóng (✕) */
 html body #vqcFriendsModal #vqcFriendsClose,
 html body :is(#vqcChallengeClose,#vqcDuelClose,#vqcFriendChatClose),
 html body #vqcMembershipDialog .vqc-membership-head .btn,
@@ -1094,7 +964,6 @@ html body :is(#vqcChallengeClose,#vqcDuelClose,#vqcFriendChatClose):hover,
 html body #vqcMembershipDialog .vqc-membership-head .btn:hover,
 html body #vqcAppearanceDialog .vqc-appearance-close:hover{background:var(--dkt-light)!important;border-color:var(--dkt-blue)!important;color:var(--dkt-deep)!important}
 
-/* Nút phụ / nút chính dùng chung trong các hộp thoại */
 html body #vqcFriendsModal :is(#vqcFriendsCopyCode,#vqcFriendsFind,#vqcFriendsSettingsToggle,.vqc-friends-done,.vqc-friend-action),
 html body #vqcFriendChat :is(#vqcFriendChatClear),
 html body #vqcChallengeLobby #vqcChallengeFriends,
@@ -1139,7 +1008,6 @@ html body :is(#vqcFriendsModal,#vqcFriendChat,#vqcChallengeLobby,#vqcFriendDuel,
   outline:none!important;box-shadow:var(--ui-focus)!important;
 }
 html body :is(#vqcFriendsModal,#vqcFriendChat,#vqcMembershipDialog) button:disabled{opacity:.45!important;cursor:not-allowed!important}
-/* Nút nguy hiểm (Chặn, Hủy kết bạn…) — viền đỏ */
 html body #vqcFriendsModal .vqc-friend-action.is-danger,
 html body #vqcFriendChat #vqcFriendChatBlock{
   min-height:var(--ui-tap)!important;padding:var(--ui-s2) var(--ui-s4)!important;
@@ -1150,7 +1018,6 @@ html body #vqcFriendChat #vqcFriendChatBlock{
 html body #vqcFriendsModal .vqc-friend-action.is-danger:hover,
 html body #vqcFriendChat #vqcFriendChatBlock:hover{background:var(--ui-danger-bg)!important;border-color:var(--ui-danger)!important}
 
-/* Ô nhập trong hộp thoại */
 html body :is(#vqcFriendsModal,#vqcFriendChat,#vqcAppearanceDialog,#vqcMembershipDialog) :is(input[type="text"],input:not([type]),textarea,select),
 html body #accountOverlay #accountLoggedArea :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea){
   min-height:var(--ui-tap)!important;padding:var(--ui-s2) var(--ui-s3)!important;
@@ -1161,7 +1028,6 @@ html body :is(#vqcFriendsModal,#vqcFriendChat,#vqcAppearanceDialog,#vqcMembershi
 html body #accountOverlay #accountLoggedArea :is(input,select,textarea):focus{outline:none!important;border-color:var(--dkt-blue)!important;box-shadow:var(--ui-focus)!important}
 html body :is(#vqcFriendsModal,#vqcAppearanceDialog,#vqcMembershipDialog,#accountOverlay) input[type="checkbox"]{accent-color:var(--dkt-blue)}
 
-/* --- Bạn bè --- */
 html body #vqcFriendsModal .vqc-friends-hero{background:transparent!important;border:0!important;box-shadow:none!important}
 html body #vqcFriendsModal .vqc-friends-hero__emoji{
   background:var(--ui-surface-3)!important;border:1px solid var(--ui-border)!important;border-radius:var(--ui-r-md)!important;box-shadow:none!important;
@@ -1211,19 +1077,16 @@ html body #vqcFriendsModal .vqc-friends-safety{
   background:var(--ui-surface-2)!important;border:1px solid var(--ui-border)!important;border-radius:var(--ui-r-md)!important;color:var(--ui-muted)!important;
 }
 
-/* --- Trò chuyện / Thách đấu / Đấu bạn --- */
 html body :is(#vqcFriendChat,#vqcChallengeLobby,#vqcFriendDuel) p{color:var(--ui-text-2)}
 html body #vqcFriendChat .vqc-chat-messages{
   background:var(--ui-surface-2)!important;border:1px solid var(--ui-border)!important;border-radius:var(--ui-r-md)!important;
 }
 
-/* --- Gói thành viên --- */
 html body #vqcMembershipDialog .vqc-membership-card{
   background:#fff!important;background-image:none!important;border:1px solid var(--ui-border)!important;border-radius:var(--ui-r-md)!important;box-shadow:none!important;
 }
 html body #vqcMembershipDialog .vqc-membership-sub{color:var(--ui-muted)!important}
 
-/* --- Tùy chỉnh bàn cờ --- */
 html body #vqcAppearanceDialog .vqc-appearance-choice{
   border:1px solid var(--ui-border)!important;border-radius:var(--ui-r-md)!important;background:#fff!important;box-shadow:none!important;
   font-family:var(--dkt-font)!important;color:var(--ui-text)!important;
@@ -1232,18 +1095,15 @@ html body #vqcAppearanceDialog .vqc-appearance-choice:hover{border-color:var(--u
 html body #vqcAppearanceDialog .vqc-appearance-choice[aria-pressed="true"]{border-color:var(--dkt-blue)!important;background:var(--dkt-light)!important;box-shadow:inset 0 0 0 1px var(--dkt-blue)!important}
 html body #vqcAppearanceDialog .vqc-appearance-label{color:var(--ui-text)!important;font-weight:700!important}
 
-/* --- Phần thưởng sao --- */
 html body #starRewardOverlay .reward-card h2{color:var(--dkt-deep)!important}
 html body #starRewardOverlay .reward-card p{color:var(--ui-text-2)!important}
 html body #starRewardOverlay .reward-score{background:var(--ui-warning-bg)!important;border:1px solid var(--ui-warning-border)!important;color:var(--ui-warning)!important}
 
-/* --- Phong cấp --- */
 html body #editorPromotionDialog .vqc-promotion-choices button{
   border:1px solid var(--ui-border-strong)!important;border-radius:var(--ui-r-md)!important;background:#fff!important;box-shadow:none!important;
 }
 html body #editorPromotionDialog .vqc-promotion-choices button:hover{background:var(--dkt-light)!important;border-color:var(--dkt-blue)!important}
 
-/* --- Thông báo nổi --- */
 html body #vqcToasts .vqc-toast{
   background:#fff!important;background-image:none!important;border:1px solid var(--ui-border)!important;border-left:4px solid var(--dkt-blue)!important;
   border-radius:var(--ui-r-md)!important;box-shadow:var(--ui-shadow-md)!important;color:var(--ui-text)!important;
@@ -1253,8 +1113,6 @@ html body #vqcToasts .vqc-toast.success{border-left-color:var(--ui-success)!impo
 html body #vqcToasts .vqc-toast.warning{border-left-color:#E8A317!important}
 html body #vqcToasts .vqc-toast.error{border-left-color:var(--ui-danger)!important}
 
-/* --- Bảng Tài khoản sau khi đăng nhập ---
-   Ẩn chữ "Đăng nhập / Vào Đảo Kỳ Thủ" ở đầu khung khi đã đăng nhập (JS đặt display:block cho #accountLoggedArea). */
 html body #accountOverlay:has(#accountLoggedArea[style*="block"]) .vqc-login-formhead :is(h2,p){display:none!important}
 html body #accountOverlay #accountLoggedArea .account-tabs{
   display:flex!important;flex-wrap:wrap!important;gap:var(--ui-s1)!important;padding:var(--ui-s1)!important;margin-bottom:var(--ui-s4)!important;

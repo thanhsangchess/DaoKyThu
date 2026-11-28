@@ -200,7 +200,6 @@ html body.vqc-mode-home > .header #accountBar > #vqcMembershipLaunch{
 }
 html body.vqc-mode-home > .header #accountBar > #vqcMembershipLaunch .dkt-hico{color:var(--dkt-blue)}
 html body.vqc-mode-home > .header #accountBar > #vqcMembershipLaunch:hover{background:#DCEAFF!important}
-/* Thoát: tách bằng đường kẻ mảnh */
 html body.vqc-mode-home > .header #accountBar > .btn:last-child{margin-left:9px!important}
 html body.vqc-mode-home > .header #accountBar > .btn:last-child::before{
   content:"";
@@ -371,7 +370,6 @@ html body.vqc-mode-home #vqcModeHome.dkt-home::after{content:none!important}
   opacity:.7;
 }
 
-/* Nút chung */
 .dkt-btn{
   display:inline-flex;
   align-items:center;
@@ -495,7 +493,6 @@ html body.vqc-mode-home #vqcModeHome.dkt-home::after{content:none!important}
   box-shadow:0 0 0 4px rgba(255,107,107,.22);
 }
 
-/* Ô nhập mã phòng (hiện khi học sinh bấm Vào lớp học) */
 .dkt-join[hidden]{display:none!important}
 .dkt-join{
   width:100%;
@@ -526,7 +523,6 @@ html body.vqc-mode-home #vqcModeHome.dkt-home::after{content:none!important}
 .dkt-home .dkt-join input:focus{outline:none;box-shadow:0 0 0 3px rgba(255,200,69,.6)}
 .dkt-join .dkt-btn{min-height:46px;flex:0 0 auto}
 
-/* B. Khám phá các đảo – sáng, có cửa sổ bản đồ */
 .dkt-feature--islands{
   background:#fff;
   border:1px solid var(--dkt-border);
@@ -582,7 +578,6 @@ html body.vqc-mode-home #vqcModeHome.dkt-home::after{content:none!important}
 .dkt-feature--islands .dkt-feature__desc{color:var(--dkt-muted)}
 .dkt-feature--islands .dkt-feature__meta{color:#5B7090;margin-bottom:22px!important}
 
-/* Hover thẻ */
 @media (hover:hover){
   .dkt-feature:hover{transform:translateY(-3px)}
   .dkt-feature--class:hover{box-shadow:0 24px 44px -22px rgba(11,42,115,.8)}
@@ -674,7 +669,6 @@ html body.vqc-mode-home #vqcModeHome .dkt-footer__copy{
   opacity:.85;
 }
 
-
 @media (prefers-reduced-motion:no-preference){
   @keyframes dktRise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
   .dkt-hero,.dkt-feature,.dkt-practice{animation:dktRise .5s var(--dkt-ease) both}
@@ -712,7 +706,6 @@ html body.vqc-mode-home #vqcModeHome .dkt-footer__copy{
   html body.vqc-mode-home #vqcModeHome .dkt-practice .dkt-btn{grid-column:1 / -1;justify-self:stretch}
 }
 
-/* Máy tính bảng dọc */
 @media (max-width:860px) and (min-width:761px){
   html body.vqc-mode-home > .header .logo-text span{display:none!important}
   html body.vqc-mode-home > .header #accountUserLabel{max-width:120px!important}
@@ -729,8 +722,6 @@ html body.vqc-mode-home #vqcModeHome .dkt-footer__copy{
   .dkt-btn{padding:0 16px;font-size:15px}
 }
 
-/* Điện thoại (≤760px). Khi đã đăng nhập, mobile-layout.js ẩn các nút
-   header và dùng thanh điều hướng dưới (Trang chủ, Bài học, Bàn cờ…). */
 @media (max-width:760px){
   html body.vqc-mode-home > .header{
     height:56px!important;
@@ -741,7 +732,6 @@ html body.vqc-mode-home #vqcModeHome .dkt-footer__copy{
   html body.vqc-mode-home > .header .logo .logo-icon{width:48px!important;height:32px!important;flex-basis:48px!important;border-radius:8px!important}
   html body.vqc-mode-home > .header .logo-text strong{font-size:16px!important}
   html body.vqc-mode-home > .header .logo-text span{font-size:11px!important}
-  /* chưa đăng nhập: các nút vẫn hiển thị, chỉ còn biểu tượng, không tràn */
   html body.vqc-mode-home > .header #accountUserLabel{display:none!important}
   html body.vqc-mode-home > .header #accountBar > #vqcMembershipLaunch .dkt-hlabel{
     position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;
@@ -754,7 +744,6 @@ html body.vqc-mode-home #vqcModeHome .dkt-footer__copy{
   html body.vqc-mode-home > .header > .vqc-appearance-open{width:38px!important;height:38px!important;min-height:38px!important}
   html body.vqc-mode-home > .header > .vqc-appearance-open{margin-left:0!important}
   html body.vqc-mobile-logged-in.vqc-mode-home > .header > .logo{flex:1 1 auto!important}
-  /* đã đăng nhập: giữ cơ chế cũ – ẩn nút header, dùng thanh điều hướng dưới */
   html body.vqc-mobile-logged-in.vqc-mode-home > .header #accountBar,
   html body.vqc-mobile-logged-in.vqc-mode-home > .header > .vqc-appearance-open{display:none!important}
   html body.vqc-mode-home:not(.vqc-mobile-logged-in) > .header .logo-text span{display:none!important}
@@ -766,7 +755,6 @@ html body.vqc-mode-home #vqcModeHome .dkt-footer__copy{
   }
   .dkt-home__inner{width:calc(100% - 32px);padding:20px 0 20px}
 
-  /* logo đã có trên header nên khu thương hiệu chỉ giữ tên + slogan */
   .dkt-hero{display:block;margin-bottom:18px}
   .dkt-hero__logo{display:none}
   .dkt-home .dkt-hero h1{font-size:26px}

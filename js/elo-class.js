@@ -264,7 +264,6 @@ function miniBoard(fen,firstMove,color){
  if(firstMove)g.move({from:firstMove.slice(0,2),to:firstMove.slice(2,4),promotion:firstMove.length>4?firstMove[4]:undefined});
  return boardOf(g,color,firstMove?[firstMove.slice(0,2),firstMove.slice(2,4)]:null,null);
 }
-/* Thế cờ hiện tại trên màn hình học sinh (dựng lại từ số nước idx trong dữ liệu phiên). */
 function positionOf(puzzle,pl){
  const g=new Chess();
  g.load(puzzle.fen);
@@ -431,7 +430,6 @@ function paintLive(){
  if(!live||view!=='session')return;
  const c=live.refs;
  const players=live.players;
- /* Chỉ tính các em đang ở trong lớp, tức là đã nhận câu đố của phiên này. */
  const rows=[];
  players.forEach(function(p,uid){
   const r=roster.find(function(x){return x.uid===uid;});
@@ -495,7 +493,6 @@ async function endSession(auto){
  ending=false;
  if(live&&view==='session'){live.refs.clock.textContent=clockLabel();live.refs.end.disabled=true;live.refs.again.hidden=false;}
 }
-/* ===== Theo dõi màn hình học sinh + giáo viên vẽ lên bàn cờ ===== */
 function svgNode(cls){
  const n=document.createElementNS('http://www.w3.org/2000/svg','svg');
  n.setAttribute('viewBox','0 0 800 800');n.setAttribute('class','vqc-elo-ink '+cls);n.setAttribute('aria-hidden','true');
@@ -741,7 +738,6 @@ async function openSession(){
  await renderSetup(box);
 }
 
-/* Giáo viên đóng cửa sổ khi phiên còn mở: kết thúc luôn cho cả lớp để máy học sinh tự đóng. */
 function activeLive(){return !!(live&&!live.ended&&view==='session');}
 function endActive(){
  if(!live||live.ended||ending||view!=='session')return Promise.resolve(false);

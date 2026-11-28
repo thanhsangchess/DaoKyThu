@@ -83,10 +83,6 @@ function thin(p){
  return out;
 }
 
-/* Trình vẽ cho giáo viên, giống các chế độ khác:
-   chuột phải kéo từ ô này sang ô khác = mũi tên, chuột phải bấm một ô = khoanh tròn (bấm lại để bỏ).
-   Màu: mặc định vàng; giữ Shift = đỏ, Ctrl = xanh dương, Alt = xanh lá. Chuột trái bấm vào bàn cờ = xoá hết.
-   Màn hình cảm ứng: chạm kéo để vẽ. */
 function editor(svg,opt){
  let shapes=parse(opt.initial||'');
  let flip=!!opt.flip;
@@ -114,7 +110,6 @@ function editor(svg,opt){
   if(opt.enabled&&!opt.enabled())return;
   const mouse=e.pointerType==='mouse';
   if(opt.host){
-   /* Vẽ ngay trên bàn cờ đang chơi: chỉ chuột phải để vẽ; chuột trái vẫn đi quân bình thường (và xoá nét vẽ); cảm ứng dành cho đi quân. */
    if(mouse&&e.button===0){if(shapes.length){shapes=[];paint();commit();}return;}
    if(!(mouse&&e.button===2))return;
   }else{

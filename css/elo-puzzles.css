@@ -155,7 +155,6 @@
 .vqc-elo-home .btn{flex:0 0 auto;min-height:52px;padding:12px 22px;font-size:16px;font-weight:800;border-radius:15px}
 @media(max-width:720px){.vqc-elo-home{margin:14px 0 0;padding:14px;border-radius:20px}.vqc-elo-home .btn{width:100%}}
 
-/* Theo dõi màn hình học sinh + vẽ */
 #vqcEloOverlay .vqc-elo-ink{position:absolute;left:5px;top:5px;width:calc(100% - 10px);height:calc(100% - 10px);z-index:6;pointer-events:none;overflow:visible}
 @media(max-width:820px){#vqcEloOverlay .vqc-elo-ink{left:3px;top:3px;width:calc(100% - 6px);height:calc(100% - 6px)}}
 #vqcEloOverlay .vqc-elo-minicell.bad{box-shadow:inset 0 0 0 100px #e6394670}
@@ -202,7 +201,6 @@
 #vqcEloOverlay .vqc-elo-lb tr.me td{box-shadow:inset 0 2px 0 #2878cc,inset 0 -2px 0 #2878cc}
 #vqcEloOverlay .vqc-elo-lb small.mine{color:#2878cc;font-weight:800}
 
-/* Bảng xếp hạng: cột đều, thẳng hàng */
 #vqcEloOverlay .vqc-elo-table.vqc-elo-lb{table-layout:fixed;min-width:760px}
 #vqcEloOverlay .vqc-elo-lb th,#vqcEloOverlay .vqc-elo-lb td{vertical-align:middle;padding-left:8px;padding-right:8px}
 #vqcEloOverlay .vqc-elo-lb th.c-rank,#vqcEloOverlay .vqc-elo-lb td.c-rank{width:124px;text-align:center;white-space:nowrap}
@@ -218,5 +216,4 @@
 #vqcEloOverlay .vqc-elo-lb th{padding-top:10px;padding-bottom:10px}
 #vqcEloOverlay .vqc-elo-lb tbody tr:nth-child(even):not(.top1):not(.top2):not(.top3) td{background:#fafcfe}
 
-/* Khoá nút Đóng và Bảng xếp hạng khi học sinh đang giải câu đố cả lớp */
 #vqcEloOverlay #vqcEloClose:disabled,#vqcEloOverlay #vqcEloTable:disabled{opacity:.45;cursor:not-allowed;box-shadow:none;filter:grayscale(.4)}

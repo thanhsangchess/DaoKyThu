@@ -461,10 +461,6 @@ function bind(){
  });
 }
 
-/* ===== Bàn cờ dùng chung trong phòng lớp =====
-   Giáo viên mở “Chỉnh sửa bàn cờ” khi đang ở trong phòng → máy học sinh tự mở đúng bàn cờ đó; giáo viên và học sinh cùng chỉnh
-   (đặt/xóa quân, bên đi trước, thế ban đầu, FEN, phân tích và đi thử), mọi thay đổi hiện ngay ở các máy khác.
-   Học sinh không tự đóng được; máy học sinh tự đóng khi giáo viên đóng. Trạng thái nằm ở rooms/{phòng}.bedShare. */
 const HB_EVERY=60000,HB_FRESH=10*60000,HB_DEAD=4*60000;
 let share=null,lastBed=null,hbTimer=0,lockTimer=0,roomSub=null,roomOff=null,applying=false,lastSig='',dismissedSid='',hbSeen={k:'',at:0};
 function curRole(){return window.accountProfile&&window.accountProfile.role||'';}
@@ -633,7 +629,6 @@ function watchRoom(){
  clearInterval(lockTimer);
  lockTimer=setInterval(paintShare,15000);
 }
-/* Vẽ mũi tên/khoanh tròn khi phân tích: chuột phải; mọi nét vẽ cũng được đồng bộ với bàn cờ chung. */
 function paintInk(){
  const svg=$('vqcBedInk'),I=window.vqcEloInk;
  if(!svg||!I)return;
