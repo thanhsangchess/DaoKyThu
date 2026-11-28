@@ -411,3 +411,230 @@ html body.vqc-review-active:is(.vqc-mode-class,.vqc-mode-world) > .header #accou
   /* Khi đang trong phòng có thêm nút "Rời phòng": cho xuống dòng thay vì tràn */
   html body.vqc-mode-class[class] > .header .room-box{flex-wrap:wrap!important;row-gap:var(--ui-s2)!important}
 }
+
+/* ==========================================================================
+   MÀN HÌNH 2 — VÀO LỚP / PHÒNG HỌC (body.vqc-mode-class main.app)
+   Chỉ đổi bề ngoài: thẻ, danh sách bài học, bảng "Phòng học trực tiếp",
+   thanh thử thách, tab lớp học, thanh điều hướng & bảng trượt trên điện thoại.
+   Không đổi lưới (ui-fit.css) và không đặt opacity cho .lesson
+   (student-lock.js dùng opacity để báo bài bị khóa).
+   ========================================================================== */
+html body.vqc-mode-class{background:var(--ui-surface-2)!important}
+/* Chiều cao header mới (64px khi một hàng) — dùng cho bàn cờ & cột bài học */
+@media (min-width:1101px){html body.vqc-mode-class{--vqc-hdr:64px}}
+@media (min-width:951px) and (max-width:1100px){html body.vqc-mode-class{--vqc-hdr:126px}}
+
+html body.vqc-mode-class main.app{justify-content:safe center!important;column-gap:var(--ui-s6)!important;font-family:var(--dkt-font)}
+/* Cột giữa co giãn để 3 cột luôn vừa khung (trước đây bị tràn phải ở 1024–1340px) */
+@media (min-width:1151px){
+  html body.vqc-mode-class main.app:not(.vqc-review-expanded){grid-template-columns:270px minmax(0,650px) 330px!important}
+}
+@media (min-width:951px) and (max-width:1150px){
+  html body.vqc-mode-class main.app:not(.vqc-review-expanded){
+    grid-template-columns:220px minmax(0,1fr) 300px!important;column-gap:var(--ui-s4)!important;padding:0 var(--ui-s4)!important;
+  }
+}
+
+/* Thẻ chung */
+html body.vqc-mode-class main.app > aside.card{
+  background:var(--ui-surface)!important;border:1px solid var(--ui-border)!important;
+  border-radius:var(--ui-r-lg)!important;box-shadow:var(--ui-shadow-sm)!important;
+}
+
+/* --- Cột bài học --- */
+html body.vqc-mode-class main.app > aside.sidebar{padding:var(--ui-s2) 0 var(--ui-s3)!important;scrollbar-color:#C7D7EE transparent}
+html body.vqc-mode-class main.app > aside.sidebar > .profile{display:none!important} /* logo đã có ở header */
+html body.vqc-mode-class main.app > aside.sidebar .lesson-title{
+  display:flex!important;align-items:center;gap:var(--ui-s2)!important;
+  margin:0!important;padding:var(--ui-s4) var(--ui-s4) var(--ui-s2)!important;
+  font:700 11.5px/1.2 var(--dkt-font)!important;letter-spacing:.06em!important;text-transform:uppercase;color:var(--ui-muted)!important;
+}
+html body.vqc-mode-class main.app > aside.sidebar .lesson-title:first-of-type{padding-top:var(--ui-s2)!important}
+html body.vqc-mode-class main.app > aside.sidebar .lesson-title::after{background:var(--ui-border)!important}
+html body.vqc-mode-class main.app > aside.sidebar .lesson{
+  position:relative;display:flex!important;align-items:center;gap:var(--ui-s3)!important;
+  min-height:var(--ui-tap);margin:2px var(--ui-s2)!important;padding:6px var(--ui-s2)!important;
+  border:0!important;border-radius:var(--ui-r-sm)!important;background:transparent!important;box-shadow:none!important;
+  font:600 var(--ui-fs-md)/1.3 var(--dkt-font)!important;color:var(--ui-text-2)!important;
+  transform:none!important;transition:background-color var(--ui-t),color var(--ui-t)!important;
+}
+html body.vqc-mode-class main.app > aside.sidebar .lesson:hover{background:var(--dkt-light)!important;color:var(--dkt-deep)!important;transform:none!important}
+html body.vqc-mode-class main.app > aside.sidebar .lesson:focus-visible{outline:none!important;box-shadow:var(--ui-focus)!important}
+html body.vqc-mode-class main.app > aside.sidebar .lesson.active{background:var(--dkt-light)!important;color:var(--dkt-deep)!important;font-weight:700!important}
+html body.vqc-mode-class main.app > aside.sidebar .lesson.active::before{
+  content:"";position:absolute;left:-8px;top:8px;bottom:8px;width:3px;border-radius:0 3px 3px 0;background:var(--dkt-blue);
+}
+html body.vqc-mode-class main.app > aside.sidebar .lesson-icon{
+  flex:0 0 32px!important;width:32px!important;height:32px!important;
+  display:flex!important;align-items:center;justify-content:center;
+  border-radius:var(--ui-r-sm)!important;background:var(--ui-surface-3)!important;box-shadow:none!important;
+  font-size:18px!important;line-height:1!important;color:var(--dkt-deep)!important;
+}
+html body.vqc-mode-class main.app > aside.sidebar .lesson:hover .lesson-icon{background:#fff!important}
+html body.vqc-mode-class main.app > aside.sidebar .lesson.active .lesson-icon{background:#fff!important;box-shadow:0 0 0 1px var(--ui-border-strong)!important}
+html body.vqc-mode-class.vqc-student-lessons-locked main.app > aside.sidebar .lesson:hover{background:transparent!important;color:var(--ui-text-2)!important}
+html body.vqc-mode-class main.app > aside.sidebar .vqc-credits-link{
+  display:block;margin:var(--ui-s3) var(--ui-s4) 0!important;padding:var(--ui-s2) 0 0!important;border-top:1px solid var(--ui-border);
+  font:500 var(--ui-fs-xs)/1.4 var(--dkt-font)!important;color:var(--ui-muted)!important;text-align:left!important;
+}
+html body.vqc-mode-class main.app > aside.sidebar .vqc-credits-link:hover{color:var(--dkt-blue)!important}
+
+/* --- Bảng "Phòng học trực tiếp" --- */
+html body.vqc-mode-class main.app > aside.card:not(.sidebar) .panel-header{
+  padding:var(--ui-s4) var(--ui-s5) var(--ui-s3)!important;
+  background:var(--ui-surface)!important;border-bottom:1px solid var(--ui-border)!important;color:var(--ui-text)!important;
+}
+html body.vqc-mode-class main.app > aside.card:not(.sidebar) .panel-header h2{
+  margin:0!important;font:700 var(--ui-fs-lg)/1.3 var(--dkt-font)!important;color:var(--dkt-deep)!important;letter-spacing:-.01em!important;text-shadow:none!important;
+}
+html body.vqc-mode-class main.app > aside.card:not(.sidebar) .panel-header p{
+  margin:2px 0 0!important;font:500 var(--ui-fs-sm)/1.4 var(--dkt-font)!important;color:var(--ui-muted)!important;opacity:1!important;
+}
+html body.vqc-mode-class main.app > aside.card:not(.sidebar) .panel-content{padding:var(--ui-s4) var(--ui-s5) var(--ui-s5)!important}
+
+/* Vai trò: điều khiển phân đoạn */
+html body.vqc-mode-class main.app .roles{
+  gap:var(--ui-s1)!important;margin:0 0 var(--ui-s3)!important;padding:var(--ui-s1)!important;
+  background:var(--ui-surface-3)!important;border:1px solid var(--ui-border)!important;border-radius:var(--ui-r-md)!important;
+}
+html body.vqc-mode-class main.app .roles .role-btn{
+  min-height:var(--ui-ctl)!important;padding:0 var(--ui-s2)!important;
+  border:0!important;border-radius:var(--ui-r-sm)!important;background:transparent!important;box-shadow:none!important;
+  font:600 var(--ui-fs-md)/1 var(--dkt-font)!important;color:var(--ui-text-2)!important;transform:none!important;
+  transition:background-color var(--ui-t),color var(--ui-t)!important;
+}
+html body.vqc-mode-class main.app .roles .role-btn:hover{background:#fff!important;color:var(--dkt-deep)!important}
+html body.vqc-mode-class main.app .roles .role-btn.active{
+  background:#fff!important;color:var(--dkt-blue)!important;box-shadow:var(--ui-shadow-sm),0 0 0 1px var(--ui-border-strong)!important;
+}
+html body.vqc-mode-class main.app .roles .role-btn:focus-visible{outline:none!important;box-shadow:var(--ui-focus)!important}
+html body.vqc-mode-class main.app .roles .role-btn:disabled{opacity:.5!important;cursor:not-allowed}
+
+/* Trạng thái kết nối */
+html body.vqc-mode-class main.app #connection{
+  display:flex!important;align-items:center;gap:var(--ui-s2)!important;
+  min-height:var(--ui-ctl);margin:0 0 var(--ui-s3)!important;padding:var(--ui-s2) var(--ui-s3)!important;
+  background:var(--ui-surface-2)!important;border:1px solid var(--ui-border)!important;border-radius:var(--ui-r-sm)!important;
+  font:600 var(--ui-fs-sm)/1.35 var(--dkt-font)!important;color:var(--ui-text-2)!important;
+}
+html body.vqc-mode-class main.app #connection .dot{
+  flex:0 0 8px;width:8px!important;height:8px!important;border-radius:50%!important;
+  background:var(--ui-success)!important;box-shadow:0 0 0 3px var(--ui-success-bg)!important;
+}
+
+/* Nhiệm vụ hôm nay */
+html body.vqc-mode-class main.app .mission{
+  margin:0 0 var(--ui-s3)!important;padding:var(--ui-s3) var(--ui-s4)!important;
+  background:var(--ui-surface-2)!important;border:1px solid var(--ui-border)!important;border-left:3px solid var(--dkt-blue)!important;
+  border-radius:var(--ui-r-md)!important;box-shadow:none!important;
+}
+html body.vqc-mode-class main.app .mission-title{
+  margin:0 0 var(--ui-s1)!important;font:700 var(--ui-fs-xs)/1.3 var(--dkt-font)!important;letter-spacing:.05em!important;color:var(--dkt-blue)!important;
+}
+html body.vqc-mode-class main.app .mission p{margin:0!important;font:500 var(--ui-fs-md)/1.5 var(--dkt-font)!important;color:var(--ui-text)!important}
+
+/* Thông báo trạng thái */
+html body.vqc-mode-class main.app #status{
+  margin:0 0 var(--ui-s4)!important;padding:var(--ui-s3)!important;
+  background:#fff!important;border:1px solid var(--ui-border)!important;border-radius:var(--ui-r-md)!important;box-shadow:none!important;
+  font:500 var(--ui-fs-md)/1.5 var(--dkt-font)!important;color:var(--ui-text-2)!important;
+}
+
+/* Hoạt động gần đây */
+html body.vqc-mode-class main.app .log-title{
+  margin:0 0 var(--ui-s2)!important;font:700 var(--ui-fs-sm)/1.3 var(--dkt-font)!important;color:var(--ui-text)!important;
+}
+html body.vqc-mode-class main.app #log{
+  padding:var(--ui-s1) var(--ui-s3)!important;background:#fff!important;
+  border:1px solid var(--ui-border)!important;border-radius:var(--ui-r-md)!important;box-shadow:none!important;
+  font:500 var(--ui-fs-sm)/1.45 var(--dkt-font)!important;scrollbar-color:#C7D7EE transparent;
+}
+html body.vqc-mode-class main.app #log .log-entry{padding:var(--ui-s2) 0!important;border-bottom:1px solid var(--ui-surface-3)!important;color:var(--ui-muted)!important}
+html body.vqc-mode-class main.app #log .log-entry:last-child{border-bottom:0!important}
+
+/* --- Thanh thử thách quân cờ --- */
+html body.vqc-mode-class main.app #pieceGameBar{
+  padding:var(--ui-s3) var(--ui-s4)!important;gap:var(--ui-s3)!important;
+  background:var(--ui-surface)!important;border:1px solid var(--ui-border)!important;border-radius:var(--ui-r-lg)!important;
+  box-shadow:var(--ui-shadow-sm)!important;font-family:var(--dkt-font)!important;
+}
+html body.vqc-mode-class main.app #pieceGameBar .piece-game-title{font:700 15px/1.3 var(--dkt-font)!important;color:var(--dkt-deep)!important}
+html body.vqc-mode-class main.app #pieceGameBar .piece-game-help{margin-top:2px!important;font:500 var(--ui-fs-sm)/1.4 var(--dkt-font)!important;color:var(--ui-muted)!important}
+html body.vqc-mode-class main.app #pieceGameBar .piece-game-score{
+  flex:0 0 auto;padding:6px var(--ui-s3)!important;border-radius:var(--ui-r-pill)!important;
+  background:var(--ui-warning-bg)!important;border:1px solid var(--ui-warning-border)!important;box-shadow:none!important;
+  font:700 var(--ui-fs-md)/1 var(--dkt-font)!important;color:var(--ui-warning)!important;white-space:nowrap;
+}
+
+/* --- Tab lớp học (Bàn cờ / Phân tích ván đấu) --- */
+html body.vqc-mode-class main.app .vqc-classroom-tabs{
+  gap:var(--ui-s1)!important;padding:var(--ui-s1)!important;
+  background:var(--ui-surface-3)!important;border:1px solid var(--ui-border)!important;border-radius:var(--ui-r-md)!important;
+}
+html body.vqc-mode-class main.app .vqc-classroom-tabs button{
+  min-height:var(--ui-ctl)!important;padding:0 var(--ui-s3)!important;border:0!important;border-radius:var(--ui-r-sm)!important;
+  background:transparent!important;box-shadow:none!important;color:var(--ui-text-2)!important;
+  font:600 var(--ui-fs-md)/1 var(--dkt-font)!important;
+}
+html body.vqc-mode-class main.app .vqc-classroom-tabs button:hover{background:#fff!important;color:var(--dkt-deep)!important}
+html body.vqc-mode-class main.app .vqc-classroom-tabs button.is-active{
+  background:#fff!important;color:var(--dkt-blue)!important;box-shadow:var(--ui-shadow-sm),0 0 0 1px var(--ui-border-strong)!important;
+}
+html body.vqc-mode-class main.app .vqc-classroom-tabs button:focus-visible{outline:none!important;box-shadow:var(--ui-focus)!important}
+
+/* --- Điện thoại: một cột, nút ≥44px --- */
+@media (max-width:760px){
+  html body.vqc-mode-class main.app{column-gap:0!important}
+  html body.vqc-mode-class main.app .roles .role-btn,
+  html body.vqc-mode-class main.app .vqc-classroom-tabs button{min-height:var(--ui-tap)!important}
+  html body.vqc-mode-class main.app > aside.card:not(.sidebar) .panel-header{padding:var(--ui-s3) var(--ui-s4)!important}
+  html body.vqc-mode-class main.app > aside.card:not(.sidebar) .panel-content{padding:var(--ui-s3) var(--ui-s4) var(--ui-s4)!important}
+  html body.vqc-mode-class main.app #pieceGameBar{padding:var(--ui-s3)!important;border-radius:var(--ui-r-md)!important}
+  html body.vqc-mode-class #vqcMobileLessonsShortcut{
+    min-height:var(--ui-tap)!important;border:1px solid var(--ui-border-strong)!important;border-radius:var(--ui-r-md)!important;
+    background:#fff!important;box-shadow:none!important;color:var(--dkt-blue)!important;font:600 var(--ui-fs-base)/1 var(--dkt-font)!important;
+  }
+
+  /* Thanh điều hướng dưới (chỉ hiện khi đã đăng nhập) */
+  html body.vqc-mobile-logged-in > .vqc-mobile-nav{
+    gap:0!important;padding:var(--ui-s1) var(--ui-s1) calc(var(--ui-s1) + env(safe-area-inset-bottom,0px))!important;
+    background:rgba(255,255,255,.97)!important;border-top:1px solid var(--ui-border)!important;box-shadow:0 -2px 12px rgba(16,42,90,.06)!important;
+  }
+  html body.vqc-mobile-logged-in > .vqc-mobile-nav > button{
+    min-height:52px!important;border-radius:var(--ui-r-sm)!important;color:var(--ui-muted)!important;
+    font:600 10.5px/1.15 var(--dkt-font)!important;
+  }
+  html body.vqc-mobile-logged-in > .vqc-mobile-nav > button[aria-current="page"],
+  html body.vqc-mobile-logged-in > .vqc-mobile-nav > button[aria-expanded="true"]{background:var(--dkt-light)!important;color:var(--dkt-blue)!important}
+  html body.vqc-mobile-logged-in > .vqc-mobile-nav > button:focus-visible{outline:none!important;box-shadow:var(--ui-focus)!important}
+
+  /* Bảng trượt (Bài học / Thêm) */
+  html body .vqc-mobile-sheet__scrim{background:rgba(11,42,115,.42)!important}
+  html body .vqc-mobile-sheet__panel{
+    background:var(--ui-surface-2)!important;border-radius:var(--ui-r-lg) var(--ui-r-lg) 0 0!important;box-shadow:var(--ui-shadow-lg)!important;
+    font-family:var(--dkt-font);
+  }
+  html body .vqc-mobile-sheet__head{padding:var(--ui-s3) var(--ui-s4)!important;background:#fff!important;border-bottom:1px solid var(--ui-border)!important}
+  html body .vqc-mobile-sheet__head h2{font:700 var(--ui-fs-lg)/1.3 var(--dkt-font)!important;color:var(--dkt-deep)!important}
+  html body .vqc-mobile-sheet__head button{
+    width:var(--ui-tap)!important;height:var(--ui-tap)!important;border-radius:var(--ui-r-md)!important;
+    background:var(--ui-surface-3)!important;color:var(--ui-text-2)!important;
+  }
+  html body .vqc-mobile-sheet__content{padding:var(--ui-s3) var(--ui-s4) var(--ui-s6)!important}
+  html body .vqc-mobile-sheet__content h3{
+    margin:var(--ui-s4) 0 var(--ui-s2)!important;font:700 var(--ui-fs-xs)/1.3 var(--dkt-font)!important;letter-spacing:.06em!important;color:var(--ui-muted)!important;
+  }
+  html body .vqc-mobile-sheet__content h3:first-child{margin-top:0!important}
+  html body .vqc-mobile-sheet__action{
+    min-height:48px!important;margin-bottom:var(--ui-s2)!important;padding:var(--ui-s2) var(--ui-s3)!important;
+    border:1px solid var(--ui-border)!important;border-radius:var(--ui-r-md)!important;background:#fff!important;box-shadow:none!important;
+    font:600 var(--ui-fs-md)/1.3 var(--dkt-font)!important;color:var(--ui-text)!important;
+  }
+  html body .vqc-mobile-sheet__action:active{background:var(--dkt-light)!important}
+  html body .vqc-mobile-sheet__action.is-active{background:var(--dkt-light)!important;border-color:var(--ui-border-strong)!important;color:var(--dkt-deep)!important}
+  html body .vqc-mobile-sheet__action:focus-visible{outline:none!important;box-shadow:var(--ui-focus)!important}
+  html body .vqc-mobile-sheet__icon{
+    width:32px!important;height:32px;display:inline-flex;align-items:center;justify-content:center;
+    border-radius:var(--ui-r-sm);background:var(--ui-surface-3);font-size:18px!important;
+  }
+}
