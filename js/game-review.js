@@ -13,6 +13,94 @@
  const reviewOrientationClientId='review-orientation-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,10);
  let orientationRevision=0,orientationLastReceived='';
  let boardFlipped=false;
+ let wasEmpty=null;
+ function setMsg(text,kind){
+  const el=$('vqcReviewError');if(!el)return;
+  el.textContent=text||'';
+  el.dataset.kind=text?(kind||'error'):'';
+ }
+ function focusImport(){
+  const box=$('vqcReviewImport');if(box)box.open=true;
+  const input=$('vqcReviewPgn');
+  if(input){input.focus();try{input.scrollIntoView({block:'nearest'});}catch(e){}}
+ }
+ function installEmptyState(){
+  const shell=document.querySelector('#vqcReviewWorkspace .vqc-review-board-shell');
+  if(shell&&!$('vqcReviewBoardEmpty')){
+   const box=document.createElement('div');box.id='vqcReviewBoardEmpty';box.className='vqc-review-board-empty';
+   box.innerHTML='<div class="vqc-review-board-empty__card"><span class="vqc-review-board-empty__icon" aria-hidden="true">♟</span>'+
+    '<strong data-empty="title">Chưa có ván đấu</strong><p data-empty="text"></p>'+
+    '<div class="vqc-review-board-empty__actions"><button type="button" class="vqc-review-empty-primary" data-empty="paste">Dán ván PGN</button>'+
+    '<button type="button" class="vqc-review-empty-secondary" data-empty="file">Chọn file .pgn</button></div></div>';
+   shell.appendChild(box);
+   box.querySelector('[data-empty="paste"]').addEventListener('click',focusImport);
+   box.querySelector('[data-empty="file"]').addEventListener('click',()=>$('vqcReviewFile')?.click());
+  }
+  const side=document.querySelector('#vqcReviewWorkspace .vqc-review-workspace__side');
+  if(side&&!$('vqcReviewSideEmpty')){
+   const hint=document.createElement('p');hint.id='vqcReviewSideEmpty';hint.className='vqc-review-side-empty';
+   side.appendChild(hint);
+  }
+ }
+ function paintEmptyState(){
+  const empty=!positions.length,teacher=isTeacher(),ws=workspace();
+  if(ws){ws.classList.toggle('vqc-review--empty',empty);ws.classList.toggle('vqc-review--student',!teacher);}
+  const card=$('vqcReviewBoardEmpty');
+  if(card){
+   card.hidden=!empty;
+   card.querySelector('[data-empty="text"]').textContent=teacher?'Dán hoặc chọn file PGN để bắt đầu phân tích cùng cả lớp.':'Đang chờ giáo viên tải ván đấu. Bàn cờ sẽ tự hiện khi có ván.';
+   card.querySelector('.vqc-review-board-empty__actions').hidden=!teacher;
+  }
+  const hint=$('vqcReviewSideEmpty');
+  if(hint){hint.hidden=!empty;hint.textContent=teacher?'Dán hoặc chọn file PGN để bắt đầu.':'Giáo viên chưa tải ván đấu.';}
+  const back=$('vqcReviewReturnBoard');if(back)back.hidden=!teacher;
+  const keys=document.querySelector('#vqcReviewWorkspace .vqc-review-shortcut');
+  if(keys){keys.textContent=teacher?'Phím tắt: ← → để đi từng nước · Home về đầu · End đến cuối':'Giáo viên đang điều khiển các nước đi.';}
+  if(empty!==wasEmpty){
+   const box=$('vqcReviewImport');
+   if(box&&teacher)box.open=empty;
+   wasEmpty=empty;
+  }
+ }
+ function pgnTokens(clean){
+  let fen='',headerError=0;
+  const lines=clean.split('\n'),body=[];
+  lines.forEach((line,i)=>{
+   if(/^\s*\[/.test(line)){
+    if(!/^\s*\[\s*[A-Za-z0-9_]+\s+"(?:[^"\\]|\\.)*"\s*\]\s*$/.test(line)){if(!headerError)headerError=i+1;return;}
+    const m=/^\s*\[\s*FEN\s+"([^"]*)"\s*\]/.exec(line);if(m)fen=m[1];
+    return;
+   }
+   body.push(line.replace(/;.*$/,''));
+  });
+  let text=body.join(' ').replace(/\{[^}]*\}/g,' ');
+  let prev;do{prev=text;text=text.replace(/\([^()]*\)/g,' ');}while(text!==prev);
+  text=text.replace(/\$\d+/g,' ').replace(/\b(?:1-0|0-1|1\/2-1\/2)\b|\*/g,' ').replace(/\d+\.(?:\.\.)?/g,' ');
+  const tokens=text.split(/\s+/).filter(Boolean).map(t=>t.replace(/[!?]+$/,'')).filter(Boolean);
+  return {fen,tokens,headerError};
+ }
+ function diagnosePgn(clean){
+  const info=pgnTokens(clean);
+  if(info.headerError)return 'PGN sai định dạng ở phần tiêu đề (dòng '+info.headerError+'). Mỗi dòng tiêu đề có dạng [Tên "giá trị"].';
+  if(!info.tokens.length)return 'PGN sai định dạng: không tìm thấy nước đi nào. Hãy kiểm tra phần ký hiệu nước đi.';
+  let c;
+  try{c=new Chess();if(info.fen&&c.load(info.fen)===false)return 'PGN sai định dạng: thế cờ xuất phát (FEN) không hợp lệ.';}catch(e){return 'PGN sai định dạng: thế cờ xuất phát (FEN) không hợp lệ.';}
+  for(const token of info.tokens){
+   const turn=c.turn(),moveNo=Number(String(c.fen()).split(/\s+/)[5])||1;
+   let made=null;
+   try{made=c.move(token);}catch(e){made=null;}
+   if(!made)return 'Nước đi không hợp lệ ở nước thứ '+moveNo+' ('+(turn==='w'?'Trắng':'Đen')+'): “'+token+'”. Hãy kiểm tra lại ký hiệu nước đi này.';
+  }
+  return 'PGN sai định dạng: không đọc được nội dung. Hãy kiểm tra phần tiêu đề và ký hiệu nước đi.';
+ }
+ function scrollMoveIntoView(){
+  const list=$('vqcReviewMoves');if(!list)return;
+  const active=list.querySelector('.vqc-review-move.is-current,.vqc-review-start-position.is-current');if(!active)return;
+  const head=list.querySelector('.vqc-review-move-head');
+  const top=head?head.offsetHeight:0,lr=list.getBoundingClientRect(),ar=active.getBoundingClientRect();
+  if(ar.top<lr.top+top)list.scrollTop-=lr.top+top-ar.top+6;
+  else if(ar.bottom>lr.bottom)list.scrollTop+=ar.bottom-lr.bottom+6;
+ }
  function installMoveDrawer(){
   const workspaceEl=workspace();
   const boardCol=workspaceEl?.querySelector('.vqc-review-workspace__board');
@@ -56,13 +144,13 @@
  function parsePgn(pgn){
   if(!window.Chess)throw Error('Không tải được bộ luật cờ vua.');
   const clean=normalizePgn(pgn);
-  if(!clean)throw Error('Bạn hãy dán PGN hoặc chọn tệp .pgn trước nhé.');
+  if(!clean)throw Error('PGN đang trống. Hãy dán nội dung PGN hoặc chọn tệp .pgn, rồi bấm “Tải PGN và chia sẻ”.');
   if(clean.length>50000)throw Error('PGN quá dài (tối đa 50.000 ký tự).');
   const c=new Chess();let ok;
-  try{ok=c.load_pgn(clean);}catch(e){throw Error('PGN không hợp lệ: '+(e.message||'không thể đọc nước đi'));}
-  if(ok===false)throw Error('Không thể đọc PGN. Hãy kiểm tra ký hiệu nước đi.');
+  try{ok=c.load_pgn(clean);}catch(e){throw Error(diagnosePgn(clean));}
+  if(ok===false)throw Error(diagnosePgn(clean));
   const history=c.history({verbose:true})||[];
-  if(!history.length)throw Error('PGN chưa có nước đi hợp lệ.');
+  if(!history.length)throw Error('PGN sai định dạng: không tìm thấy nước đi nào. Hãy kiểm tra phần ký hiệu nước đi.');
   const fens=new Array(history.length+1);fens[history.length]=c.fen();
   for(let i=history.length-1;i>=0;i--){c.undo();fens[i]=c.fen();}
   return {positions:fens,moves:history.map(m=>({san:m.san,from:m.from,to:m.to,color:m.color}))};
@@ -207,7 +295,11 @@
  function renderBoard(){
   const board=$('vqcReviewBoard');if(!board)return;
   board.replaceChildren();
-  if(!positions.length)return;
+  board.classList.toggle('is-empty',!positions.length);
+  if(!positions.length){
+   for(let r=0;r<8;r++)for(let f=0;f<8;f++){const sq=document.createElement('div');sq.className='square '+((r+f)%2===0?'light':'dark');board.appendChild(sq);}
+   return;
+  }
   let chess;
   if(variationActive&&variationGame)chess=variationGame;
   else{chess=new Chess();if(!chess.load(positions[current]))return;}
@@ -282,11 +374,10 @@
    }else{black.textContent='—';black.disabled=true;black.classList.add('is-empty');}
    row.appendChild(black);list.appendChild(row);
   }
-  const active=list.querySelector('.vqc-review-move.is-current');
-  if(active)active.scrollIntoView({block:'nearest',behavior:'smooth'});
+  requestAnimationFrame(scrollMoveIntoView);
  }
  function render(){
-  renderBoard();renderMoveList();
+  renderBoard();renderMoveList();paintEmptyState();
   $('vqcReviewCounter').textContent=positions.length?(variationActive?'Thử biến thể · '+variationMoves.length+' nước':'Ván gốc · '+current+' / '+moves.length+' nước'):'Chưa có ván đấu';
   $('vqcReviewTurn').textContent=positions.length?(variationActive?(variationGame?.turn()==='w'?'Trắng đi tiếp':'Đen đi tiếp')+(variationGame?.isCheck?.()?' · Đang bị chiếu':''):(current===moves.length?'Đã đến vị trí cuối ván':(current%2===0?'Trắng đi tiếp':'Đen đi tiếp'))):'';
   $('vqcReviewMoveCount').textContent=moves.length?moves.length+' nước đi':'Chưa có nước đi';
@@ -345,7 +436,7 @@
   if(!connected()||!isTeacher()||applyingRemote)return;
   const payload={open:true,pgn:loadedText,index:current,stamp:Date.now()+'-'+Math.random().toString(36).slice(2,8)};
   roomRef.update({gameReview:payload,gameReviewVariation:null,gameReviewOrientation:orientationPayload(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()})
-   .catch(e=>{console.error('PGN classroom sync',e);$('vqcReviewError').textContent='Chưa đồng bộ được với học sinh. Kiểm tra kết nối phòng.';});
+   .catch(e=>{console.error('PGN classroom sync',e);setMsg('Chưa đồng bộ được với học sinh. Kiểm tra kết nối phòng.','error');});
  }
  function publishVariation(){
   if(!connected()||applyingRemoteVariation||!variationActive||!variationGame||!variationMoves.length)return;
@@ -406,7 +497,7 @@
   $('vqcReviewPgn').value=normalized;
   $('vqcReviewImport').open=false;
   resetVariation(false);
-  $('vqcReviewError').textContent='';
+  setMsg('');
   render();
   window.dispatchEvent(new CustomEvent('vqc:game-review-loaded',{detail:{positions:positions.slice(),moves:moves.map(move=>({...move})),pgn:loadedText}}));
   publish();
@@ -419,16 +510,16 @@
    if(!text.trim())throw Error('Clipboard đang trống.');
    $('vqcReviewPgn').value=normalizePgn(text);
    $('vqcReviewPgn').focus();
-   $('vqcReviewError').textContent='Đã dán nội dung. Nhấn “Tải PGN và chia sẻ” để mở ván đấu.';
+   setMsg('Đã dán nội dung. Nhấn “Tải PGN và chia sẻ” để mở ván đấu.','info');
   }catch(e){
-   $('vqcReviewError').textContent=(e.message||'Không đọc được clipboard.')+' Bạn có thể nhấn vào ô PGN rồi Ctrl + V.';
+   setMsg((e.message||'Không đọc được clipboard.')+' Bạn có thể nhấn vào ô PGN rồi Ctrl + V.','error');
    $('vqcReviewPgn').focus();
   }
  }
  async function copyPgn(){
   if(!loadedText)return;
-  try{await navigator.clipboard.writeText(loadedText);$('vqcReviewError').textContent='Đã sao chép PGN.';}
-  catch(e){$('vqcReviewError').textContent='Trình duyệt không cho phép sao chép tự động. Hãy chọn nội dung trong ô PGN rồi Ctrl + C.';$('vqcReviewImport').open=true;$('vqcReviewPgn').focus();}
+  try{await navigator.clipboard.writeText(loadedText);setMsg('Đã sao chép PGN.','success');}
+  catch(e){setMsg('Trình duyệt không cho phép sao chép tự động. Hãy chọn nội dung trong ô PGN rồi Ctrl + C.','error');$('vqcReviewImport').open=true;$('vqcReviewPgn').focus();}
  }
  function downloadPgn(){
   if(!loadedText)return;
@@ -452,7 +543,7 @@
  window.vqcGameReviewLoad=function(){
   if(!isTeacher())return;
   try{importPgn($('vqcReviewPgn').value);}
-  catch(e){$('vqcReviewError').textContent=e.message||'Không thể đọc PGN.';}
+  catch(e){setMsg(e.message||'Không thể đọc PGN.','error');focusImport();}
  };
  window.vqcGameReviewReceive=function(data){
   if(!data||typeof data!=='object')return;
@@ -469,7 +560,7 @@
     current=incomingIndex;render();
    }
    else{$('vqcReviewPgn').value='';render();}
-  }catch(e){$('vqcReviewError').textContent='Không đọc được ván đấu được chia sẻ: '+(e.message||String(e));}
+  }catch(e){setMsg('Không đọc được ván đấu được chia sẻ: '+(e.message||String(e)),'error');}
   finally{applyingRemote=false;}
  };
  window.addEventListener('keydown',e=>{
@@ -627,13 +718,15 @@
  window.vqcGameReviewOrientationReceive=receiveOrientation;
  document.addEventListener('DOMContentLoaded',()=>{
   installMoveDrawer();
+  installEmptyState();
   evbInit();
+  $('vqcReviewPgn')?.addEventListener('input',()=>{const el=$('vqcReviewError');if(el&&el.dataset.kind==='error')setMsg('');});
   $('vqcReviewLoad')?.addEventListener('click',window.vqcGameReviewLoad);
   $('vqcReviewPaste')?.addEventListener('click',pasteClipboard);
   $('vqcReviewFile')?.addEventListener('change',async event=>{
    const file=event.target.files?.[0];if(!file)return;
-   try{const text=await file.text();$('vqcReviewPgn').value=normalizePgn(text);$('vqcReviewError').textContent='Đã đọc tệp '+file.name+'. Nhấn “Tải PGN và chia sẻ” để tiếp tục.';$('vqcReviewImport').open=true;}
-   catch(e){$('vqcReviewError').textContent='Không đọc được tệp PGN: '+(e.message||String(e));}
+   try{const text=await file.text();$('vqcReviewPgn').value=normalizePgn(text);setMsg('Đã đọc tệp '+file.name+'. Nhấn “Tải PGN và chia sẻ” để tiếp tục.','info');$('vqcReviewImport').open=true;}
+   catch(e){setMsg('Không đọc được tệp PGN: '+(e.message||String(e)),'error');}
    event.target.value='';
   });
   $('vqcReviewCopy')?.addEventListener('click',copyPgn);
@@ -645,7 +738,10 @@
   $('vqcReviewVariationReset')?.addEventListener('click',()=>{resetVariation(true);clearSharedVariation();});
   $('vqcReviewFlipBoard')?.addEventListener('click',toggleBoardOrientation);
   updateFlipButton();
-  $('vqcReviewReturnBoard')?.addEventListener('click',()=>window.vqcGameReviewShowBoard?.());
+  $('vqcReviewReturnBoard')?.addEventListener('click',()=>{
+   if(!isTeacher()&&connected()){if(typeof vqcNotify==='function')vqcNotify('Giáo viên sẽ đóng phần phân tích ván đấu cho cả lớp.','warning');return;}
+   window.vqcGameReviewShowBoard?.();
+  });
   updateVariationControls();
  });
 })();

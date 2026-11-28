@@ -226,6 +226,42 @@ function pgnContext(){
  ];
  const CLS_ID={},CLS_CH={};
  CLS.forEach(function(k){CLS_ID[k.id]=k;CLS_CH[k.ch]=k;});
+ const KID=[
+  {id:'tot',label:'Tốt',icon:'🌟',color:'#0F7A55',hint:'Nước đi rất hay'},
+  {id:'chinhxac',label:'Chính xác',icon:'👍',color:'#3E9B5F',hint:'Nước đi ổn'},
+  {id:'kcx',label:'Không chính xác',icon:'🤔',color:'#B7791F',hint:'Còn nước tốt hơn'},
+  {id:'sailam',label:'Sai lầm',icon:'⚠️',color:'#DD6B20',hint:'Làm mất lợi thế'},
+  {id:'nghiemtrong',label:'Sai lầm nghiêm trọng',icon:'❌',color:'#C53030',hint:'Mất rất nhiều lợi thế'}
+ ];
+ const KID_ID={},KID_OF={best:'tot',excellent:'tot',good:'chinhxac',accurate:'chinhxac',inaccuracy:'kcx',mistake:'sailam',blunder:'nghiemtrong'};
+ KID.forEach(function(k){KID_ID[k.id]=k;});
+ function kidOf(cls){return cls&&KID_OF[cls]?KID_ID[KID_OF[cls]]:null;}
+ function kidCounts(cnt){
+  const out={w:{},b:{}};
+  ['w','b'].forEach(function(s){KID.forEach(function(k){out[s][k.id]=0;});const o=cnt&&cnt[s]||{};Object.keys(o).forEach(function(id){const k=KID_OF[id];if(k)out[s][k]+=Number(o[id])||0;});});
+  return out;
+ }
+ function kidTable(c,cnt,acc){
+  const t=el('table','vqc-rev-tbl vqc-rev-kid');
+  const head=el('tr');head.appendChild(el('th','',''));
+  head.appendChild(el('th','','⚪ '+c.white));head.appendChild(el('th','','⚫ '+c.black));t.appendChild(head);
+  const kc=kidCounts(cnt);
+  KID.forEach(function(k){
+   const tr=el('tr');const th=el('td','vqc-rev-kidname');
+   const dot=el('span','vqc-rev-kiddot',k.icon);dot.style.setProperty('--kc',k.color);
+   th.appendChild(dot);
+   const tx=el('span','vqc-rev-kidtext');tx.appendChild(el('b','',k.label));tx.appendChild(el('small','',k.hint));th.appendChild(tx);
+   tr.appendChild(th);
+   ['w','b'].forEach(function(s){const n=kc[s][k.id];const td=el('td','vqc-rev-kidnum'+(n?'':' zero'),String(n));td.style.setProperty('--kc',k.color);tr.appendChild(td);});
+   t.appendChild(tr);
+  });
+  if(acc&&(acc.w!=null||acc.b!=null)){
+   const ar=el('tr','vqc-rev-kidacc');ar.appendChild(el('td','','🎯 Độ chính xác (ước tính)'));
+   ['w','b'].forEach(function(s){ar.appendChild(el('td','vqc-rev-acc',acc[s]==null?'—':Number(acc[s]).toFixed(1)+'%'));});
+   t.appendChild(ar);
+  }
+  return t;
+ }
  function winPct(v){const c=Math.max(-1000,Math.min(1000,v));return 50+50*(2/(1+Math.exp(-0.00368208*c))-1);}
  function classifyLoss(loss,playedBest){
   if(playedBest||loss<=0.5)return 'best';
@@ -477,6 +513,12 @@ function css(){
   const info=['Số nước đi: '+res.sans.length,'Kết quả: '+resultWords(c)];
   const d=durationOf(c);if(d)info.push('Thời lượng: '+fmtDuration(d));
   wrap.appendChild(el('p','vqc-rev-sum',info.join(' · ')));
+  if(hostOf(c)==='pgn'){
+   wrap.appendChild(el('h4','vqc-rev-kidtitle','Chất lượng nước đi'));
+   wrap.appendChild(kidTable(c,res.counts,res.acc));
+   wrap.appendChild(el('p','vqc-rev-note','Máy chấm từng nước theo mức thay đổi cơ hội thắng trước và sau nước đi. Stockfish chỉ nghĩ trong thời gian ngắn nên kết quả là ước tính.'));
+   return wrap;
+  }
   const t=el('table','vqc-rev-tbl');
   const head=el('tr');head.appendChild(el('th','',''));
   head.appendChild(el('th','','⚪ '+c.white));head.appendChild(el('th','','⚫ '+c.black));t.appendChild(head);
@@ -502,7 +544,7 @@ function css(){
   const ul=el('ul');
   res.moments.forEach(function(m){
    const li=el('li',c.inReview?'':'sm');const b=el('button');b.type='button';
-   const k=CLS_ID[m.cls];
+   const k=hostOf(c)==='pgn'?kidOf(m.cls):CLS_ID[m.cls];
    const lab=KIND_LABEL[m.kind]||(k?k.label:'');
    const title=moveLabel(c,m.ply,m.san)+(k?' '+k.icon:'')+' — '+sideName(c,m.side)+' ('+(m.side==='w'?'⚪':'⚫')+')';
    b.appendChild(document.createTextNode(title));
@@ -512,7 +554,7 @@ function css(){
    li.appendChild(b);ul.appendChild(li);
   });
   box.appendChild(ul);
-  if(!c.inReview)box.appendChild(el('p','vqc-rev-sum','Mở ván trong tab “Kết quả đã lưu” để bấm vào từng nước và xem lại trên bàn cờ.'));
+  if(!c.inReview)box.appendChild(el('p','vqc-rev-sum',hostOf(c)==='pgn'?'Giáo viên chọn nước đi để cả lớp cùng xem trên bàn cờ.':'Mở ván trong tab “Kết quả đã lưu” để bấm vào từng nước và xem lại trên bàn cờ.'));
   return box;
  }
  function renderResult(c,res){
@@ -551,10 +593,12 @@ function css(){
   if(ctx.varOn){holder.appendChild(el('p','vqc-rev-sum','Đang xem nước đi thử. Bấm “Về thế cờ hiện tại” để xem lại đánh giá của ván gốc.'));return;}
   const m=ply>=1?res.moves[ply-1]:null;
   if(m){
-   const k=m.cls?CLS_ID[m.cls]:null;
+   const isPgn=hostOf(ctx)==='pgn';
+   const k=m.cls?(isPgn?kidOf(m.cls):CLS_ID[m.cls]):null;
    const head=el('p','vqc-rev-curhead');
    head.appendChild(document.createTextNode(moveLabel(ctx,ply,m.san)+' '));
-   if(k){const dot=el('span','vqc-rev-dot',k.icon);dot.style.background=k.color;head.appendChild(dot);head.appendChild(document.createTextNode(' '+k.label));}
+   if(k&&isPgn){const dot=el('span','vqc-rev-kiddot',k.icon);dot.style.setProperty('--kc',k.color);head.appendChild(dot);head.appendChild(document.createTextNode(' '+k.label+' — '+k.hint));}
+   else if(k){const dot=el('span','vqc-rev-dot',k.icon);dot.style.background=k.color;head.appendChild(dot);head.appendChild(document.createTextNode(' '+k.label));}
    else head.appendChild(document.createTextNode('(máy chưa đánh giá được nước này)'));
    holder.appendChild(head);
    if(m.cls&&m.cls!=='best'&&m.best&&m.loss>=2)holder.appendChild(el('p','vqc-rev-sum',explainLoss(m)));
@@ -774,7 +818,10 @@ function jump(ply){
    const accT=function(v){return v==null?'—':Number(v).toFixed(1)+'%';};
    box.appendChild(el('p','vqc-rev-sum','Độ chính xác (ước tính) — ⚪ '+stuCtx.white+': '+accT(a.accW)+' · ⚫ '+stuCtx.black+': '+accT(a.accB)));
    const cnt=a.cnt||{};
-   ['w','b'].forEach(function(s){
+   if(hostOf(stuCtx)==='pgn'){
+    box.appendChild(el('h4','vqc-rev-kidtitle','Chất lượng nước đi'));
+    box.appendChild(kidTable(stuCtx,cnt,{w:a.accW,b:a.accB}));
+   }else ['w','b'].forEach(function(s){
     const o=cnt[s];if(!o)return;
     box.appendChild(el('p','vqc-rev-sum',(s==='w'?'⚪ ':'⚫ ')+CLS.map(function(k){return k.icon+' '+(o[k.id]||0);}).join('  ·  ')));
    });
@@ -811,7 +858,9 @@ function jump(ply){
  }
  function qChars(c,student){
   if(student){const q=stuNotes&&stuNotes.analysis&&stuNotes.analysis.q;return typeof q==='string'?q:'';}
-  const r=c&&cache[c.key];return r?qString(r):'';
+  const r=c&&cache[c.key];if(r)return qString(r);
+  if(c&&hostOf(c)==='pgn'&&isStudentNow()){const q=stuNotes&&stuNotes.analysis&&stuNotes.analysis.q;return typeof q==='string'?q:'';}
+  return '';
  }
  function decorate(c,student){
   if(!c)return;
@@ -820,6 +869,11 @@ function jump(ply){
    const k=CLS_CH[q[i]];
    if(k){s.dataset.q=k.ch;s.dataset.qi=k.icon;s.style.setProperty('--qc',k.color);s.title=k.label;}
    else if(s.dataset.q){delete s.dataset.q;delete s.dataset.qi;s.style.removeProperty('--qc');s.removeAttribute('title');}
+   if(host==='pgn'){
+    const kd=k?kidOf(k.id):null;
+    if(kd){if(s.dataset.k!==kd.id){s.dataset.k=kd.id;}s.title=kd.label+' — '+kd.hint;}
+    else if(s.dataset.k)delete s.dataset.k;
+   }
    s.classList.toggle('vqc-rev-click',click);
   });
   const cur=spans.find(function(s){return s.classList.contains('cur')||s.classList.contains('is-current');});
@@ -923,7 +977,7 @@ function jump(ply){
   box.querySelectorAll('[data-act="pgn"],[data-act="copy"]').forEach(function(b){b.hidden=host==='pgn';});
   const any=vc||context();
   const student=isStudentNow();
-  const c=student?null:any;
+  const c=(student&&!(any&&any.host==='pgn'))?null:any;
   makeStuBox(host);
   const show=!!(c&&c.fen0&&((c.uci&&c.uci.length)||(c.sans&&c.sans.length)));
   if(!show){
