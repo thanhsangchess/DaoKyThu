@@ -528,3 +528,11 @@ body.vqc-review-active #vqcReviewBoard .square>.capture-hint{
   #vqcReviewWorkspace .vqc-review-controls .vqc-rev-speed__btn{min-height:44px!important;font-size:13px!important}
   #vqcReviewWorkspace .vqc-review-shortcut{display:none!important}
 }
+
+#vqcReviewWorkspace .vqc-review-moves-heading{flex-wrap:wrap!important;row-gap:8px!important}
+#vqcReviewWorkspace .vqc-review-actions{flex-wrap:wrap!important;justify-content:flex-end!important;margin-left:auto!important}
+#vqcReviewWorkspace .vqc-review-actions .vqc-review-copyfen.is-done{background:#E7F6EF!important;border-color:#0F7A55!important;color:#0F7A55!important}
+@media (max-width:700px){
+  #vqcReviewWorkspace .vqc-review-actions{flex:1 1 100%!important;justify-content:stretch!important}
+  #vqcReviewWorkspace .vqc-review-actions button{flex:1 1 auto!important}
+}

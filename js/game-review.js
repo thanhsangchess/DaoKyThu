@@ -182,6 +182,32 @@
   rect.setAttribute('x',a.x);rect.setAttribute('y',a.y);
   svg.hidden=false;
  }
+ let fenTimer=0;
+ async function copyText(text){
+  try{if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(text);return true;}}catch(e){}
+  try{
+   const t=document.createElement('textarea');t.value=text;t.setAttribute('readonly','');t.style.position='fixed';t.style.opacity='0';t.style.left='-9999px';
+   document.body.appendChild(t);t.select();const ok=document.execCommand('copy');t.remove();return !!ok;
+  }catch(e){return false;}
+ }
+ async function copyFen(){
+  if(!positions.length)return;
+  const fen=currentFen(),btn=$('vqcReviewCopyFen');if(!fen)return;
+  const ok=await copyText(fen);
+  if(btn){
+   clearTimeout(fenTimer);
+   btn.textContent=ok?'✓ Đã sao chép':'Chưa sao chép được';btn.classList.toggle('is-done',ok);
+   fenTimer=setTimeout(()=>{btn.textContent='📋 Sao chép FEN';btn.classList.remove('is-done');},1800);
+  }
+  if(!ok&&typeof vqcNotify==='function')vqcNotify('Trình duyệt không cho sao chép tự động. FEN của thế cờ: '+fen,'warning');
+ }
+ function installFenButton(){
+  const actions=document.querySelector('#vqcReviewWorkspace .vqc-review-actions');
+  if(!actions||$('vqcReviewCopyFen'))return;
+  const b=document.createElement('button');b.type='button';b.id='vqcReviewCopyFen';b.className='vqc-review-copyfen';
+  b.textContent='📋 Sao chép FEN';b.title='Sao chép FEN của thế cờ đang xem trên bàn cờ';b.disabled=true;
+  b.addEventListener('click',copyFen);actions.appendChild(b);
+ }
  function installHints(){
   const wrap=document.querySelector('#vqcReviewWorkspace .vqc-review-moves-wrap');
   if(!wrap||$('vqcReviewHints'))return;
@@ -509,6 +535,7 @@
   $('vqcReviewLast').disabled=!isTeacher()||!moves.length||current===moves.length;
   $('vqcReviewCopy').disabled=!loadedText;
   $('vqcReviewDownload').disabled=!loadedText;
+  const fenBtn=$('vqcReviewCopyFen');if(fenBtn)fenBtn.disabled=!positions.length;
   evbPaint();
   window.dispatchEvent(new CustomEvent('vqc:game-review-position',{detail:{index:current,total:moves.length}}));
  }
@@ -841,6 +868,7 @@
   installMoveDrawer();
   installEmptyState();
   installHints();
+  installFenButton();
   evbInit();
   $('vqcReviewPgn')?.addEventListener('input',()=>{const el=$('vqcReviewError');if(el&&el.dataset.kind==='error')setMsg('');});
   $('vqcReviewLoad')?.addEventListener('click',window.vqcGameReviewLoad);
