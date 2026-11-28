@@ -1,0 +1,413 @@
+/* ==========================================================================
+   Đảo Kỳ Thủ — Hệ thiết kế chung (ui-system.css)
+   Nạp SAU CÙNG (sau home-redesign.css). Chỉ đổi giao diện, không đổi chức năng.
+   Quy ước:
+   - Màu thương hiệu lấy từ biến --dkt-* trong home-redesign.css.
+   - Cam / vàng / xanh lá / đỏ chỉ dùng cho trạng thái (--ui-success/warning/danger).
+   - Mọi selector áp dụng cho màn hình đều có phạm vi hẹp (body class hoặc id).
+   - KHÔNG đặt display:...!important lên phần tử mà JS bật/tắt bằng style.display
+     (ví dụ #leaveRoomBtn), để không ghi đè trạng thái do JS đặt.
+   ========================================================================== */
+
+:root{
+  /* Khoảng cách — thang 4/8px */
+  --ui-s1:4px; --ui-s2:8px; --ui-s3:12px; --ui-s4:16px; --ui-s5:20px; --ui-s6:24px; --ui-s8:32px;
+  /* Bo góc — 3 mức */
+  --ui-r-sm:8px;   /* nút nhỏ, ô nhập, huy hiệu */
+  --ui-r-md:12px;  /* nút chính, thẻ nhỏ, nhóm điều khiển */
+  --ui-r-lg:16px;  /* thẻ lớn, hộp thoại */
+  --ui-r-pill:999px;
+  /* Cỡ chữ */
+  --ui-fs-xs:12px; --ui-fs-sm:13px; --ui-fs-md:14px; --ui-fs-base:16px; --ui-fs-lg:18px; --ui-fs-xl:22px; --ui-fs-2xl:28px;
+  /* Đổ bóng nhẹ */
+  --ui-shadow-sm:0 1px 2px rgba(16,42,90,.06);
+  --ui-shadow-md:0 4px 16px rgba(16,42,90,.08);
+  --ui-shadow-lg:0 16px 48px rgba(16,42,90,.18);
+  /* Viền */
+  --ui-border:var(--dkt-border,#DCE7F5);
+  --ui-border-strong:#C7D7EE;
+  /* Bề mặt */
+  --ui-surface:#FFFFFF;
+  --ui-surface-2:var(--dkt-bg,#F5F9FF);
+  --ui-surface-3:#EEF3FB;
+  /* Chữ */
+  --ui-text:var(--dkt-text,#172B4D);
+  --ui-text-2:#3B4C66;
+  --ui-muted:var(--dkt-muted,#63748B);
+  /* Trạng thái (chỉ dùng cho đúng / sai / cảnh báo) */
+  --ui-success:#0F7A55; --ui-success-bg:#E7F6EF; --ui-success-border:#BFE6D3;
+  --ui-warning:#9A5B00; --ui-warning-bg:#FFF6E0; --ui-warning-border:#FBE1A6;
+  --ui-danger:#C0352B;  --ui-danger-bg:#FDEEEC;  --ui-danger-border:#F6CCC7;
+  /* Kích thước chạm */
+  --ui-tap:44px;
+  --ui-ctl:40px;
+  --ui-focus:var(--dkt-ring,0 0 0 3px rgba(21,94,239,.28));
+  --ui-t:.15s ease;
+}
+
+/* --------------------------------------------------------------------------
+   Thành phần dùng chung (lớp tiện ích — dùng khi thêm markup mới)
+   -------------------------------------------------------------------------- */
+.ui-btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:var(--ui-s2);
+  min-height:var(--ui-ctl);padding:0 var(--ui-s4);
+  border:1px solid transparent;border-radius:var(--ui-r-md);
+  font:600 var(--ui-fs-md)/1 var(--dkt-font);white-space:nowrap;cursor:pointer;
+  transition:background-color var(--ui-t),border-color var(--ui-t),color var(--ui-t);
+}
+.ui-btn:focus-visible{outline:none;box-shadow:var(--ui-focus)}
+.ui-btn:disabled,.ui-btn[aria-disabled="true"]{opacity:.5;cursor:not-allowed}
+.ui-btn--primary{background:var(--dkt-blue);color:#fff}
+.ui-btn--primary:hover{background:var(--dkt-blue-hover)}
+.ui-btn--secondary{background:#fff;color:var(--dkt-blue);border-color:var(--ui-border-strong)}
+.ui-btn--secondary:hover{background:var(--dkt-light);border-color:var(--dkt-blue)}
+.ui-btn--ghost{background:transparent;color:var(--ui-text-2)}
+.ui-btn--ghost:hover{background:var(--dkt-light);color:var(--dkt-deep)}
+.ui-card{background:var(--ui-surface);border:1px solid var(--ui-border);border-radius:var(--ui-r-lg);box-shadow:var(--ui-shadow-sm)}
+.ui-input{
+  min-height:var(--ui-ctl);padding:0 var(--ui-s3);border:1px solid var(--ui-border-strong);border-radius:var(--ui-r-sm);
+  background:#fff;color:var(--ui-text);font:500 var(--ui-fs-base)/1.2 var(--dkt-font);
+}
+.ui-input:focus{outline:none;border-color:var(--dkt-blue);box-shadow:var(--ui-focus)}
+.ui-badge{display:inline-flex;align-items:center;gap:var(--ui-s1);height:24px;padding:0 var(--ui-s2);border-radius:var(--ui-r-pill);background:var(--dkt-light);color:var(--dkt-deep);font:600 var(--ui-fs-xs)/1 var(--dkt-font)}
+.ui-badge--success{background:var(--ui-success-bg);color:var(--ui-success)}
+.ui-badge--warning{background:var(--ui-warning-bg);color:var(--ui-warning)}
+.ui-badge--danger{background:var(--ui-danger-bg);color:var(--ui-danger)}
+@media (max-width:760px){.ui-btn{min-height:var(--ui-tap)}}
+
+/* ==========================================================================
+   MÀN HÌNH 1 — HEADER (chế độ Lớp học & Khám phá)
+   Trang chủ đã có giao diện trong home-redesign.css; ở đây đưa cùng ngôn ngữ
+   đó sang body.vqc-mode-class / body.vqc-mode-world. Không chạm .vqc-mode-home.
+   ========================================================================== */
+html body:is(.vqc-mode-class,.vqc-mode-world)::before,
+html body:is(.vqc-mode-class,.vqc-mode-world)::after{content:none!important;animation:none!important}
+
+html body:is(.vqc-mode-class,.vqc-mode-world) > .header{
+  position:sticky!important;top:0!important;z-index:100!important;
+  display:flex!important;flex-wrap:nowrap!important;align-items:center!important;justify-content:flex-start!important;
+  gap:var(--ui-s3)!important;
+  width:100%!important;height:64px!important;min-height:64px!important;
+  margin:0!important;padding:0 var(--ui-s6)!important;
+  background:rgba(255,255,255,.94)!important;
+  -webkit-backdrop-filter:saturate(1.3) blur(10px);backdrop-filter:saturate(1.3) blur(10px);
+  border:0!important;border-bottom:1px solid var(--ui-border)!important;border-radius:0!important;
+  box-shadow:none!important;
+  font-family:var(--dkt-font);color:var(--ui-text);
+}
+html body:is(.vqc-mode-class,.vqc-mode-world) > .header::before,
+html body:is(.vqc-mode-class,.vqc-mode-world) > .header::after{content:none!important}
+
+/* Logo (giữ nguyên ảnh assets/logo.png) */
+html body:is(.vqc-mode-class,.vqc-mode-world) > .header > .logo{
+  display:flex!important;align-items:center!important;gap:var(--ui-s3)!important;
+  flex:0 0 auto!important;min-width:0;margin:0!important;order:0!important;
+}
+html body:is(.vqc-mode-class,.vqc-mode-world) > .header .logo .logo-icon{
+  width:54px!important;height:36px!important;flex:0 0 54px!important;
+  margin:0!important;padding:0!important;border:0!important;border-radius:9px!important;
+  background:#0033F4!important;
+  box-shadow:0 0 0 1px rgba(18,59,154,.12),0 2px 6px rgba(18,59,154,.18)!important;
+  overflow:hidden!important;transform:none!important;animation:none!important;
+}
+html body:is(.vqc-mode-class,.vqc-mode-world) > .header .logo .logo-icon img{
+  width:100%!important;height:100%!important;object-fit:cover!important;border-radius:0!important;filter:none!important;
+}
+html body:is(.vqc-mode-class,.vqc-mode-world) > .header .logo-text{display:flex!important;flex-direction:column!important;gap:1px;min-width:0}
+html body:is(.vqc-mode-class,.vqc-mode-world) > .header .logo-text strong{
+  font-family:var(--dkt-font)!important;font-size:17px!important;font-weight:800!important;line-height:1.2!important;
+  letter-spacing:-.01em!important;color:var(--dkt-deep)!important;white-space:nowrap;text-shadow:none!important;
+}
+html body:is(.vqc-mode-class,.vqc-mode-world) > .header .logo-text span{
+  display:block!important;font-size:var(--ui-fs-xs)!important;font-weight:500!important;line-height:1.3!important;
+  color:var(--ui-muted)!important;white-space:nowrap;
+}
+
+/* Thanh phòng học — chỉ định dạng, không đổi display của các nút (JS điều khiển) */
+html body.vqc-mode-class > .header .room-box{
+  display:flex!important;align-items:center!important;flex-wrap:nowrap!important;gap:var(--ui-s1)!important;
+  flex:0 1 auto!important;min-width:0!important;width:auto!important;max-width:none!important;
+  margin:0 0 0 var(--ui-s2)!important;padding:var(--ui-s1)!important;
+  background:var(--ui-surface-2)!important;border:1px solid var(--ui-border)!important;border-radius:var(--ui-r-md)!important;
+  box-shadow:none!important;
+}
+html body.vqc-mode-class > .header .room-box > span{
+  padding:0 var(--ui-s1) 0 var(--ui-s2)!important;margin:0!important;
+  font-size:var(--ui-fs-sm)!important;font-weight:600!important;color:var(--ui-muted)!important;white-space:nowrap;
+}
+html body.vqc-mode-class > .header .room-box #roomCode{
+  width:104px!important;min-width:72px!important;max-width:none!important;height:36px!important;flex:0 1 104px!important;
+  margin:0!important;padding:0 var(--ui-s3)!important;
+  border:1px solid var(--ui-border-strong)!important;border-radius:var(--ui-r-sm)!important;
+  background:#fff!important;box-shadow:none!important;
+  color:var(--ui-text)!important;font:700 15px/1 var(--dkt-font)!important;letter-spacing:.06em!important;text-align:center;
+}
+html body.vqc-mode-class > .header .room-box #roomCode:focus{outline:none!important;border-color:var(--dkt-blue)!important;box-shadow:var(--ui-focus)!important}
+
+html body:is(.vqc-mode-class,.vqc-mode-world) > .header .room-box > .btn,
+html body:is(.vqc-mode-class,.vqc-mode-world) > .header > #vqcBackHome{
+  position:relative;
+  align-items:center!important;justify-content:center;gap:6px!important;
+  flex:0 0 auto!important;height:36px!important;min-height:36px!important;
+  margin:0!important;padding:0 var(--ui-s3)!important;
+  border:1px solid transparent!important;border-radius:var(--ui-r-sm)!important;
+  box-shadow:none!important;transform:none!important;filter:none!important;
+  font:600 var(--ui-fs-md)/1 var(--dkt-font)!important;letter-spacing:0!important;white-space:nowrap!important;text-shadow:none!important;
+  cursor:pointer;transition:background-color var(--ui-t),color var(--ui-t),border-color var(--ui-t);
+}
+/* Vào lớp — hành động chính */
+html body.vqc-mode-class > .header .room-box > .btn-blue{background:var(--dkt-blue)!important;color:#fff!important}
+html body.vqc-mode-class > .header .room-box > .btn-blue:hover{background:var(--dkt-blue-hover)!important}
+/* Tạo phòng — hành động phụ (không dùng màu xanh lá vì đó là màu trạng thái) */
+html body.vqc-mode-class > .header .room-box > .btn-green{background:#fff!important;color:var(--dkt-blue)!important;border-color:var(--ui-border-strong)!important}
+html body.vqc-mode-class > .header .room-box > .btn-green:hover{background:var(--dkt-light)!important;border-color:var(--dkt-blue)!important}
+/* Rời phòng */
+html body.vqc-mode-class > .header .room-box > #leaveRoomBtn{background:#fff!important;color:var(--ui-danger)!important;border-color:var(--ui-danger-border)!important}
+html body.vqc-mode-class > .header .room-box > #leaveRoomBtn:hover{background:var(--ui-danger-bg)!important}
+/* Trang chủ */
+html body:is(.vqc-mode-class,.vqc-mode-world) > .header > #vqcBackHome{background:transparent!important;color:var(--ui-text-2)!important}
+html body:is(.vqc-mode-class,.vqc-mode-world) > .header > #vqcBackHome:hover{background:var(--dkt-light)!important;color:var(--dkt-deep)!important}
+html body:is(.vqc-mode-class,.vqc-mode-world) > .header .room-box > .btn:active,
+html body:is(.vqc-mode-class,.vqc-mode-world) > .header > #vqcBackHome:active{transform:translateY(1px)!important}
+html body:is(.vqc-mode-class,.vqc-mode-world) > .header .room-box > .btn:focus-visible,
+html body:is(.vqc-mode-class,.vqc-mode-world) > .header > #vqcBackHome:focus-visible{outline:none!important;box-shadow:var(--ui-focus)!important}
+html body:is(.vqc-mode-class,.vqc-mode-world) > .header .room-box > .btn:disabled{opacity:.5!important;cursor:not-allowed}
+
+/* Khu tài khoản — giống trang chủ */
+html body:is(.vqc-mode-class,.vqc-mode-world) > .header #accountBar{
+  display:flex!important;flex-wrap:nowrap!important;align-items:center!important;justify-content:flex-end!important;
+  gap:2px!important;flex:1 1 auto!important;min-width:0!important;max-width:none!important;
+  margin:0 0 0 auto!important;padding:0!important;background:none!important;border:0!important;box-shadow:none!important;
+}
+html body:is(.vqc-mode-class,.vqc-mode-world) > .header #accountUserLabel{
+  display:inline-block!important;max-width:180px!important;min-width:0;
+  margin:0 var(--ui-s2) 0 0!important;padding:0!important;border:0!important;border-radius:0!important;background:none!important;
+  color:var(--ui-text)!important;font-size:var(--ui-fs-sm)!important;font-weight:600!important;line-height:1.2!important;
+  white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;text-align:left!important;
+}
+html body:is(.vqc-mode-class,.vqc-mode-world) > .header #accountBar > .btn,
+html body:is(.vqc-mode-class,.vqc-mode-world) > .header > .vqc-appearance-open{
+  position:relative;display:inline-flex!important;align-items:center!important;justify-content:center;gap:7px!important;
+  flex:0 0 auto!important;height:38px!important;min-height:38px!important;margin:0!important;padding:0 10px!important;
+  border:1px solid transparent!important;border-radius:var(--ui-r-sm)!important;background:transparent!important;
+  box-shadow:none!important;color:var(--ui-text-2)!important;
+  font:600 var(--ui-fs-md)/1 var(--dkt-font)!important;letter-spacing:0!important;white-space:nowrap!important;
+  transform:none!important;filter:none!important;text-shadow:none!important;cursor:pointer;
+  transition:background-color var(--ui-t),color var(--ui-t),border-color var(--ui-t);
+}
+html body:is(.vqc-mode-class,.vqc-mode-world) > .header #accountBar > .btn .dkt-hico,
+html body:is(.vqc-mode-class,.vqc-mode-world) > .header > .vqc-appearance-open .dkt-hico{margin:0;color:#7487A3;transition:color var(--ui-t)}
+html body:is(.vqc-mode-class,.vqc-mode-world) > .header #accountBar > .btn:hover,
+html body:is(.vqc-mode-class,.vqc-mode-world) > .header > .vqc-appearance-open:hover{background:var(--dkt-light)!important;color:var(--dkt-deep)!important}
+html body:is(.vqc-mode-class,.vqc-mode-world) > .header #accountBar > .btn:hover .dkt-hico,
+html body:is(.vqc-mode-class,.vqc-mode-world) > .header > .vqc-appearance-open:hover .dkt-hico{color:var(--dkt-blue)}
+html body:is(.vqc-mode-class,.vqc-mode-world) > .header #accountBar > .btn:active,
+html body:is(.vqc-mode-class,.vqc-mode-world) > .header > .vqc-appearance-open:active{background:#DCEAFF!important}
+html body:is(.vqc-mode-class,.vqc-mode-world) > .header #accountBar > .btn:focus-visible,
+html body:is(.vqc-mode-class,.vqc-mode-world) > .header > .vqc-appearance-open:focus-visible{outline:none!important;box-shadow:var(--ui-focus)!important;background:var(--dkt-light)!important}
+html body:is(.vqc-mode-class,.vqc-mode-world) > .header #accountBar > #vqcMembershipLaunch{background:var(--dkt-light)!important;color:var(--dkt-deep)!important}
+html body:is(.vqc-mode-class,.vqc-mode-world) > .header #accountBar > #vqcMembershipLaunch .dkt-hico{color:var(--dkt-blue)}
+html body:is(.vqc-mode-class,.vqc-mode-world) > .header #accountBar > #vqcMembershipLaunch:hover{background:#DCEAFF!important}
+html body:is(.vqc-mode-class,.vqc-mode-world) > .header #accountBar > .btn:last-child{margin-left:9px!important}
+html body:is(.vqc-mode-class,.vqc-mode-world) > .header #accountBar > .btn:last-child::before{
+  content:"";position:absolute;left:-6px;top:9px;bottom:9px;width:1px;background:var(--ui-border);
+}
+html body:is(.vqc-mode-class,.vqc-mode-world) > .header > .vqc-appearance-open{margin-left:6px!important;border-color:var(--ui-border)!important;background:#fff!important}
+html body:is(.vqc-mode-class,.vqc-mode-world) > .header > .vqc-appearance-open:hover{border-color:var(--ui-border-strong)!important}
+html body:is(.vqc-mode-class,.vqc-mode-world) > .header #accountBar #vqcFriendsUnread:not([hidden]){
+  position:absolute!important;top:6px!important;right:6px!important;left:auto!important;
+  width:8px;height:8px;min-width:8px!important;min-height:8px!important;padding:0!important;
+  border-radius:50%!important;background:#E5484D!important;border:2px solid #fff!important;box-sizing:content-box;
+}
+
+/* Màn hình vừa: ẩn chữ trên nút tài khoản (giữ biểu tượng + title) */
+@media (max-width:1380px){
+  html body.vqc-mode-class > .header #accountBar > .btn .dkt-hlabel,
+  html body.vqc-mode-class > .header > .vqc-appearance-open .dkt-hlabel{
+    position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;
+    clip:rect(0 0 0 0)!important;white-space:nowrap!important;margin:-1px!important;padding:0!important;
+  }
+  html body.vqc-mode-class > .header #accountBar > .btn,
+  html body.vqc-mode-class > .header > .vqc-appearance-open{width:40px!important;padding:0!important;gap:0!important}
+  html body.vqc-mode-class > .header #accountBar > .btn .dkt-hico,
+  html body.vqc-mode-class > .header > .vqc-appearance-open .dkt-hico{width:18px;height:18px}
+}
+@media (max-width:1060px){
+  html body.vqc-mode-world > .header #accountBar > .btn .dkt-hlabel,
+  html body.vqc-mode-world > .header > .vqc-appearance-open .dkt-hlabel{
+    position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;
+    clip:rect(0 0 0 0)!important;white-space:nowrap!important;margin:-1px!important;padding:0!important;
+  }
+  html body.vqc-mode-world > .header #accountBar > .btn,
+  html body.vqc-mode-world > .header > .vqc-appearance-open{width:40px!important;padding:0!important;gap:0!important}
+}
+
+/* Máy tính bảng: 2 hàng — (logo · tài khoản) / (trang chủ · phòng học) */
+@media (max-width:1100px){
+  html body.vqc-mode-class > .header{
+    flex-wrap:wrap!important;height:auto!important;min-height:64px!important;
+    row-gap:var(--ui-s2)!important;padding:var(--ui-s3) var(--ui-s6)!important;
+  }
+  html body.vqc-mode-class > .header > .logo{order:0!important}
+  html body.vqc-mode-class > .header #accountBar{order:1!important}
+  html body.vqc-mode-class > .header > .vqc-appearance-open{order:2!important}
+  html body.vqc-mode-class > .header > #vqcBackHome{order:3!important}
+  html body.vqc-mode-class > .header .room-box{order:4!important;flex:0 1 auto!important;margin:0!important}
+  html body.vqc-mode-class > .header #accountUserLabel{max-width:140px!important}
+  /* Ngắt hàng sau nút "Bàn cờ" */
+  html body.vqc-mode-class > .header::after{content:""!important;order:2!important;flex:0 0 100%!important;height:0!important;display:block!important;position:static!important;background:none!important}
+  html body.vqc-mode-class > .header .room-box #roomCode{flex:0 1 120px!important;width:120px!important}
+}
+
+/* Điện thoại */
+@media (max-width:760px){
+  html body:is(.vqc-mode-class,.vqc-mode-world) > .header{
+    position:relative!important;
+    flex-wrap:wrap!important;height:auto!important;min-height:56px!important;
+    gap:var(--ui-s2)!important;row-gap:var(--ui-s2)!important;
+    padding:var(--ui-s2) var(--ui-s4)!important;
+  }
+  html body:is(.vqc-mode-class,.vqc-mode-world) > .header > .logo{flex:1 1 auto!important;gap:var(--ui-s2)!important}
+  html body:is(.vqc-mode-class,.vqc-mode-world) > .header .logo .logo-icon{width:48px!important;height:32px!important;flex-basis:48px!important;border-radius:var(--ui-r-sm)!important}
+  html body:is(.vqc-mode-class,.vqc-mode-world) > .header .logo-text{overflow:hidden}
+  html body:is(.vqc-mode-class,.vqc-mode-world) > .header .logo-text strong{font-size:var(--ui-fs-base)!important;overflow:hidden;text-overflow:ellipsis}
+  html body:is(.vqc-mode-class,.vqc-mode-world) > .header .logo-text span{display:none!important}
+  html body:is(.vqc-mode-class,.vqc-mode-world):not(.vqc-mobile-logged-in) > .header .logo-text{display:none!important}
+
+  html body:is(.vqc-mode-class,.vqc-mode-world) > .header #accountBar{flex:0 0 auto!important;gap:0!important}
+  html body:is(.vqc-mode-class,.vqc-mode-world) > .header #accountUserLabel{display:none!important}
+  html body:is(.vqc-mode-class,.vqc-mode-world) > .header #accountBar > .btn .dkt-hlabel,
+  html body:is(.vqc-mode-class,.vqc-mode-world) > .header > .vqc-appearance-open .dkt-hlabel{
+    position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;
+    clip:rect(0 0 0 0)!important;white-space:nowrap!important;margin:-1px!important;padding:0!important;
+  }
+  html body:is(.vqc-mode-class,.vqc-mode-world) > .header #accountBar > .btn,
+  html body:is(.vqc-mode-class,.vqc-mode-world) > .header > .vqc-appearance-open{
+    width:var(--ui-tap)!important;height:var(--ui-tap)!important;min-height:var(--ui-tap)!important;padding:0!important;gap:0!important;
+  }
+  html body:is(.vqc-mode-class,.vqc-mode-world) > .header #accountBar > .btn:last-child{margin-left:0!important}
+  html body:is(.vqc-mode-class,.vqc-mode-world) > .header #accountBar > .btn:last-child::before{display:none}
+  html body:is(.vqc-mode-class,.vqc-mode-world) > .header > .vqc-appearance-open{margin-left:0!important;border-color:transparent!important;background:transparent!important}
+
+  /* Hàng 2: Trang chủ (biểu tượng) + phòng học */
+  html body:is(.vqc-mode-class,.vqc-mode-world) > .header > #vqcBackHome{
+    order:3!important;width:var(--ui-tap)!important;height:var(--ui-tap)!important;min-height:var(--ui-tap)!important;padding:0!important;
+    font-size:0!important;border-color:var(--ui-border)!important;background:#fff!important;border-radius:var(--ui-r-md)!important;
+  }
+  html body:is(.vqc-mode-class,.vqc-mode-world) > .header > #vqcBackHome::before{
+    content:"";display:block;margin:auto;width:20px;height:20px;background:currentColor;
+    -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3 10 9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'/%3E%3Cpath d='M9 22V12h6v10'/%3E%3C/svg%3E") center/contain no-repeat;
+            mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3 10 9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'/%3E%3Cpath d='M9 22V12h6v10'/%3E%3C/svg%3E") center/contain no-repeat;
+  }
+  html body.vqc-mode-class[class] > .header .room-box{
+    order:4!important;flex:1 1 0!important;min-width:0!important;width:auto!important;margin:0!important;
+    padding:0!important;gap:var(--ui-s2)!important;background:none!important;border:0!important;justify-content:flex-start!important;flex-wrap:nowrap!important;
+  }
+  html body.vqc-mobile-logged-in.vqc-mode-class > .header .room-box{flex:1 1 100%!important}
+  html body.vqc-mode-class > .header .room-box > span{display:none!important}
+  html body.vqc-mode-class > .header .room-box #roomCode{
+    flex:1 1 64px!important;width:auto!important;min-width:56px!important;max-width:none!important;
+    height:var(--ui-tap)!important;padding:0 var(--ui-s2)!important;font-size:var(--ui-fs-base)!important;border-radius:var(--ui-r-md)!important;
+  }
+  html body.vqc-mode-class > .header .room-box > .btn{
+    height:var(--ui-tap)!important;min-height:var(--ui-tap)!important;padding:0 var(--ui-s3)!important;
+    font-size:var(--ui-fs-md)!important;border-radius:var(--ui-r-md)!important;
+  }
+}
+@media (max-width:360px){
+  html body.vqc-mode-class > .header .room-box > .btn{padding:0 var(--ui-s2)!important;font-size:var(--ui-fs-sm)!important}
+}
+
+/* ==========================================================================
+   MÀN HÌNH 1b — ĐĂNG NHẬP (#accountOverlay)
+   Giữ ảnh minh họa bên trái; khung đăng nhập dùng thành phần chung.
+   ========================================================================== */
+#accountOverlay.account-overlay{background:var(--ui-surface-2)!important}
+#accountOverlay .account-modal{
+  border:1px solid var(--ui-border)!important;border-radius:var(--ui-r-lg)!important;
+  box-shadow:var(--ui-shadow-md)!important;font-family:var(--dkt-font);color:var(--ui-text);
+}
+#accountOverlay .vqc-login-form-logo{
+  border-radius:var(--ui-r-md)!important;box-shadow:0 0 0 1px rgba(18,59,154,.12),0 2px 8px rgba(18,59,154,.16)!important;
+}
+#accountOverlay .vqc-login-formhead h2{
+  background:none!important;-webkit-text-fill-color:currentColor!important;color:var(--dkt-deep)!important;
+  font-family:var(--dkt-font)!important;font-size:var(--ui-fs-2xl)!important;font-weight:800!important;letter-spacing:-.01em!important;text-shadow:none!important;
+}
+#accountOverlay .vqc-login-formhead p{color:var(--ui-muted)!important;font-weight:500!important;font-size:var(--ui-fs-md)!important}
+
+#accountOverlay .vqc-login-roles{
+  padding:var(--ui-s1)!important;gap:var(--ui-s1)!important;border-radius:var(--ui-r-md)!important;
+  background:var(--ui-surface-3)!important;border:1px solid var(--ui-border)!important;
+}
+#accountOverlay .vqc-login-roles button{
+  min-height:var(--ui-tap)!important;border-radius:var(--ui-r-sm)!important;
+  font:600 var(--ui-fs-md)/1 var(--dkt-font)!important;color:var(--ui-text-2)!important;box-shadow:none!important;
+}
+#accountOverlay .vqc-login-roles button:not(.selected):hover{background:#fff!important;color:var(--dkt-deep)!important}
+#accountOverlay .vqc-login-roles button.selected{
+  background:#fff!important;color:var(--dkt-blue)!important;
+  box-shadow:var(--ui-shadow-sm),0 0 0 1px var(--ui-border-strong)!important;
+}
+#accountOverlay .vqc-login-roles button:focus-visible{outline:none!important;box-shadow:var(--ui-focus)!important}
+
+#accountOverlay .vqc-login-label{color:var(--ui-text)!important;font-size:var(--ui-fs-sm)!important;font-weight:600!important;margin:0 0 6px!important;padding:0 2px!important}
+#accountOverlay .vqc-login-input{
+  height:48px!important;padding:0 var(--ui-s2) 0 var(--ui-s4)!important;margin-bottom:var(--ui-s4)!important;
+  border:1px solid var(--ui-border-strong)!important;border-radius:var(--ui-r-md)!important;background:#fff!important;
+}
+#accountOverlay .vqc-login-input:hover{border-color:#A9C0E3!important}
+#accountOverlay .vqc-login-input:focus-within{border-color:var(--dkt-blue)!important;box-shadow:var(--ui-focus)!important}
+#accountOverlay .vqc-login-input input{font-family:var(--dkt-font)!important;font-size:var(--ui-fs-base)!important;color:var(--ui-text)!important}
+#accountOverlay .vqc-login-input input::placeholder{color:#8392A8!important}
+#accountOverlay .vqc-login-eye{width:var(--ui-ctl)!important;height:var(--ui-ctl)!important;flex-basis:var(--ui-ctl)!important;border-radius:var(--ui-r-sm)!important}
+
+#accountOverlay .vqc-login-submit{
+  height:48px!important;margin-top:var(--ui-s1)!important;border:0!important;border-radius:var(--ui-r-md)!important;
+  background:var(--dkt-blue)!important;color:#fff!important;box-shadow:none!important;filter:none!important;
+  font:700 var(--ui-fs-base)/1 var(--dkt-font)!important;letter-spacing:0!important;
+}
+#accountOverlay .vqc-login-submit:hover{background:var(--dkt-blue-hover)!important;transform:none!important;box-shadow:none!important;filter:none!important}
+#accountOverlay .vqc-login-submit:active{transform:translateY(1px)!important}
+#accountOverlay .vqc-login-submit:focus-visible{outline:none!important;box-shadow:var(--ui-focus)!important}
+#accountOverlay .vqc-login-submit:disabled{opacity:.7}
+
+#accountOverlay .vqc-login-caps{border-radius:var(--ui-r-sm)!important;background:var(--ui-warning-bg)!important;border-color:var(--ui-warning-border)!important;color:var(--ui-warning)!important;font-weight:600!important}
+#accountOverlay .account-error:not(:empty){
+  border-radius:var(--ui-r-md)!important;background:var(--ui-danger-bg)!important;border-color:var(--ui-danger-border)!important;
+  color:var(--ui-danger)!important;font-weight:600!important;
+}
+#accountOverlay .account-error:not(:empty)::before{background:var(--ui-danger)!important}
+#accountOverlay .vqc-login-help{color:var(--ui-muted)!important;font-size:var(--ui-fs-sm)!important}
+#accountOverlay .vqc-login-help strong{color:var(--dkt-deep)!important;font-weight:600!important}
+#accountOverlay .vqc-login-copyright{color:#8392A8!important}
+
+/* Bảng tài khoản sau khi đăng nhập (tab Hồ sơ / Quản lý / Lớp / Tiến độ) */
+#accountOverlay #accountLoggedArea .account-tabs{
+  display:flex;flex-wrap:wrap;gap:var(--ui-s1);padding:var(--ui-s1);margin-bottom:var(--ui-s4);
+  background:var(--ui-surface-3);border:1px solid var(--ui-border);border-radius:var(--ui-r-md);
+}
+#accountOverlay #accountLoggedArea .account-tabs button{
+  flex:1 1 auto;min-height:var(--ui-ctl);padding:0 var(--ui-s3);border:0;border-radius:var(--ui-r-sm);
+  background:transparent;color:var(--ui-text-2);font:600 var(--ui-fs-md)/1 var(--dkt-font);cursor:pointer;box-shadow:none;
+}
+#accountOverlay #accountLoggedArea .account-tabs button:hover{background:#fff;color:var(--dkt-deep)}
+#accountOverlay #accountLoggedArea .account-tabs button:focus-visible{outline:none;box-shadow:var(--ui-focus)}
+
+@media (max-width:760px){
+  #accountOverlay #accountLoggedArea .account-tabs button{min-height:var(--ui-tap)}
+}
+
+/* --------------------------------------------------------------------------
+   Giữ nguyên các trạng thái ẩn sẵn có (đặt cuối để thắng các luật ở trên)
+   -------------------------------------------------------------------------- */
+html body.vqc-review-active:is(.vqc-mode-class,.vqc-mode-world) > .header #accountBar > #vqcFriendsOpen,
+html body.vqc-review-active:is(.vqc-mode-class,.vqc-mode-world) > .header #accountBar > #accountUserLabel{display:none!important}
+@media (max-width:760px){
+  /* Đã đăng nhập trên điện thoại: dùng thanh điều hướng dưới (mobile-layout.js) */
+  html body.vqc-mobile-logged-in:is(.vqc-mode-class,.vqc-mode-world) > .header #accountBar,
+  html body.vqc-mobile-logged-in:is(.vqc-mode-class,.vqc-mode-world) > .header > #vqcBackHome,
+  html body.vqc-mobile-logged-in:is(.vqc-mode-class,.vqc-mode-world) > .header > .vqc-appearance-open{display:none!important}
+  /* Khi đang trong phòng có thêm nút "Rời phòng": cho xuống dòng thay vì tràn */
+  html body.vqc-mode-class[class] > .header .room-box{flex-wrap:wrap!important;row-gap:var(--ui-s2)!important}
+}
